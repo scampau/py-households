@@ -20,3 +20,11 @@ def get_siblings(g,n):
 
 def get_relatives_ordered(g,n):
     #Get the closest relatives
+    
+
+G = {}
+for x in azoria.people:
+    G[id(x)] = []
+    if x.children != []:
+        for i in x.children:
+            G[id(x)].append(id(i))
