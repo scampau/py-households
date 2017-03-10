@@ -122,6 +122,10 @@ class community(object):
 
 
 class person(object):
+    """
+    A person is an agent with a social structure and kinship.
+    
+    """
     def __init__(self,sex,age,mother,father,comm,house):
         """
         Create a new person in the community.
@@ -142,6 +146,11 @@ class person(object):
         self.children = []
         
     def die(self):
+        """
+        Check whether this person dies; if not, they age 1 year.
+        
+        """
+        
         #figure out if this person dies
         r = self.comm.mortab.get_rate(self.sex,self.age)
         if r <= rd.random(): #stay alive
@@ -152,6 +161,7 @@ class person(object):
     def marriage(self):
         """
         Check whether this agent gets married this timestep.
+        
         """
         
         if self.married != None: #if married, don't run this script
@@ -174,7 +184,8 @@ class person(object):
         
     def birth(self):
         """
-        Check whether this agent gives birth to a new child. If so, create that child
+        Check whether this agent gives birth to a new child. If so, create that child.
+        
         """
         if self.sex == female and [self.married.dead if self.married != None else True][0] == False: #If married, husband is alive, and self is a woman
             b = self.comm.birthtab.get_rate(self.sex,self.age)
@@ -227,7 +238,8 @@ class agetable(object):
             return self.rates2[i]
 
 #Several types of rules need to be easily changed.
-##These include RESIDENCE UPON MARRIAGE (, INHERITANCE (who becomes the owner in the case of 
+##These include RESIDENCE UPON MARRIAGE, INHERITANCE (who becomes the owner in the case of the death of the household patriarch), and FRAGMENTATION (WHen/how often do households split)
+
 
 ##Example code
 if __name__ == '__main__':
