@@ -49,6 +49,9 @@ The **community** has the following methods:
 * get_eligible - returns a list of all people eligible for marriage of a different sex.
 * get_kin_network - returns a network of kinship for the community. Required for many inheritance and marriage rules.
 
+
+_**LS Comments:**: Extremely clear and well thoughtout setup here! Also, I appreciate your commitment to empirical grounding with regard to using age tables._
+
 ```python
 ## The initialization code for the community
 class community(object):
@@ -75,6 +78,13 @@ class community(object):
         self.houses = []
         for i in xrange(area):
             self.houses.append(house(10,self)) #Create each house with a maximum numbe rof people who can reside there
+            
+        #########################################################
+        # LS Comments: Looks like house() is also a class you will be defining? Didn't see it here 
+        # in the proposal, but no worries - you've definitely got a lot developed already!
+        ##########################################################
+        
+        
         self.housingcapacity = sum([i.maxpeople for i in self.houses])    
         
         # Generate the population
@@ -83,6 +93,11 @@ class community(object):
         self.people = []
         for i in xrange(pop):
             self.people.append(person(rd.choice([male,female]),0,None,None,self)) #Generate a new person with age 0
+        
+        #########################################################
+        # LS Comments: How were you thinking about handling initial house assignment? Maybe there is a provision
+        # in the marriage-move that indicates newlyweds can go to a vacant house?
+        ##########################################################
 
         #Define dynamics of demography
         self.mortab = mortab # the death table for the community
@@ -162,6 +177,19 @@ class community(object):
         else:
             pass
             #for x in self.people + self.thedead:
+            
+        #########################################################
+        # LS Comments: A lot of the 2nd-generation information that is captured by these network is being directly 
+        # held in your person objects right now. If you find yourself short on time right now, you might be able to easily
+        # get away with only constructing these networks at the end of your simulation for display purposes so long
+        # as your rules don't require information beyond immediate generational connections. That presumes that in this 
+        # early version, marriage continues ignoring kinship (though you could still condition on not being direct siblings) and  
+        # that inheritence rules don't require anything beyond child sex and age. Just a short-term idea. 
+        # 
+        # Conversely, once you get a more fully developed model, you might consider just letting your (directed) kin 
+        # networks store familial relationship information for you instead of the person objects, just to cut down on redundancy and
+        # memory requirements. 
+        ##########################################################
 ```
 
 &nbsp; 
@@ -192,7 +220,7 @@ A member of the **person** class has the following methods:
   * If the agent is not eligible for marriage, check the marrtab of the community to see whether the agent might become eligible
 
  
-
+_**LS Comments:** Looks like "birth" is also in here. You also might think of "Move" as its own method. Or maybe you are handling that at the "House" level? If so, still will require action on the part of the agents._
 
 ```python
 class person(object):
@@ -243,6 +271,12 @@ class person(object):
         if self.eligible == True: #if this agent is eligible to be married
             candidates = self.comm.get_eligible([male if self.sex == female else female][0])#get the list of eligible candidates for marriage
             ##NOTE: eventually this must be adapted to get those not related to a given person by a certain distance
+            
+            #########################################################
+            # LS Comments: W/o kinship networks, you can get at this in a coarse way by subsetting candidates by those
+            # who do not have the same parent or house.
+            ##########################################################
+            
             if len(candidates) != 0: #if there are any eligible people
                 self.married = rd.choice(candidates)
                 self.eligible = False
@@ -250,6 +284,12 @@ class person(object):
                 self.married.married = self
                 self.married.eligible = False
                 ##NOTE: Eventually LOCATION SHIFT  must occur here
+                
+        #########################################################
+        # LS Comments: You might be planning on this already, but I would suggest pulling out "Marriage-Move" as its own
+        # method and then just calling it here unless the rules for moving via marriage will be very simple
+        ##########################################################
+        
         else: #if not, check eligibility
             e = self.comm.marrtab.get_rate(self.sex,self.age)
             if e > rd.random(): #If eligibility possible, change staus
@@ -293,9 +333,12 @@ For each person during each turn:
   1. A new agent is created and added to the house
 
 &nbsp; 
+
+_**LS Comments:** Overall, super-solid! I was wondering though, is marriage the only reason why agents move houses? If so, what is your housing-capacity variable doing? Is a move required when it a house goes over capacity? If so, I assume that means the non-owners of the house are the ones who have to move, probably to a vacant house?_
+
 ### 4) Model Parameters and Initialization
 
-The main global parameters are the population and the area, or the number of people and the number of houses. The other ``parameters'' are more along the lines of rules, such as the inheritance rules, the household fragmentation rules, and the locality rules for newlyweds.
+The main global parameters are the population and the area, or the number of people and the number of houses. The other 'parameters' are more along the lines of rules, such as the inheritance rules, the household fragmentation rules, and the locality rules for newlyweds.
 
 The model will be initialized by generating the correct number of people and houses, starting all of the people at a mix of ages. Over the first hundred or so steps, these people will marry and claim houses, form families and have children, die and pass on property, and get the model to sufficient complexity of the social fabric that observations can be made about the dynamics and distriubtion of houses. The burn-out period is likely to be more than one complete generation, but this will need to be established better once the model has calibrated data.
 
@@ -307,6 +350,7 @@ For each tick of the model (representing the passage of 1 year):
 4. If women are married, they may give birth, as determined by a fertility table.
 5. Recalculate the statistics on the patterns of life, death, and occupancy.
 
+_**LS Comments:** Haven't seen how you are handling the household fragmentation yet (see other comments) but this still looks good. I'll also take a peek at your ABMDemography.py to see if you've gotten to it over there._
 
 &nbsp; 
 
@@ -314,6 +358,8 @@ For each tick of the model (representing the passage of 1 year):
 
 _What quantitative metrics and/or qualitative features will you use to assess your model outcomes?_
 Several different estimates of the distribution of typical family types for the Mediterranean in different periods have been published, which makes classifying households according to the Cambridge Group typology useful and needed to check comparability between the model and historical data sets. Measures of household size, household longevity, and house occupancy will be used in examining differences in the effects of inheritance laws, locality rules, and patterns of household fragmentation to understand what correlates might exist in the historical and archaeological record.
+
+_**LS Comments:** Great!_
 
 &nbsp; 
 
@@ -324,4 +370,7 @@ The main parameters to sweep through are fundamentally the combinations of diffe
 
 
 N. B. All code is available in the /dev/ABMDemography.py script.
+
+
+_**LS Comments:** Fantastic job!!! You've done a lot of work here, and I think you are definitely on track for a really interesting and potentially, quite compelling model. There are many moving parts here, and for the purposes of getting something that runs and is producing some initial results by the end of the semester, I am going to encourage you to simplify and temporarily "punt"/oversimplify  any of those portions you can easily do so if you find yourself stressed on time._
 
