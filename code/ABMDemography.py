@@ -3,10 +3,9 @@ import random as rd
 import scipy as sp
 import networkx as nx
 import matplotlib.pyplot as plt
-from kinship import *
-from communityrules import *
 
-rd.seed() #Reset the seed
+import crules as cr
+from crules import kinship as kn
 
 #Define some constants
 global male, female
@@ -19,7 +18,7 @@ class community(object):
     """
     
     global male, female
-    def __init__(self,pop,area,mortab,marrtab,birthtab,locality,inheritance):
+    def __init__(self,pop,area,startage,mortab,marrtab,birthtab,locality,inheritance, fragmentation):
         """
         Initialize the community with initial people and houses, as well as demographic dynamics
         
@@ -45,7 +44,7 @@ class community(object):
         # populate the community
         self.people = []
         for i in xrange(pop):
-            self.people.append(person(rd.choice([male,female]),0,self,None)) #Generate a new person with age 0
+            self.people.append(person(rd.choice([male,female]),startage,self,None)) #Generate a new person with age 0
 
         #Define dynamics of demography
         self.mortab = mortab # the death table for the community
@@ -53,6 +52,7 @@ class community(object):
         self.birthtab = birthtab #the probability of a woman giving birth at a given age if married
         self.locality = locality
         self.inheritance = inheritance
+        self.fragmentation = fragmentation
         
         #Define a network to keep track of relations between agents
         self.families = nx.DiGraph()
@@ -61,7 +61,10 @@ class community(object):
         
         #Define statistics to keep track of each step
         self.deaths = 0
-        self.births = 0        
+        self.births = 0
+        self.occupied = 0 # Occupied houses
+        self.marriages = 0
+                
         
         #Define history of the statistics
         self.thedead = [] #store the list of dead agents
@@ -69,6 +72,8 @@ class community(object):
         self.birthlist = [self.births]
         self.poplist = [self.population]
         self.arealist = [self.area]
+        self.occupiedlist = [self.occupied]
+        self.marriedlist = [self.marriages]
         
 
     def progress(self):
@@ -97,6 +102,8 @@ class community(object):
             self.deaths += 1
             
         #Check for household fragmentation here
+        for h in self.houses:
+            self.fragmentation(h)
         
         #Go through the marriage routine for all agents
         for x in self.people:
@@ -109,10 +116,14 @@ class community(object):
         #Recalculate statistics
         self.population = len(self.people)
         self.births = len([1 for x in self.people if x.age == 0])
+        self.occupied = len([x for x in self.houses if x.people != []])
         self.deathlist.append(self.deaths)
         self.birthlist.append(self.births)
         self.poplist.append(self.population)
         self.arealist.append(self.area)
+        self.occupiedlist.append(self.occupied)
+        self.marriages = len([x for x in [x for x in self.people if x.married == True] if x.married_to.dead == False])
+        self.marriedlist.append(self.marriages)
         
         self.year += 1
 
@@ -122,7 +133,7 @@ class community(object):
         """
         
         candidates = []
-        relations = get_siblings(agent,self.families)
+        relations = kn.get_siblings(agent,self.families)
         if relations == None: relations = []
         for x in self.people:
             if x.sex != agent.sex:
@@ -306,21 +317,84 @@ class agetable(object):
 
 ##Example code
 if __name__ == '__main__':
-    west2male = agetable([0,1] + range(5,105,5), male, 
-    [.38386, .065137, .012644, .009011, .012223, .017511, .019716, .22914, .026903, .03474, .037308, .046951, .056462, .76796, .101664, .139988, .202545, .262221, .361406, .483888, 1],
-    female, 
-    [.38386, .065137, .012644, .009011, .012223, .017511, .019716, .22914, .026903, .03474, .037308, .046951, .056462, .76796, .101664, .139988, .202545, .262221, .361406, .483888, 1])
-    examplebirth = agetable([0,15,50,100],female,[0,.55,0],male,[0,0,0])
-    examplemarriage = agetable([0,15,20,100],female,[0,.5,.5],male,[0,0,.5])
+    #Life tables are Coale and Demeny: Male, west 4, female west 2, .2% annual increase. See Bagnall and frier
+    maledeath = pd.read_csv('../data/demo/West4Male.csv')
+    ages = list(maledeath.Age1) + [list(maledeath.Age2)[-1]]
+    malerates = list(maledeath[maledeath.columns[2]])
+    femaledeath = pd.read_csv('../data/demo/West2Female.csv')
+    femalerates = list(femaledeath[femaledeath.columns[2]])
+    bagnallfrier = agetable([0,1] + range(5,105,5), male, malerates, female, femalerates)
+    del maledeath, femaledeath
     
+    examplebirth = agetable([0,12,40,50,100],female,[0,.3,.1,0],male,[0,0,0,0,0])
+    
+    examplemarriage = agetable([0,12,17,100],female,[0,1./7.5,1./7.5],male,[0,0,0.0866]) #These values based on Bagnall and Frier, 113-4 (women) and 116 (men) for Roman egypt
+    
+    def inheritance_moderate(agent):
+        """
+        Upon the death of the patriarch, the house is given to someone in this
+        order:
+            
+        Male children in order of age
+        Children of brothers not in line for succession (have to move into household)
+        
+        This stems from the description of the moderate inheritance regime in Asheri
+        """
+        #The moderate inheritance regime of Asheri 1963
+        # Check if patriarch
+        if agent.sex == male and any([h.owner == agent for h in agent.comm.houses]):
+            #First priority: male children
+            inherited = cr.inheritance.inherit_sons(agent,True) #what about grandchildren?
+            if inherited == False:
+                #Second priority: adoption of brothers' younger sons
+                inherited = cr.inheritance.inherit_brothers_sons(agent)
+                if inherited == False:
+                    #If there is still no heir, for now the ownership defaults
+                    cr.inheritance.inherit(agent,None)    
+    def brother_loses_out_15(house):
+        if house.people != [] and house.owner != None:
+            cr.fragmentation.brother_loses_out(house,15)
+                
+    #An example of a single basic run
+    testcase = community(500,500,12,bagnallfrier,examplemarriage,examplebirth,cr.locality.patrilocality,inheritance_moderate,brother_loses_out_15)
+    houstory = {}
+    for h in testcase.houses:
+        houstory[h] = {'classify' : [],'pop' : []}
+    for i in xrange(200):
+        testcase.progress()
+        for h in testcase.houses:
+            houstory[h]['classify'].append(cr.kinship.classify_household(h))
+            houstory[h]['pop'].append(len(h.people))
+    plt.plot(testcase.poplist)
+    
+    #Plot the changing types of houses
+    array = []
+    labels = ['empty','solitary','no-family','nuclear','extended','multiple']
+    which = lambda x: [i for i in xrange(len(labels)) if labels[i] == x][0]
+    for y in xrange(testcase.year):
+        new = [0.]*6
+        for k in houstory.keys():
+            w = which(houstory[k]['classify'][y])
+            new[w]+=1
+        new = [x*1./sum(new[1:]) for x in new[1:]]       
+        array.append(new)
+    plt.stackplot(range(testcase.year),np.transpose(array),baseline='zero')
+    plt.axis([0,300,0,1])
+    
+    #An example of a repetition script
     record = []
     repeat = 50
-    years=300
+    years=200
     for r in xrange(repeat):
         rd.seed()
-        testcase = community(1000,500,west2male,examplemarriage,examplebirth,patrilocality,inheritance_moderate)
+        testcase = community(500,500,12,west2male,examplemarriage,examplebirth,cr.locality.patrilocality,inheritance_moderate,brother_loses_out_15)
+        houstory = {}
+        for h in testcase.houses:
+            houstory[h] = []
         for i in xrange(years):
             testcase.progress()
+            for h in testcase.houses:
+                houstory[h].append(classify_household(h))
         record.append(testcase.poplist)
     
     for i in record:
@@ -354,17 +428,5 @@ if __name__ == '__main__':
     groups = df.groupby('classify')
     groups.mean()
     
-    hist([len(h.people) for h in testcase.houses],range(21))
 
-    
-        
-        agelist.append(np.mean([x.age for x in testcase.people]))
-        below15.append(sum([1.0 for x in testcase.people if x.age<=15])/testcase.population*1.0)
-    plt.
-
-def letsget(x):
-    out = []
-    for i in xrange(10):
-        out.append(x)
-    return out
 

@@ -1,10 +1,15 @@
 ###################3
 # Kinship functions
-import numpy as np
-import random as rd
-import scipy as sp
-import networkx as nx
-import matplotlib.pyplot as plt
+#import numpy as np
+#import random as rd
+#import scipy as sp
+#import networkx as nx
+#import matplotlib.pyplot as plt
+
+#__all__ = ['get_spouse','get_parents','get_children','get_siblings',
+#'get_family','count_married','get_married','is_solitary','is_no_family',
+#'is_nuclear','is_extended','is_multiple','classify_household','plot_classify',
+#'family_extract']
 
 global male, female
 male, female = xrange(2)
@@ -184,6 +189,8 @@ def is_multiple(house):
     return False
     
 def classify_household(house):
+    if house.people == []:
+        return 'empty'
     if is_solitary(house):
         return 'solitary'
     elif is_no_family(house):
@@ -197,7 +204,6 @@ def classify_household(house):
     else:
         return None
 
-        
 def plot_classify(houses):
     fig = plt.Figure()
     data = np.unique([classify_household(h) for h in houses if h.people != []],return_counts=True)
@@ -209,4 +215,4 @@ def plot_classify(houses):
 def family_extract(house):
     s = nx.subgraph(testcase.families,testcase.houses[0].people)
     return s
-[(i.age,i.sex) for i in testcase.houses[0].people if i.married != True]
+
