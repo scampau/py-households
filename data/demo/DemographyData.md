@@ -1,4 +1,9 @@
 # Demography Data
+
+Part of [**house_inheritance**](../../README.md)
+
+----------
+
 This folder exists to store birth, marriage, and death statistics to be used to run simulations for a Mediterranean, and especially a Classical to Hellenistic Greek, demographic regime.
 
 Generally these data need to be adapted and loaded into an agetable python class, as documented in the ABMDemography.py module.

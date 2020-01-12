@@ -1,4 +1,9 @@
-# Python code for demographic simulation
+# Code
+
+Python 2 code implementing the ABM. Part of [**house_inheritance**](../README.md)
+
+----------
+
 
 ABMDemography and crules provide the actual agent classes for the ABM and a host of demographic and social organization functions, respectively, that enable models to be systematically run (and replicated).
 
