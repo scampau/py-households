@@ -1,11 +1,11 @@
 ############
 #Inheritance
 
-#import numpy as np
-#import random as rd
-#import scipy as sp
-#import networkx as nx
-#import matplotlib.pyplot as plt
+import numpy as np
+import random as rd
+import scipy as sp
+import networkx as nx
+import matplotlib.pyplot as plt
 
 import kinship as kn
 

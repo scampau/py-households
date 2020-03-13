@@ -133,7 +133,7 @@ class community(object):
         """
         
         candidates = []
-        relations = kn.get_siblings(agent,self.families)
+        relations = kn.get_siblings(agent,self.families) #Note at present that this only accounts for direct incest
         if relations == None: relations = []
         for x in self.people:
             if x.sex != agent.sex:

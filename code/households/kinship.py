@@ -1,15 +1,14 @@
-###################3
-# Kinship functions
-#import numpy as np
-#import random as rd
-#import scipy as sp
-#import networkx as nx
-#import matplotlib.pyplot as plt
+################### Kinship functions
+import numpy as np
+import random as rd
+import scipy as sp
+import networkx as nx
+import matplotlib.pyplot as plt
 
-#__all__ = ['get_spouse','get_parents','get_children','get_siblings',
-#'get_family','count_married','get_married','is_solitary','is_no_family',
-#'is_nuclear','is_extended','is_multiple','classify_household','plot_classify',
-#'family_extract']
+__all__ = ['get_spouse','get_parents','get_children','get_siblings',
+'get_family','count_married','get_married','is_solitary','is_no_family',
+'is_nuclear','is_extended','is_multiple','classify_household','plot_classify',
+'family_extract']
 
 global male, female
 male, female = xrange(2)

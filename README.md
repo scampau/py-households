@@ -14,7 +14,7 @@ This project is written in python 2. While originally constructed for Prof. Lyne
 
 Contents:
 
-[**Code:**](code/README.md) Contains functioning code.
+[**Code:**](code/README.md) Contains the households python package.
 
 [**Data:**](data/demo/DemographyData.md) Contains data to be used in launching, calibrating, or checking the model.
 

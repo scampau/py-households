@@ -13,7 +13,7 @@ runs = pd.read_csv(folder + filename)
 
 def ecdf(data):
     """
-    Get an empirical cumulative distribution.
+    Get an empirical cumulative density function.
     """
     data.sort()
     density = [1./len(data)]*len(data)
