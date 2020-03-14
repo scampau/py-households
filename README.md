@@ -1,6 +1,6 @@
 # house-inheritance
 
-A python-based ABM for household demography. Actively under development.
+A python-based ABM for household demography. __Actively under development.__
 
 by Andrew Cabaniss
 
@@ -14,10 +14,10 @@ This project is written in python 2. While originally constructed for Prof. Lyne
 
 Contents:
 
-[**Code:**](code/README.md) Contains functioning code.
+[**Code:**](code/README.md) Contains the households python package, currently under development. The overall structure and many individual modules work as-is.
 
 [**Data:**](data/demo/DemographyData.md) Contains data to be used in launching, calibrating, or checking the model.
 
-[**Doc:**](doc/ModelProposal.md) Contains the Model Proposal for CMPLXSYS 530 and other documentation.
+[**Doc:**](doc/ModelProposal.md) Contains the Model Proposal for the original course this project began under (CMPLXSYS 530).
 
 [**Dev:**](dev/README.md) Contains code currently being developed.
