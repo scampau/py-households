@@ -1,16 +1,13 @@
 #########################
 # Locality functions 
 
-import numpy as np
-import random as rd
-import scipy as sp
-import networkx as nx
-import matplotlib.pyplot as plt
+from households import np, rd, sp, nx, plt, kinship
 
-import kinship as kn
+print('importing locality')
+#import kinship as kn
 
 global male, female
-male, female = xrange(2)
+male, female = range(2)
 
 def get_empty_house(houses):
     """
@@ -32,17 +29,17 @@ def patrilocality(husband,wife):
     husband, wife - the people just married
     
     """
-    if husband.house == None:
+    if husband.myhouse == None:
         #The husband has no house; find a new one
         neolocality(husband,wife)
-    elif len(husband.house.people)+1 >= husband.house.maxpeople:
+    elif len(husband.myhouse.people)+1 >= husband.myhouse.maxpeople:
         #If the house is full, find a new one and move out
         neolocality(husband,wife)
     else:
         #If the house has capacity, the wife moves in with the husband
-        husband.house.add_person(wife)
-        if wife.house is not None: wife.house.remove_person(wife)
-        wife.house = husband.house
+        husband.myhouse.add_person(wife)
+        if wife.myhouse is not None: wife.myhouse.remove_person(wife)
+        wife.myhouse = husband.myhouse
         
 
 def neolocality(husband,wife,primary=male):
@@ -52,22 +49,22 @@ def neolocality(husband,wife,primary=male):
     #Select the primary person
     owner = husband if husband.sex == primary else wife
     # Find an empty house
-    rd.shuffle(owner.comm.houses)
-    new_house = get_empty_house(owner.comm.houses)
+    #rd.shuffle(owner.mycomm.houses) #oh no no no no no no [get out meme]
+    new_house = get_empty_house(owner.mycomm.houses)
     if new_house == None:
         # If no house, end
         print('No house found')
-        pass #Future extension: if none found, couple may leave community
+        pass #Future extension: if none found, couple may leave community or build
     else:
         # Add husband and wife to house
         new_house.people.extend([husband, wife])
         # Remove from their old houses
-        if husband.house is not None:
-            husband.house.people.remove(husband)
-        if wife.house is not None:
-            wife.house.people.remove(wife)
+        if husband.myhouse is not None:
+            husband.myhouse.people.remove(husband)
+        if wife.myhouse is not None:
+            wife.myhouse.people.remove(wife)
         # make whoever is of the primary sex the owner
         new_house.owner = owner
         # Add a pointed to the house from both individuals
-        husband.house = new_house
-        wife.house = new_house
+        husband.myhouse = new_house
+        wife.myhouse = new_house

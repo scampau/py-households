@@ -1,17 +1,17 @@
 ################### Kinship functions
-import numpy as np
-import random as rd
-import scipy as sp
-import networkx as nx
-import matplotlib.pyplot as plt
+
 
 __all__ = ['get_spouse','get_parents','get_children','get_siblings',
 'get_family','count_married','get_married','is_solitary','is_no_family',
 'is_nuclear','is_extended','is_multiple','classify_household','plot_classify',
 'family_extract']
 
+from households import np, rd, sp, nx, plt
+
+print('importing kinship')
+
 global male, female
-male, female = xrange(2)
+male, female = range(2)
 
 def get_spouse(agent,network):
     """
@@ -105,7 +105,7 @@ def count_married(house):
         return 0
     m = 0
     for p in house.people:
-        spouse = get_spouse(p,p.comm.families)
+        spouse = get_spouse(p,p.mycomm.families)
         if spouse is not None:
             if spouse in house.people:
                 m += 1
@@ -119,7 +119,7 @@ def get_married(house):
         return []
     m = []
     for p in house.people:
-        spouse = get_spouse(p,p.comm.families)
+        spouse = get_spouse(p,p.mycomm.families)
         if spouse is not None:
             if spouse in house.people:
                 m.append(spouse)
@@ -155,7 +155,7 @@ def is_nuclear(house):
         #Check whether the married couple has parents there
         married = get_married(house)
         for p in married:
-            parents = get_parents(p,p.comm.families)
+            parents = get_parents(p,p.mycomm.families)
             if parents is not None:
                 for q in parents:
                     if q in house.people:
@@ -173,7 +173,7 @@ def is_extended(house):
         #Check whether the married couple has parents there
         married = get_married(house)
         for p in married:
-            parents = get_parents(p,p.comm.families)
+            parents = get_parents(p,p.mycomm.families)
             if parents is not None:
                 for q in parents:
                     if q in house.people:
@@ -211,7 +211,8 @@ def plot_classify(houses):
     plt.xticks([i for i in range(5)],data[0][order])
     
     
-def family_extract(house):
-    s = nx.subgraph(testcase.families,testcase.houses[0].people)
-    return s
+#def family_extract(house):
+#    s = nx.subgraph(testcase.families,testcase.houses[0].people)
+#    return s
+#   ##THIS NEEDS WORK!!!
 

@@ -1,18 +1,16 @@
 #############
 # Fragmentation
 
-import numpy as np
-import random as rd
-import scipy as sp
-import networkx as nx
-import matplotlib.pyplot as plt
+from households import np, rd, sp, nx, plt, kinship, behavior
 
-import kinship as kn
-import inheritance as ih 
-import locality as lc
+print('importing fragmentation')
+
+#import kinship as kn
+#import inheritance as ih 
+#import locality as lc
 
 global male, female
-male, female = xrange(2)
+male, female = range(2)
 
 # Each fragmentation function will need to take a household and determine 
 ## whether anyone in that household needs to leave. If they do, move them.
@@ -33,7 +31,7 @@ def brother_loses_out(house,age):
     """
     # Check whether any brothers are there
     if house.people != [] and house.owner != None:    
-        siblings = kn.get_siblings(house.owner,house.comm.families)
+        siblings = kinship.get_siblings(house.owner,house.mycomm.families)
         if siblings != None:
             siblings = [x for x in siblings if x.sex == male and x.age >= age and x.dead == False]
             if len(siblings) > 0:
@@ -44,10 +42,10 @@ def brother_loses_out(house,age):
                         ## not hte ownerwho lives there that person ( and their family)
                         ## moves out
                         # Pick a new house
-                        new_house = lc.get_empty_house(house.comm.houses)
+                        new_house = behavior.locality.get_empty_house(house.mycomm.houses)
                         if new_house != None:
                             # Identify their family and move them
-                            ih.move_family(s,new_house)
+                            behavior.inheritance.move_family(s,new_house)
                         else:
                             # There is no new house, so stay put.
                             pass               
