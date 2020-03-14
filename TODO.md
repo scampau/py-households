@@ -10,5 +10,6 @@
 - Houses need to be able to be variable, expanded, etc.
 	- A build function for houses that creates an owner and moves in a family
 	- An expansion function that increases the size of the house.
-- Multiple/partitive ownership of buildings? Ownership vs. residency problem. Also ownership of multiple buildings.
+- Multiple/partitive ownership of buildings? Ownership vs. residency problem.
+	- Also ownership of multiple buildings.
 - Non-kin and enslaved/otherwise dependent residents.
