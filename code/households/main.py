@@ -12,7 +12,7 @@ variety of contexts. Demographic data are based on Bagnall and Frier.
 
 """
 
-from households import np, rd, sp, nx, plt, kinship, behavior
+from households import np, rd, scipy, nx, plt, kinship, residency, behavior
 """Import the dependency packages defined in households.__init__.py
 
 """
@@ -526,7 +526,7 @@ if __name__ == '__main__':
     for i in xrange(200):
         testcase.progress()
         for h in testcase.houses:
-            houstory[h]['classify'].append(kinship.classify_household(h))
+            houstory[h]['classify'].append(residency.classify_household(h))
             houstory[h]['pop'].append(len(h.people))
     plt.plot(testcase.poplist)
     

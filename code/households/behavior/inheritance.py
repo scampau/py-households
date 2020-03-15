@@ -1,7 +1,7 @@
 ############
 #Inheritance
 
-from households import np, rd, sp, nx, plt, kinship
+from households import np, rd, scipy, nx, plt, kinship, residency
 
 print('importing inheritance')
 #import kinship as kn

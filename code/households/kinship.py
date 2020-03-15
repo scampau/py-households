@@ -1,12 +1,21 @@
-################### Kinship functions
+"""Kinship functions for analyzing birth and marriage relationships.
 
+This module uses the relationship network and a focal agent to identify 
+relationships such as spouses, children, parents, and nuclear families. By
+providing a basic definition of children and parents in particular, it enables
+more complex queries into cousins of varying degrees.
 
+See also
+--------
+residency
+    The module that analyzes kinship as it relates to residency, e.g. 
+    co-residntial household structure.
+
+"""
 __all__ = ['get_spouse','get_parents','get_children','get_siblings',
-'get_family','count_married','get_married','is_solitary','is_no_family',
-'is_nuclear','is_extended','is_multiple','classify_household','plot_classify',
-'family_extract']
+'get_family']
 
-from households import np, rd, sp, nx, plt
+from households import np, rd, scipy, nx, plt
 
 print('importing kinship')
 
@@ -14,8 +23,19 @@ global male, female
 male, female = range(2)
 
 def get_spouse(agent,network):
-    """
-    Return the spouse of an agent; otherwise return None."
+    """Return the spouse of an agent; otherwise return None.
+    
+    Parameters
+    ----------
+    agent : person
+        The person in question.
+    network : networkx.DiGraph
+        The social network which defines birth and marriage relations.
+    
+    Returns
+    -------
+        person or None
+            Returns the spouse of the agent, otherwise returns None.
     """
     inedges = network.in_edges(agent)
     if len(inedges) == 0:
@@ -28,8 +48,19 @@ def get_spouse(agent,network):
     
     
 def get_parents(agent,network):
-    """
-    Return the parents of an individual; otherwise return None.
+    """Return the parents of an individual; otherwise return None.
+    
+    Parameters
+    ----------
+    agent : person
+        The person in question.
+    network : networkx.DiGraph
+        The social network which defines birth and marriage relations.
+    
+    Returns
+    -------
+        {[person, person], None}
+            Returns a list with the parents of the agent, otherwise returns None.
     """
     inedges = network.in_edges(agent)
     parents = []
@@ -46,9 +77,21 @@ def get_parents(agent,network):
 
 
 def get_children(agent,network):
+    """Return the children of an individual; otherwise return None.
+    
+    Parameters
+    ----------
+    agent : person
+        The person in question.
+    network : networkx.DiGraph
+        The social network which defines birth and marriage relations.
+    
+    Returns
+    -------
+        {[person,], None}
+            Returns a list with the children of the agent, otherwise returns None.
     """
-    Return the children of an individual; otherwise return None.
-    """
+    
     outedges = network.edge[agent]
     children = []
     if len(outedges) == 0:
@@ -64,9 +107,21 @@ def get_children(agent,network):
     
     
 def get_siblings(agent,network):
+    """Return the siblings of an individual; otherwise, return None.
+    
+    Parameters
+    ----------
+    agent : person
+        The person in question.
+    network : networkx.DiGraph
+        The social network which defines birth and marriage relations.
+    
+    Returns
+    -------
+        {[person,], None}
+            Returns a list with the siblings of the agent, otherwise returns None.
     """
-    Return the siblings of an individual; otherwise, return None.
-    """
+    
     parents = get_parents(agent,network)
     if parents == None:
         return None;
@@ -79,8 +134,20 @@ def get_siblings(agent,network):
 
 
 def get_family(agent,network):
-    """
-    Return an agents nuclear family (spouse and children) including themselves.
+    """Return an agents nuclear family (spouse and children) including themselves.
+    
+    Parameters
+    ----------
+    agent : person
+        The person in question.
+    network : networkx.DiGraph
+        The social network which defines birth and marriage relations.
+    
+    Returns
+    -------
+        {[person,], None}
+            Returns a list with the nuclear family of the agent,
+                otherwise returns None.
     """
     spouse = get_spouse(agent,network)
     if spouse == None:
@@ -95,124 +162,4 @@ def get_family(agent,network):
             return [agent,spouse] + children    
 
 
-######Identify household/family types
-# Using the Cambridge Group typology
-def count_married(house):
-    """
-    Count the number of couples in a house.
-    """
-    if is_solitary(house):
-        return 0
-    m = 0
-    for p in house.people:
-        spouse = get_spouse(p,p.mycomm.families)
-        if spouse is not None:
-            if spouse in house.people:
-                m += 1
-    return m/2
-
-def get_married(house):
-    """
-    Returns the married agents in a household.
-    """
-    if is_solitary(house):
-        return []
-    m = []
-    for p in house.people:
-        spouse = get_spouse(p,p.mycomm.families)
-        if spouse is not None:
-            if spouse in house.people:
-                m.append(spouse)
-    return m
-    
-def is_solitary(house):
-    """
-    Returns whether the household is a solitary individual.
-    """
-    if len(house.people) == 1:
-        return True
-    return False
-
-def is_no_family(house):
-    """
-    Returns whether the household is not a family, namely it has no marriages.
-    """
-    #check whether there are any marriages
-    m = count_married(house)
-    if m == 0:
-        return True
-    else:
-        return False    
-                
-def is_nuclear(house):
-    """
-    Returns whether the household is a single nuclear family w/o a prior generation.
-    """
-    #One married coupls and no older generation from the owner
-    #If the house has an owner
-    m = count_married(house)
-    if m == 1:
-        #Check whether the married couple has parents there
-        married = get_married(house)
-        for p in married:
-            parents = get_parents(p,p.mycomm.families)
-            if parents is not None:
-                for q in parents:
-                    if q in house.people:
-                        return False
-        return True
-    return False
-
-    
-def is_extended(house):
-    #Returns whether the house is a single extended family
-    #One married coupls and no older generation from the owner
-    #If the house has an owner
-    m = count_married(house)
-    if m == 1:
-        #Check whether the married couple has parents there
-        married = get_married(house)
-        for p in married:
-            parents = get_parents(p,p.mycomm.families)
-            if parents is not None:
-                for q in parents:
-                    if q in house.people:
-                        return True
-        return False
-    return False
-       
-def is_multiple(house):
-    m = count_married(house)
-    if m >= 2:
-        return True
-    return False
-    
-def classify_household(house):
-    if house.people == []:
-        return 'empty'
-    if is_solitary(house):
-        return 'solitary'
-    elif is_no_family(house):
-        return 'no-family'
-    elif is_nuclear(house):
-        return 'nuclear'
-    elif is_extended(house):
-        return 'extended'
-    elif is_multiple(house):
-        return 'multiple'
-    else:
-        return None
-
-def plot_classify(houses):
-    fig = plt.Figure()
-    data = np.unique([classify_household(h) for h in houses if h.people != []],return_counts=True)
-    order = [2,4,3,0,1]
-    plt.bar(range(5),data[1][order]*1./sum(data[1]),width=.95)
-    plt.xticks([i for i in range(5)],data[0][order])
-    
-    
-#def family_extract(house):
-#    s = nx.subgraph(testcase.families,testcase.houses[0].people)
-#    return s
-#   ##THIS NEEDS WORK!!!
 

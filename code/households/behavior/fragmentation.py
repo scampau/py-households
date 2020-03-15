@@ -1,7 +1,7 @@
 #############
 # Fragmentation
 
-from households import np, rd, sp, nx, plt, kinship, behavior
+from households import np, rd, scipy, nx, plt, kinship, residency, behavior
 
 print('importing fragmentation')
 

@@ -1,7 +1,7 @@
 #########################
 # Locality functions 
 
-from households import np, rd, sp, nx, plt, kinship
+from households import np, rd, scipy, nx, plt, kinship, residency
 
 print('importing locality')
 #import kinship as kn
