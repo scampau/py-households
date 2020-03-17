@@ -1,5 +1,7 @@
-############
-#Inheritance
+"""Determines how property is transmitted and where heirs live.
+
+This module models inheritance as well as families moving as part of inheriting new property.
+"""
 
 from households import np, rd, scipy, nx, plt, kinship, residency
 
@@ -11,18 +13,33 @@ male, female = range(2)
 
 #Basic inheritance functions
 def inherit(dead,heir):
-    """
-    Once an heir is selected, move the house's/houses' ownership
+    """Once an heir is selected, move a dead person's house's/houses' ownership.
+    
+    Parameters
+    ----------
+    dead : person
+        The person who has died and whose property needs to be moved
+    heir : person
+        The person who will inherit and will become the owner of the property.
     """
     for h in dead.mycomm.houses:
         if h.owner == dead:
             h.owner = heir
 
 def move_family(agent,new_house):
-    """
-    Move an individual and their co-resident family to a new house.
+    """Move an individual and their co-resident family to a new house.
     
-    Note: this function assumes a patriline/male dominance of household.
+    Parameters
+    ----------
+    agent : person
+        A person who will be moved along with their co-resident family.
+    new_house : house
+        The new house into which they will be moved.    
+    
+    Note
+    ----
+    This function assumes a patriline/male dominance of household. This needs to 
+    be updated as part of the matrilineal update.
     """
     old_house = agent.myhouse
     #Get the coresident family
@@ -45,10 +62,26 @@ def move_family(agent,new_house):
 ## Each of these checks a subset of individuals and returns whether one of them
 ### inherited property
 def inherit_sons(agent,checkowner=True):
-    """
-    The sons of an agent inherit. Returns True if inheritance took place
+    """The sons of an agent inherit. Returns True if inheritance took place.
     
-    Note that this includes an age bias towards the oldest; this needs to be a strategy/variable.
+    Parameters
+    ----------
+    agent : person
+        The person whose property will be inherited.
+    checkowner : bool, optional
+        If True, do not let current owners inherit; if False, let them inherit any way.
+    
+    Returns
+    -------
+    bool
+        True if inheritance took place.
+    
+    Notes
+    -----
+    Note that this includes an age bias towards the oldest;
+    this needs to be a strategy/variable.
+    
+    This also includes an assumption that ownership is part of residency.
     """
     heir = None
     # Get a list of children
@@ -73,8 +106,19 @@ def inherit_sons(agent,checkowner=True):
 #  inherit_brothers
 
 def inherit_brothers_sons(agent,checkowner=True):
-    """
-    The sons of a man's brothers inherit. Returns true if successful.
+    """The sons of a man's brothers inherit. Returns true if successful.
+
+    Parameters
+    ----------
+    agent : person
+        The person whose property will be inherited.
+    checkowner : bool, optional
+        If True, do not let current owners inherit; if False, let them inherit any way.
+    
+    Returns
+    -------
+    bool
+        True if inheritance took place.   
     """
     heir = None
     #Get a list of siblings
