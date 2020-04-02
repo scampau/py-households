@@ -4,6 +4,8 @@
 
 **Short-term**
 
+- Eliminate duplicate names. 
+	- some terms (house, person) are used both as class names and as variables. Go through and update teh nomenclature such that classes are always capitalized, and variable names follow numpy and python conventions.
 - Classes need to be defined that create a unified class for inheritance, locality, and fragmentation rules.
 - Birth rules need to allow uneven sex ratios.
 - Value checks need to make sure that agetables and different rules are used where they need to be.
@@ -25,6 +27,8 @@
 - Non-kin and enslaved/otherwise dependent residents.
 	- Also renters/lodgers
 - Add household classification options for non-coresidential families, e.g. worker migration.
+- Make a **world** class that will hold multiple communities and allow the simulation to include multiple communities.
+	- Make it easy to have a single community as well, just in case others want to allow communities in their own way.
 
 
 **Long-term**
