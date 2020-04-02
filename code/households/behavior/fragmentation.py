@@ -1,5 +1,13 @@
-#############
-# Fragmentation
+"""Household fragmentation processes.
+
+These functions are run by households each year to decide whether the household
+needs to split apart into new households. This is to model conflicts such as
+brother-brother conflicts after the death of the patriarch.
+
+Each fragmentation function will need to take a household and determine 
+whether anyone in that household needs to leave. If they do, move them.
+
+"""
 
 from households import np, rd, scipy, nx, plt, kinship, residency, behavior
 
@@ -11,23 +19,36 @@ print('importing fragmentation')
 
 global male, female
 male, female = range(2)
+"""int: integer values for men and women agents
 
-# Each fragmentation function will need to take a household and determine 
-## whether anyone in that household needs to leave. If they do, move them.
+Global variable used throughout the households package for legibility.
+"""
 
 def no_fragmentation(house):
-    """
-    No fragmentation rules.
+    """No fragmentation rule.
+    
+    A household with this rule will never fragment.
+    
+    Parameters
+    ---------
+    house : house
+        The household which won't fragment.
     """
     pass
 
 def brother_loses_out(house,age):
-    """
-    A (younger) brother who just lost out on the family inheritance leaves the
-    house along with his family. Otherwise, people stay put.
+    """Non-owner adult brothers leave when the oldest brother inherits the house. 
     
-    house - household to check
-    age - age of majority (marriage often) for determining 
+    A (younger) adult brother who just lost out on the family inheritance leaves the
+    house along with his family. Otherwise, everyone stays put.
+    
+    Parameters
+    ---------
+    house : house
+        The household to check to see if it will fragment.
+    age : int
+        The age of majority (marriage often) for determining whether an adult 
+        brother feels the pressure to leave and create a new household.
     """
     # Check whether any brothers are there
     if house.people != [] and house.owner != None:    
@@ -49,13 +70,16 @@ def brother_loses_out(house,age):
                         else:
                             # There is no new house, so stay put.
                             pass               
-            
-    
+
 def house_gets_crowded(house):
-    """
+    """Over-capacity housing prompts families to relocate.
+    
     A house that exceeds its capacity gets rid of 1) non-kin of the owner,
     2) more distant kin of the owner.
+    
+    Parameters
+    ---------
+    house : house
+        The house to check for overcrowding.
     """
     pass #To be continued
-    
-    

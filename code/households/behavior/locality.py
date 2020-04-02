@@ -1,6 +1,6 @@
 """Locality decisions for newlyweds.
 
-The locality package encodes options for 
+The locality package encodes options for where a new couple live.
 
 
 """
