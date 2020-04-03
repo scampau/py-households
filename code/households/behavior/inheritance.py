@@ -1,35 +1,49 @@
-############
-#Inheritance
+"""Determines how property is transmitted and where heirs live.
 
-#import numpy as np
-#import random as rd
-#import scipy as sp
-#import networkx as nx
-#import matplotlib.pyplot as plt
+This module models inheritance as well as families moving as part of inheriting new property.
+"""
 
-import kinship as kn
+from households import np, rd, scipy, nx, plt, kinship, residency
+
+print('importing inheritance')
+#import kinship as kn
 
 global male, female
-male, female = xrange(2)
+male, female = range(2)
 
 #Basic inheritance functions
 def inherit(dead,heir):
+    """Once an heir is selected, move a dead person's house's/houses' ownership.
+    
+    Parameters
+    ----------
+    dead : person
+        The person who has died and whose property needs to be moved
+    heir : person
+        The person who will inherit and will become the owner of the property.
     """
-    Once an heir is selected, move the house's/houses' ownership
-    """
-    for h in dead.comm.houses:
+    for h in dead.mycomm.houses:
         if h.owner == dead:
             h.owner = heir
 
 def move_family(agent,new_house):
-    """
-    Move an individual and their co-resident family to a new house.
+    """Move an individual and their co-resident family to a new house.
     
-    Note: this function assumes a patriline/male dominance of household.
+    Parameters
+    ----------
+    agent : person
+        A person who will be moved along with their co-resident family.
+    new_house : house
+        The new house into which they will be moved.    
+    
+    Note
+    ----
+    This function assumes a patriline/male dominance of household. This needs to 
+    be updated as part of the matrilineal update.
     """
-    old_house = agent.house
+    old_house = agent.myhouse
     #Get the coresident family
-    family = kn.get_family(agent,agent.comm.families)
+    family = kinship.get_family(agent,agent.mycomm.families)
     family = [f for f in family if f in old_house.people]
     for member in family:
         if member.dead == True:
@@ -42,18 +56,36 @@ def move_family(agent,new_house):
             else:
                 old_house.remove_person(member)
                 new_house.add_person(member)
-                member.house = new_house
+                member.myhouse = new_house
 
 #More complicated inheritance functions
 ## Each of these checks a subset of individuals and returns whether one of them
 ### inherited property
 def inherit_sons(agent,checkowner=True):
-    """
-    The sons of an agent inherit. Returns True if inheritance took place
+    """The sons of an agent inherit. Returns True if inheritance took place.
+    
+    Parameters
+    ----------
+    agent : person
+        The person whose property will be inherited.
+    checkowner : bool, optional
+        If True, do not let current owners inherit; if False, let them inherit any way.
+    
+    Returns
+    -------
+    bool
+        True if inheritance took place.
+    
+    Notes
+    -----
+    Note that this includes an age bias towards the oldest;
+    this needs to be a strategy/variable.
+    
+    This also includes an assumption that ownership is part of residency.
     """
     heir = None
     # Get a list of children
-    children = kn.get_children(agent,agent.comm.families)
+    children = kinship.get_children(agent,agent.mycomm.families)
     if children != None:
         #If there are children, select the men
         select = [x for x in children if x.sex == male and x.dead == False]
@@ -62,7 +94,7 @@ def inherit_sons(agent,checkowner=True):
             select.sort(reverse=True,key=lambda x:x.age)
             for son in select:
                 # If the son is not a house owner OR we don't care
-                if son.house.owner != son or checkowner == False :
+                if son.myhouse.owner != son or checkowner == False :
                     #This works because if you inherit a house, you move into it
                     heir = son
                     if heir.house != agent.house:
@@ -74,12 +106,23 @@ def inherit_sons(agent,checkowner=True):
 #  inherit_brothers
 
 def inherit_brothers_sons(agent,checkowner=True):
-    """
-    The sons of a man's brothers inherit. Returns true if successful.
+    """The sons of a man's brothers inherit. Returns true if successful.
+
+    Parameters
+    ----------
+    agent : person
+        The person whose property will be inherited.
+    checkowner : bool, optional
+        If True, do not let current owners inherit; if False, let them inherit any way.
+    
+    Returns
+    -------
+    bool
+        True if inheritance took place.   
     """
     heir = None
     #Get a list of siblings
-    siblings = kn.get_siblings(agent,agent.comm.families)
+    siblings = kinship.get_siblings(agent,agent.mycomm.families)
     
     if siblings != None:
         #If there are siblings, select the men
@@ -88,7 +131,7 @@ def inherit_brothers_sons(agent,checkowner=True):
             select.sort(reverse=True,key=lambda x:x.age)
             for brother in select:
                 #Check whether each brother for sons
-                children = kn.get_children(brother,brother.comm.families)
+                children = kinship.get_children(brother,brother.mycomm.families)
                 if children != None:
                     #If the brother has children, check for the alive men
                     select = [x for x in children if x.sex == male and x.dead == False]
