@@ -26,8 +26,18 @@ male, female = range(2)
 Global variable used throughout the households package for legibility.
 """
 
+class World:
+    """The world of the simulation.
+    
+    This contains Community objects and will run the clock. Currently
+    unimplmented.
+    """
+    
+    def __init__(self):
+        pass
 
-class community(object):
+
+class Community(object):
     """Communities are collections of people and houses following a schedule.
     
     community is both the storage for people living in houses and the container
@@ -42,12 +52,12 @@ class community(object):
         The number of houses in the community
     startage : int
         The age at which all agents in the simulation start. Corrected for by burn-in.
-    mortab : agetable
-        An agetable storing a Coale and Demeny-style mortality schedule
-    marrtab : agetable
-        agetable storing marriage eligiblity probability by age and sex
-    birthtab : agetable
-        agetable storing probability of giving birth once married by sex (0 for men)
+    mortab : AgeTable
+        An AgeTable storing a Coale and Demeny-style mortality schedule
+    marrtab : AgeTable
+        AgeTable storing marriage eligiblity probability by age and sex
+    birthtab : AgeTable
+        AgeTable storing probability of giving birth once married by sex (0 for men)
     locality : callable
         This defines the location newlyweds move to from behavior.locality, or a custom function.
     inheritance : callable
@@ -75,19 +85,19 @@ class community(object):
     occupied : int
         Number of occupied houses.        
         
-    houses : list of house objects
+    houses : list of House objects
         The houses of the community.
-    people : list of person objects
+    people : list of Person objects
         The people who currently live in the community.
     families : networkx DiGraph
         The network of kinship relations.
     
-    mortab : agetable
-        An agetable storing a mortality schedule for the community.
-    marrtab : agetable
-        An agetable storing marriage eligiblity probability by age and sex
-    birthtab : agetable
-        An agetable storing probability of giving birth once married by sex (0 for men)
+    mortab : AgeTable
+        An AgeTable storing a mortality schedule for the community.
+    marrtab : AgeTable
+        An AgeTable storing marriage eligiblity probability by age and sex
+    birthtab : AgeTable
+        An AgeTable storing probability of giving birth once married by sex (0 for men)
     locality : callable
         This defines the location newlyweds move to from behavior.locality, or a custom function.
     inheritance : callable
@@ -112,7 +122,7 @@ class community(object):
     """
     
     global male, female
-    def __init__(self,pop,area,startage,mortab,marrtab,birthtab,locality,inheritance, fragmentation):
+    def __init__(self,pop,area,startage,mortab,marrtab,birthtab,locality,inheritance,fragmentation):
         
         self.year = 0
         
@@ -224,6 +234,7 @@ class community(object):
         
         Parameters
         ----------
+        
         """
         
         candidates = []
@@ -422,10 +433,10 @@ class house(object):
         self.people.remove(toberemoved)
         
 
-class agetable(object):
-    """Agetables store age-specific annual rates of death, marriage, birth, etc.
+class AgeTable(object):
+    """AgeTables store age-specific annual rates of death, marriage, birth, etc.
     
-    Agetables create a schedule of age- and sex- dependent annual rates of 
+    AgeTables create a schedule of age- and sex- dependent annual rates of 
     different phenomena, literally anything from marriage eligibility to death.
     
     Parameters
@@ -474,10 +485,6 @@ class agetable(object):
         else:
             return self.rates2[i]
 
-
-    
-    
-
 ##Example code
 if __name__ == '__main__':
     #Life tables are Coale and Demeny: Male, west 4, female west 2, .2% annual increase. See Bagnall and frier
@@ -486,12 +493,12 @@ if __name__ == '__main__':
     malerates = list(maledeath[maledeath.columns[2]])
     femaledeath = pd.read_csv('../data/demo/West2Female.csv')
     femalerates = list(femaledeath[femaledeath.columns[2]])
-    bagnallfrier = agetable([0,1] + range(5,105,5), male, malerates, female, femalerates)
+    bagnallfrier = households.AgeTable([0,1] + range(5,105,5), male, malerates, female, femalerates)
     del maledeath, femaledeath
     
-    examplebirth = agetable([0,12,40,50,100],female,[0,.3,.1,0],male,[0,0,0,0,0])
+    examplebirth = AgeTable([0,12,40,50,100],female,[0,.3,.1,0],male,[0,0,0,0,0])
     
-    examplemarriage = agetable([0,12,17,100],female,[0,1./7.5,1./7.5],male,[0,0,0.0866]) #These values based on Bagnall and Frier, 113-4 (women) and 116 (men) for Roman egypt
+    examplemarriage = AgeTable([0,12,17,100],female,[0,1./7.5,1./7.5],male,[0,0,0.0866]) #These values based on Bagnall and Frier, 113-4 (women) and 116 (men) for Roman egypt
     
     def inheritance_moderate(agent):
         """
