@@ -130,7 +130,7 @@ class Community(object):
         self.area = area #The number of houses to create
         self.houses = []
         for i in xrange(area):
-            self.houses.append(house(10,self)) #Create each house with a maximum number of people who can reside there
+            self.houses.append(House(10,self)) #Create each house with a maximum number of people who can reside there
         self.housingcapacity = sum([i.maxpeople for i in self.houses])    
         
         # Generate the population
