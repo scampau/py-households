@@ -27,14 +27,14 @@ def get_spouse(agent,network):
     
     Parameters
     ----------
-    agent : person
+    agent : Person
         The person in question.
     network : networkx.DiGraph
         The social network which defines birth and marriage relations.
     
     Returns
     -------
-        person or None
+        Person or None
             Returns the spouse of the agent, otherwise returns None.
     """
     inedges = network.in_edges(agent)
@@ -52,14 +52,14 @@ def get_parents(agent,network):
     
     Parameters
     ----------
-    agent : person
-        The person in question.
+    agent : Person
+        The Person in question.
     network : networkx.DiGraph
         The social network which defines birth and marriage relations.
     
     Returns
     -------
-        {[person, person], None}
+        {[Person, Person], None}
             Returns a list with the parents of the agent, otherwise returns None.
     """
     inedges = network.in_edges(agent)
@@ -81,14 +81,14 @@ def get_children(agent,network):
     
     Parameters
     ----------
-    agent : person
-        The person in question.
+    agent : Person
+        The Person in question.
     network : networkx.DiGraph
         The social network which defines birth and marriage relations.
     
     Returns
     -------
-        {[person,], None}
+        {[Person,], None}
             Returns a list with the children of the agent, otherwise returns None.
     """
     
@@ -111,14 +111,14 @@ def get_siblings(agent,network):
     
     Parameters
     ----------
-    agent : person
-        The person in question.
+    agent : Person
+        The Person in question.
     network : networkx.DiGraph
         The social network which defines birth and marriage relations.
     
     Returns
     -------
-        {[person,], None}
+        {[Person,], None}
             Returns a list with the siblings of the agent, otherwise returns None.
     """
     
@@ -138,14 +138,14 @@ def get_family(agent,network):
     
     Parameters
     ----------
-    agent : person
-        The person in question.
+    agent : Person
+        The Person in question.
     network : networkx.DiGraph
         The social network which defines birth and marriage relations.
     
     Returns
     -------
-        {[person,], None}
+        {[Person,], None}
             Returns a list with the nuclear family of the agent,
                 otherwise returns None.
     """

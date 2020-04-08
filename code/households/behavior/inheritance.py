@@ -17,10 +17,10 @@ def inherit(dead,heir):
     
     Parameters
     ----------
-    dead : person
-        The person who has died and whose property needs to be moved
-    heir : person
-        The person who will inherit and will become the owner of the property.
+    dead : Person
+        The Person who has died and whose property needs to be moved
+    heir : Person
+        The Person who will inherit and will become the owner of the property.
     """
     for h in dead.mycomm.houses:
         if h.owner == dead:
@@ -31,9 +31,9 @@ def move_family(agent,new_house):
     
     Parameters
     ----------
-    agent : person
-        A person who will be moved along with their co-resident family.
-    new_house : house
+    agent : Person
+        A Person who will be moved along with their co-resident family.
+    new_house : House
         The new house into which they will be moved.    
     
     Note
@@ -66,8 +66,8 @@ def inherit_sons(agent,checkowner=True):
     
     Parameters
     ----------
-    agent : person
-        The person whose property will be inherited.
+    agent : Person
+        The Person whose property will be inherited.
     checkowner : bool, optional
         If True, do not let current owners inherit; if False, let them inherit any way.
     
@@ -110,8 +110,8 @@ def inherit_brothers_sons(agent,checkowner=True):
 
     Parameters
     ----------
-    agent : person
-        The person whose property will be inherited.
+    agent : Person
+        The Person whose property will be inherited.
     checkowner : bool, optional
         If True, do not let current owners inherit; if False, let them inherit any way.
     

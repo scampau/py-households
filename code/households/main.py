@@ -107,17 +107,17 @@ class Community(object):
         
     thedead : list
         List of all dead agents, still required for genealogy.
-    deathlist : list
+    deathlist : list of int
         History of deaths per year.
-    birthlist : list
+    birthlist : list of int
         History of births per year.
-    marriedlist : list
+    marriedlist : list of int
         History of number of marriages per year.
-    poplist : list
+    poplist : list of int
         History of population by year.
-    arealist : list
+    arealist : list of int
         History of number of houses per year.
-    occupiedlist : list
+    occupiedlist : list of int
         History of number of occupied houses per year.        
     """
     
@@ -138,7 +138,7 @@ class Community(object):
         # populate the community
         self.people = []
         for i in xrange(pop):
-            self.people.append(person(rd.choice([male,female]),startage,self,None)) #Generate a new person with age startage
+            self.people.append(Person(rd.choice([male,female]),startage,self,None)) #Generate a new person with age startage
             #NB: currently a 50-50 sex ratio, should be customisable. Consider for expansion. 
 
 
@@ -250,10 +250,10 @@ class Community(object):
         return candidates                    
 
 
-class person(object):
+class Person(object):
     """An agent with a social structure and kinship.
     
-    Create a new person in the community.
+    Create a new Person in the Community.
     
     Parameters
     ----------
@@ -261,9 +261,9 @@ class person(object):
         The sex of the agent assigned at creation.
     age : int
         Age of the individual assigned at creation, then aging regularly.
-    mycomm : community
-        The community to which this individual belongs.
-    myhouse : house
+    mycomm : Community
+        The Community to which this individual belongs.
+    myhouse : House
         The house in which this individual resides.
     
     Attributes
@@ -272,18 +272,18 @@ class person(object):
         The sex of the agent assigned at creation.
     age : int
         Age of the individual assigned at creation, then aging regularly.
-    mycomm : community
-        The community to which this individual belongs.
-    myhouse : house
+    mycomm : Community
+        The Community to which this individual belongs.
+    myhouse : House
         The house in which this individual resides.
     dead : bool
-        Records whether the person is dead or alive.
+        Records whether the Person is dead or alive.
     married : {None, False, True}
         The marriage status of the individual.
             None - too young to be married;
             False - unmarried but eligible;
             True - married or widowed (the model does not allow remarriage)
-    married_to : {None, person}
+    married_to : {None, Person}
         The spouse of this individual.
     birthyear : int
         The year this individual was born.        
@@ -306,11 +306,11 @@ class person(object):
         ## (old enough but not eligible yet), or True (yes or widowed)
         
     def die(self):
-        """Check whether this person dies or ages 1 year.
+        """Check whether this Person dies or ages 1 year.
         
         Checks the community mortality table for this individual. If the individual
         lives, they age one year. Otherwise, they die, inheritance takes place, and
-        the person is removed from the house.
+        the Person is removed from the house.
         """
         
         #figure out if this person dies
@@ -372,14 +372,14 @@ class person(object):
             b = self.mycomm.birthtab.get_rate(self.sex,self.age)
             if rd.random() < b: # if giving birth
                 # Create a new child with age 0
-                child = person(rd.choice([male,female]),0,self.mycomm,self.myhouse)
+                child = Person(rd.choice([male,female]),0,self.mycomm,self.myhouse)
                 self.mycomm.people.append(child) #add to the community
                 self.myhouse.add_person(child)
                 # Add the child to the family network
                 self.mycomm.families.add_edge(self,child,{'type' : 'birth'})
                 self.mycomm.families.add_edge(self.married_to,child,{'type' : 'birth'})
 
-class house(object):
+class House(object):
     """Creates a house in which persons reside.
     
     Parameters
@@ -387,8 +387,8 @@ class house(object):
     maxpeople : int
         Maximum number of residents before the house is crowded. Currently no 
         repercussion for a crowded house.
-    mycomm : community
-        The community in which this house was built
+    mycomm : Community
+        The Community in which this house was built
 
 
     Attributes
@@ -396,11 +396,11 @@ class house(object):
     maxpeople : int
         Maximum number of residents before the house is crowded. Currently no 
         repercussion for a crowded house.
-    mycomm : community
-        The community in which this house was built
-    people : list
+    mycomm : Community
+        The Community in which this house was built
+    people : list of Person
         List of the people who reside in the house.
-    owner : person
+    owner : Person
         The person who owns this house. Assumes single or primary ownership.
     """
     
@@ -417,7 +417,7 @@ class house(object):
         
         Parameters
         ---------
-        tobeadded : person
+        tobeadded : Person
             The person to be added to the residents of the house.
         """
         self.people.append(tobeadded)
@@ -427,7 +427,7 @@ class house(object):
         
         Parameters
         ---------
-        toberemoved : person
+        toberemoved : Person
             The person to be removed from the residents of the house
         """
         self.people.remove(toberemoved)
@@ -526,7 +526,7 @@ if __name__ == '__main__':
             bhv.fragmentation.brother_loses_out(house,15)
                 
     #An example of a single basic run
-    testcase = community(500,500,12,bagnallfrier,examplemarriage,examplebirth,bhv.locality.patrilocality,inheritance_moderate,brother_loses_out_15)
+    testcase = Community(500,500,12,bagnallfrier,examplemarriage,examplebirth,bhv.locality.patrilocality,inheritance_moderate,brother_loses_out_15)
     houstory = {}
     for h in testcase.houses:
         houstory[h] = {'classify' : [],'pop' : []}
@@ -557,7 +557,7 @@ if __name__ == '__main__':
     years=200
     for r in xrange(repeat):
         rd.seed()
-        testcase = community(500,500,12,west2male,examplemarriage,examplebirth,bhv.locality.patrilocality,inheritance_moderate,brother_loses_out_15)
+        testcase = Community(500,500,12,west2male,examplemarriage,examplebirth,bhv.locality.patrilocality,inheritance_moderate,brother_loses_out_15)
         houstory = {}
         for h in testcase.houses:
             houstory[h] = []

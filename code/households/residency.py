@@ -36,7 +36,7 @@ def count_married(house):
     
     Parameters
     ----------
-    house : house
+    house : House
         A house object to examine for coresident married couples.
         
     Returns
@@ -59,12 +59,12 @@ def get_married(house):
     
     Parameters
     ----------
-    house : house
+    house : House
         A house object to examine for coresident married agents.
         
     Returns
     -------
-    list of person
+    list of Person
         A list of the coresident married agents in a house.
     """
     if is_solitary(house):
@@ -82,7 +82,7 @@ def is_solitary(house):
     
     Parameters
     ----------
-    house : house
+    house : House
         The house object to examine.
         
     Returns
@@ -99,7 +99,7 @@ def is_no_family(house):
     
     Parameters
     ----------
-    house : house
+    house : House
         The house object to examine.
         
     Returns
@@ -119,7 +119,7 @@ def is_nuclear(house):
 
     Parameters
     ----------
-    house : house
+    house : House
         The house object to examine.
         
     Returns
@@ -151,7 +151,7 @@ def is_extended(house):
     
     Parameters
     ----------
-    house : house
+    house : House
         The house object to examine.
         
     Returns
@@ -182,7 +182,7 @@ def is_multiple(house):
     
     Parameters
     ----------
-    house : house
+    house : House
         The house object to examine.
         
     Returns
@@ -200,7 +200,7 @@ def classify(house):
     
     Parameters
     ----------
-    house : house
+    house : House
         The house object to examine.
         
     Returns
@@ -231,7 +231,7 @@ def plot_classify(houses):
     
     Parameters
     ----------
-    houses : list of house
+    houses : list of House
         A list of houses to classify, most easily a community.houses attribute. 
     """
     fig = plt.Figure()

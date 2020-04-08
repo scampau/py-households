@@ -18,13 +18,13 @@ def get_empty_house(houses):
     
     Parameters
     ---------
-    houses : list of house
-        The community.houses list for the community in question, or another 
+    houses : list of House
+        The Community.houses list for the community in question, or another 
         subset of houses.
     
     Returns
     -------
-    None or house
+    None or House
         Picks an empty house if one exists, otherwise returns None.
     """
     possible_houses = [h for h in houses if len(h.people) == 0 and h.owner == None]
@@ -43,7 +43,7 @@ def patrilocality(husband,wife):
     
     Parameters
     ----------
-    husband, wife : person
+    husband, wife : Person
         The people just married, identified by sex.
     
     Returns
@@ -75,7 +75,7 @@ def neolocality(husband,wife,primary=male):
     
     Parameters
     ----------
-    husband, wife : person
+    husband, wife : Person
         The people just married, identified by sex.
     primary : {male, female}
         Defines the sex of the partner who formally owns the property.

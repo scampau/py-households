@@ -31,7 +31,7 @@ def no_fragmentation(house):
     
     Parameters
     ---------
-    house : house
+    house : House
         The household which won't fragment.
     """
     pass
@@ -44,7 +44,7 @@ def brother_loses_out(house,age):
     
     Parameters
     ---------
-    house : house
+    house : House
         The household to check to see if it will fragment.
     age : int
         The age of majority (marriage often) for determining whether an adult 
@@ -79,7 +79,7 @@ def house_gets_crowded(house):
     
     Parameters
     ---------
-    house : house
+    house : House
         The house to check for overcrowding.
     """
     pass #To be continued
