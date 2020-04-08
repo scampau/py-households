@@ -150,3 +150,5 @@ def inherit_brothers_sons(agent,checkowner=True):
             # Every brother has been checked
     return False
     
+#def inherit_else_default ## A function to run inheritance functions and then
+## stop if none work

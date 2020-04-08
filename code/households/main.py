@@ -129,7 +129,7 @@ class Community(object):
         # Create the houses
         self.area = area #The number of houses to create
         self.houses = []
-        for i in xrange(area):
+        for i in range(area):
             self.houses.append(House(10,self)) #Create each house with a maximum number of people who can reside there
         self.housingcapacity = sum([i.maxpeople for i in self.houses])    
         
@@ -137,7 +137,7 @@ class Community(object):
         self.population = pop #The number of individuals to start in the community
         # populate the community
         self.people = []
-        for i in xrange(pop):
+        for i in range(pop):
             self.people.append(Person(rd.choice([male,female]),startage,self,None)) #Generate a new person with age startage
             #NB: currently a 50-50 sex ratio, should be customisable. Consider for expansion. 
 
@@ -350,8 +350,8 @@ class Person(object):
                 choice.married = True
                 choice.married_to = self
                 ## Add links to the network of families
-                self.mycomm.families.add_edges_from( [(self,choice,{'type' : 'marriage'}),
-                (choice,self,{'type' : 'marriage'})])
+                self.mycomm.families.add_edges_from( [(self,choice, {'relation' :  'marriage'}),
+                (choice,self,{'relation' : 'marriage'})])
                 ## Run the locality rules for this community
                 husband, wife = (self,choice) if self.sex == male else (choice,self)
                 self.mycomm.locality(husband,wife)
@@ -376,8 +376,8 @@ class Person(object):
                 self.mycomm.people.append(child) #add to the community
                 self.myhouse.add_person(child)
                 # Add the child to the family network
-                self.mycomm.families.add_edge(self,child,{'type' : 'birth'})
-                self.mycomm.families.add_edge(self.married_to,child,{'type' : 'birth'})
+                self.mycomm.families.add_edge(self,child,relation = 'birth')
+                self.mycomm.families.add_edge(self.married_to,child,relation= 'birth')
 
 class House(object):
     """Creates a house in which persons reside.
@@ -456,11 +456,11 @@ class AgeTable(object):
     global male, female
 
     def __init__(self,ages,sex1,rates1,sex2,rates2):
-        self.ages = ages
-        self.sex1 = sex1
-        self.rates1 = rates1
-        self.sex2 = sex2
-        self.rates2 = rates2  
+        self._ages = ages
+        self._sex1 = sex1
+        self._rates1 = rates1
+        self._sex2 = sex2
+        self._rates2 = rates2  
         
     def get_rate(self,sex,age):
         """Returns the annual rate for a given sex and age.
@@ -478,12 +478,13 @@ class AgeTable(object):
             The rate for that age and sex.
             
         """
-        i = [i for i in range(len(self.ages)-1) if age>=self.ages[i] and 
-        age<self.ages[i+1]][0]
-        if sex == self.sex1:
-            return self.rates1[i]
+        i = [i for i in range(len(self._ages)-1) if age>=self._ages[i] and 
+        age<self._ages[i+1]][0]
+        if sex == self._sex1:
+            return self._rates1[i]
         else:
-            return self.rates2[i]
+            return self._rates2[i]
+        
 
 ##Example code
 if __name__ == '__main__':
@@ -530,7 +531,7 @@ if __name__ == '__main__':
     houstory = {}
     for h in testcase.houses:
         houstory[h] = {'classify' : [],'pop' : []}
-    for i in xrange(200):
+    for i in range(200):
         testcase.progress()
         for h in testcase.houses:
             houstory[h]['classify'].append(residency.classify_household(h))
@@ -540,8 +541,8 @@ if __name__ == '__main__':
     #Plot the changing types of houses
     array = []
     labels = ['empty','solitary','no-family','nuclear','extended','multiple']
-    which = lambda x: [i for i in xrange(len(labels)) if labels[i] == x][0]
-    for y in xrange(testcase.year):
+    which = lambda x: [i for i in range(len(labels)) if labels[i] == x][0]
+    for y in range(testcase.year):
         new = [0.]*6
         for k in houstory.keys():
             w = which(houstory[k]['classify'][y])
@@ -555,13 +556,13 @@ if __name__ == '__main__':
     record = []
     repeat = 50
     years=200
-    for r in xrange(repeat):
+    for r in range(repeat):
         rd.seed()
         testcase = Community(500,500,12,west2male,examplemarriage,examplebirth,bhv.locality.patrilocality,inheritance_moderate,brother_loses_out_15)
         houstory = {}
         for h in testcase.houses:
             houstory[h] = []
-        for i in xrange(years):
+        for i in range(years):
             testcase.progress()
             for h in testcase.houses:
                 houstory[h].append(classify_household(h))
@@ -572,11 +573,11 @@ if __name__ == '__main__':
     
     window = 20
     meancorr = []
-    for y in xrange(years-window):
+    for y in range(years-window):
         count = 0
         meancorr.append(0.)
-        for i in xrange(repeat):
-            for j in xrange(i):
+        for i in range(repeat):
+            for j in range(i):
                 if j != i:
                     meancorr[y] += corrcoef([record[i][x] for x in range(y,y+window)],[record[j][x] for x in range(y,y+window)])[0][1]
                     count +=1

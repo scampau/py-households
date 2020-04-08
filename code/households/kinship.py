@@ -42,7 +42,7 @@ def get_spouse(agent,network):
         return None;
     else:
         for x, y in inedges:
-            if network[x][y]['type'] == 'marriage':
+            if network[x][y]['relation'] == 'marriage':
                 return x;
         return None
     
@@ -68,7 +68,7 @@ def get_parents(agent,network):
         return None;
     else:
         for x, y in inedges:
-            if network[x][y]['type'] == 'birth':
+            if network[x][y]['relation'] == 'birth':
                 parents.append(x)
     if len(parents) == 0:
         return None
@@ -92,13 +92,13 @@ def get_children(agent,network):
             Returns a list with the children of the agent, otherwise returns None.
     """
     
-    outedges = network.edge[agent]
+    outedges = network.out_edges(agent)
     children = []
     if len(outedges) == 0:
         return None
     else:
         for y in outedges.iterkeys():
-            if outedges[y]['type']=='birth':
+            if outedges[y]['relation']=='birth':
                 children.append(y)
     if len(children) == 0:
         return None
