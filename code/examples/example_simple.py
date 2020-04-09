@@ -35,8 +35,9 @@ np.random.seed(505401)
 while example.births == 0:
     example.progress()
 
-
-
+h = [x for x in example.houses if len(x.people) >2][0]
+jack, jill = [(h.people[0], h.people[1]) if h.people[0].sex == male else (h.people[1],h.people[0])]
+jane = h.people[2]
 
 
 

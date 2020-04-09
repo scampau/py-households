@@ -97,8 +97,8 @@ def get_children(agent,network):
     if len(outedges) == 0:
         return None
     else:
-        for y in outedges.iterkeys():
-            if outedges[y]['relation']=='birth':
+        for x,y in outedges:
+            if network[x][y]['relation']=='birth':
                 children.append(y)
     if len(children) == 0:
         return None
