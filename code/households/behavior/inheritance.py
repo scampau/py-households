@@ -86,7 +86,7 @@ def inherit_sons(agent,checkowner=True):
     heir = None
     # Get a list of children
     children = kinship.get_children(agent,agent.mycomm.families)
-    if children != None:
+    if children != []:
         #If there are children, select the men
         select = [x for x in children if x.sex == male and x.dead == False]
         #If there are alive men, select the oldest
@@ -123,8 +123,7 @@ def inherit_brothers_sons(agent,checkowner=True):
     heir = None
     #Get a list of siblings
     siblings = kinship.get_siblings(agent,agent.mycomm.families)
-    
-    if siblings != None:
+    if siblings != []:
         #If there are siblings, select the men
         select = [x for x in siblings if x.sex == male]
         if len(select) != 0:
@@ -132,7 +131,7 @@ def inherit_brothers_sons(agent,checkowner=True):
             for brother in select:
                 #Check whether each brother for sons
                 children = kinship.get_children(brother,brother.mycomm.families)
-                if children != None:
+                if children != []:
                     #If the brother has children, check for the alive men
                     select = [x for x in children if x.sex == male and x.dead == False]
                     if checkowner == True:
@@ -151,4 +150,4 @@ def inherit_brothers_sons(agent,checkowner=True):
     return False
     
 #def inherit_else_default ## A function to run inheritance functions and then
-## stop if none work
+## stop if none work. Needs to run them sequentially in order

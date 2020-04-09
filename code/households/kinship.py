@@ -77,7 +77,7 @@ def get_parents(agent,network):
 
 
 def get_children(agent,network):
-    """Return the children of an individual; otherwise return None.
+    """Return the children of an individual; otherwise return empty list.
     
     Parameters
     ----------
@@ -95,15 +95,12 @@ def get_children(agent,network):
     outedges = network.out_edges(agent)
     children = []
     if len(outedges) == 0:
-        return None
+        return children
     else:
         for x,y in outedges:
             if network[x][y]['relation']=='birth':
                 children.append(y)
-    if len(children) == 0:
-        return None
-    else:
-        return children            
+    return children            
     
     
 def get_siblings(agent,network):
@@ -124,13 +121,10 @@ def get_siblings(agent,network):
     
     parents = get_parents(agent,network)
     if parents == None:
-        return None;
+        return [];
     children = get_children(parents[0],network)
     children.remove(agent)
-    if len(children) == 0:
-        return None
-    else:
-        return children
+    return children
 
 
 def get_family(agent,network):
@@ -156,10 +150,7 @@ def get_family(agent,network):
     else:
         #If spouse, check for children
         children = get_children(agent,network)
-        if children == None:
-            return [agent,spouse]
-        else:
-            return [agent,spouse] + children    
+        return [agent,spouse] + children    
 
 
 

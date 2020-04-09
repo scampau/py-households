@@ -53,7 +53,7 @@ def brother_loses_out(house,age):
     # Check whether any brothers are there
     if house.people != [] and house.owner != None:    
         siblings = kinship.get_siblings(house.owner,house.mycomm.families)
-        if siblings != None:
+        if siblings != []:
             siblings = [x for x in siblings if x.sex == male and x.age >= age and x.dead == False]
             if len(siblings) > 0:
                 for s in siblings:
