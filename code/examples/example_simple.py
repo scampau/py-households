@@ -44,15 +44,18 @@ def biography(person):
     """Give a short, machine readable biography of a person
     
     """
-    return (person.dead, person.age, person.sex, person.married, households.kinship.get_children(person,person.mycomm.families))
+    return (person.dead, person.age, person.sex, person.married, len(households.kinship.get_children(person,person.mycomm.families)))
+
+def census(house):
+    """
+    """
+    return (len(house.people),households.residency.classify(house))
 
 
-
-
-
-
-
-
+plt.hist([x.age for x in example.people])
+plt.plot(range(example.year+1),example.poplist)
+[census(x) for x in example.houses]
+[biography(x) for x in example.houses[1].people]
 
 
 
