@@ -12,6 +12,7 @@ Created on Tue Apr  7 22:26:25 2020
 import numpy as np
 import pandas
 import os
+import matplotlib.pyplot as plt
 os.chdir('..')
 import households
 
@@ -21,26 +22,29 @@ male, female = (households.male,households.female)
 
 #A fake run:
 birth = households.AgeTable([0,16,40,100],male,[0,0,0],female,[0,.1,0])
-marr = households.AgeTable([0,16,100],male,[0,.25],female,[0,.25])
-death = households.AgeTable([0,5,40,100],male,[.04,0,1],female,[.04,0,1])
+marr = households.AgeTable([0,16,100],male,[0,.8],female,[0,.8])
+death = households.AgeTable([0,5,40,100],male,[0,0,1],female,[0,0,1])
 
 def sons_or_none(agent):
     result = households.behavior.inheritance.inherit_sons(agent,False)
     if result == False:
         households.behavior.inheritance.inherit(agent,None)  
 
+np.random.seed(505401)
 example = households.Community(pop=20,area = 20,startage = 15,mortab = death, marrtab = marr, birthtab = birth, locality = households.behavior.locality.neolocality, inheritance = sons_or_none, fragmentation = households.behavior.fragmentation.no_fragmentation)
 
-np.random.seed(505401)
-while example.births == 0:
+while example.year < 25:
     example.progress()
 
 h = [x for x in example.houses if len(x.people) >2][0]
 jack, jill = [(h.people[0], h.people[1]) if h.people[0].sex == male else (h.people[1],h.people[0])]
 jane = h.people[2]
 
-
-
+def biography(person):
+    """Give a short, machine readable biography of a person
+    
+    """
+    return (person.dead, person.age, person.sex, person.married, households.kinship.get_children(person,person.mycomm.families))
 
 
 

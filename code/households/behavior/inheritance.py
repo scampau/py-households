@@ -97,8 +97,8 @@ def inherit_sons(agent,checkowner=True):
                 if son.myhouse.owner != son or checkowner == False :
                     #This works because if you inherit a house, you move into it
                     heir = son
-                    if heir.house != agent.house:
-                        move_family(heir,agent.house)
+                    if heir.myhouse != agent.myhouse:
+                        move_family(heir,agent.myhouse)
                     inherit(agent,heir)
                     return True
     return False
@@ -136,13 +136,13 @@ def inherit_brothers_sons(agent,checkowner=True):
                     #If the brother has children, check for the alive men
                     select = [x for x in children if x.sex == male and x.dead == False]
                     if checkowner == True:
-                        select = [x for x in select if x.house.owner != x]
+                        select = [x for x in select if x.myhouse.owner != x]
                     if len(select) > 1:
                         # If there is more than one alive male child, then take 
                         ## the second oldest
                         select.sort(reverse=True,key=lambda x:x.age)
                         heir = select[1]
-                        move_family(heir,agent.house)
+                        move_family(heir,agent.myhouse)
                         inherit(agent,heir)
                         return True
                     #Otherwise, not enough children
