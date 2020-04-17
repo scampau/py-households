@@ -9,9 +9,10 @@ import scipy
 import networkx as nx
 import matplotlib.pyplot as plt
 
+print('Importing the households package')
 import households.kinship
 import households.residency
 import households.behavior
 from households.main import *
+import households.narrative
 
-print('Importing the households package')
