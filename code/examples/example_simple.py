@@ -30,27 +30,38 @@ def sons_or_none(agent):
     if result == False:
         households.behavior.inheritance.inherit(agent,None)  
 
+#Run a simple, single example for 25 years
 np.random.seed(505401)
 example = households.Community(pop=20,area = 20,startage = 15,mortab = death, marrtab = marr, birthtab = birth, locality = households.behavior.locality.neolocality, inheritance = sons_or_none, fragmentation = households.behavior.fragmentation.no_fragmentation)
 
 while example.year < 25:
     example.progress()
 
+#Let's look at one family
 h = [x for x in example.houses if len(x.people) >2][0]
-jack, jill = [(h.people[0], h.people[1]) if h.people[0].sex == male else (h.people[1],h.people[0])]
-jane = h.people[2]
+peter, isabel = [(h.people[0], h.people[1]) if h.people[0].sex == male else (h.people[1],h.people[0])][0]
+teddy = h.people[2]
+print(households.narrative.biography(isabel))
+print(households.narrative.biography(teddy))
+print(households.narrative.census(h))
 
-def biography(person):
-    """Give a short, machine readable biography of a person
+#Now let's run another 25 years
+while example.year < 50:
+    example.progress()
     
-    """
-    return (person.dead, person.age, person.sex, person.married, len(households.kinship.get_children(person,person.mycomm.families)))
+#Let's check in again on teddy
+h = teddy.myhouse
+for x in h.people:
+    print(households.narrative.biography(x))
+dolores, maeve, buttercup, robert = h.people[1:]
 
-def census(house):
-    """
-    """
-    return (len(house.people),households.residency.classify(house))
+#And now let's run another 25 years
+while example.year < 75:
+    example.progress()
 
+#Let's see where the children are now
+for x in [maeve, buttercup, robert]:
+    print(households.narrative.biography(x) + ' who lives in ' +  households.narrative.census(x.myhouse))
 
 plt.hist([x.age for x in example.people])
 plt.plot(range(example.year+1),example.poplist)
