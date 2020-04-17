@@ -34,8 +34,8 @@ def get_spouse(agent,network):
     
     Returns
     -------
-        Person or None
-            Returns the spouse of the agent, otherwise returns None.
+    Person or None
+        Returns the spouse of the agent, otherwise returns None.
     """
     inedges = network.in_edges(agent)
     if len(inedges) == 0:
