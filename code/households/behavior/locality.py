@@ -52,19 +52,19 @@ def patrilocality(husband,wife):
         True if patrilocality achieved, False if neolocality chosen instead.
     
     """
-    if husband.myhouse == None:
+    if husband.has_house == None:
         #The husband has no house; find a new one
         neolocality(husband,wife,male)
         return False
-    elif len(husband.myhouse.people)+1 >= husband.myhouse.maxpeople:
+    elif len(husband.has_house.people)+1 >= husband.has_house.maxpeople:
         #If the house is full, find a new one and move out
         neolocality(husband,wife,male)
         return False
     else:
         #If the house has capacity, the wife moves in with the husband
-        husband.myhouse.add_person(wife)
-        if wife.myhouse is not None: wife.myhouse.remove_person(wife)
-        wife.myhouse = husband.myhouse
+        husband.has_house.add_person(wife)
+        if wife.has_house is not None: wife.has_house.remove_person(wife)
+        wife.has_house = husband.has_house
         return True
 
 def matrilocality(husband,wife):
@@ -84,19 +84,19 @@ def matrilocality(husband,wife):
         True if matrilocality achieved, False if neolocality chosen instead.
     
     """
-    if wife.myhouse == None:
+    if wife.has_house == None:
         #The husband has no house; find a new one
         neolocality(husband,wife,female)
         return False
-    elif len(husband.myhouse.people)+1 >= husband.myhouse.maxpeople:
+    elif len(husband.has_house.people)+1 >= husband.has_house.maxpeople:
         #If the house is full, find a new one and move out
         neolocality(husband,wife,female)
         return False
     else:
         #If the house has capacity, the wife moves in with the husband
-        wife.myhouse.add_person(husband)
-        if husband.myhouse is not None: wife.myhouse.remove_person(wife)
-        husband.myhouse = wife.myhouse
+        wife.has_house.add_person(husband)
+        if husband.has_house is not None: wife.has_house.remove_person(wife)
+        husband.has_house = wife.has_house
         return True
 
 def neolocality(husband,wife,primary):
@@ -128,13 +128,13 @@ def neolocality(husband,wife,primary):
         # Add husband and wife to house
         new_house.people.extend([husband, wife])
         # Remove from their old houses
-        if husband.myhouse is not None:
-            husband.myhouse.people.remove(husband)
-        if wife.myhouse is not None:
-            wife.myhouse.people.remove(wife)
+        if husband.has_house is not None:
+            husband.has_house.people.remove(husband)
+        if wife.has_house is not None:
+            wife.has_house.people.remove(wife)
         # make whoever is of the primary sex the owner
         new_house.owner = owner
         # Add a pointed to the house from both individuals
-        husband.myhouse = new_house
-        wife.myhouse = new_house
+        husband.has_house = new_house
+        wife.has_house = new_house
         return True

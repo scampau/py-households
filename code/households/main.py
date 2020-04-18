@@ -258,7 +258,7 @@ class Person(object):
         Age of the individual assigned at creation, then aging regularly.
     has_community : Community
         The Community to which this individual belongs.
-    myhouse : House
+    has_house : House
         The house in which this individual resides.
     
     Attributes
@@ -271,7 +271,7 @@ class Person(object):
         Age of the individual assigned at creation, then aging regularly.
     has_community : Community
         The Community to which this individual belongs.
-    myhouse : House
+    has_house : House
         The house in which this individual resides.
     lifestatus : identity.LifeStatus
         Records whether the Person is dead or alive.
@@ -287,7 +287,7 @@ class Person(object):
     """
     
     #Note: remarriage needs to be added as an option
-    def __init__(self,sex,age,has_community,myhouse):
+    def __init__(self,sex,age,has_community,has_house):
         self.sex = sex
         if sex == male:
             self.name = rd.choice(narrative.male_names)
@@ -295,7 +295,7 @@ class Person(object):
             self.name = rd.choice(narrative.female_names)
         self.age = age
         self.has_community = has_community #link to the community
-        self.myhouse = myhouse #link to their house
+        self.has_house = has_house #link to their house
         
         self.lifestatus = alive
         self.marriagestatus = ineligible #Variable to store marriage status; None because not elegible
@@ -322,8 +322,8 @@ class Person(object):
             if self.marriagestatus == married:
                 self.has_spouse.marriagestatus = widowed
             self.has_community.inheritance(self)
-            if self.myhouse is not None:
-                self.myhouse.remove_person(self)
+            if self.has_house is not None:
+                self.has_house.remove_person(self)
         # Some inheritance rules need to happen here!
         #Note that at present this means that there is no update in the marriage
         ## state of the other person; this means people can only be married 
@@ -379,9 +379,9 @@ class Person(object):
             b = self.has_community.birthtab.get_rate(self.sex,self.age)
             if rd.random() < b: # if giving birth
                 # Create a new child with age 0
-                child = Person(rd.choice([male,female]),0,self.has_community,self.myhouse)
+                child = Person(rd.choice([male,female]),0,self.has_community,self.has_house)
                 self.has_community.people.append(child) #add to the community
-                self.myhouse.add_person(child)
+                self.has_house.add_person(child)
                 # Add the child to the family network
                 self.has_community.families.add_edge(self,child,relation = 'birth')
                 self.has_community.families.add_edge(self.has_spouse,child,relation= 'birth')

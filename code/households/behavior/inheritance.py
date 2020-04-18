@@ -41,7 +41,7 @@ def move_family(person,new_house):
     This function assumes a patriline/male dominance of household. This needs to 
     be updated as part of the matrilineal update.
     """
-    old_house = person.myhouse
+    old_house = person.has_house
     #Get the coresident family
     family = kinship.get_family(person,person.has_community.families)
     family = [f for f in family if f in old_house.people]
@@ -56,7 +56,7 @@ def move_family(person,new_house):
             else:
                 old_house.remove_person(member)
                 new_house.add_person(member)
-                member.myhouse = new_house
+                member.has_house = new_house
 
 #More complicated inheritance functions
 ## Each of these checks a subset of individuals and returns whether one of them
@@ -94,11 +94,11 @@ def inherit_sons(person,checkowner=True):
             select.sort(reverse=True,key=lambda x:x.age)
             for son in select:
                 # If the son is not a house owner OR we don't care
-                if son.myhouse.owner != son or checkowner == False :
+                if son.has_house.owner != son or checkowner == False :
                     #This works because if you inherit a house, you move into it
                     heir = son
-                    if heir.myhouse != person.myhouse:
-                        move_family(heir,person.myhouse)
+                    if heir.has_house != person.has_house:
+                        move_family(heir,person.has_house)
                     inherit(person,heir)
                     return True
     return False
@@ -135,13 +135,13 @@ def inherit_brothers_sons(person,checkowner=True):
                     #If the brother has children, check for the alive men
                     select = [x for x in children if x.sex == male and x.lifestatus == alive]
                     if checkowner == True:
-                        select = [x for x in select if x.myhouse.owner != x]
+                        select = [x for x in select if x.has_house.owner != x]
                     if len(select) > 1:
                         # If there is more than one alive male child, then take 
                         ## the second oldest (first must stay for brother's inheritance)
                         select.sort(reverse=True,key=lambda x:x.age)
                         heir = select[1]
-                        move_family(heir,person.myhouse)
+                        move_family(heir,person.has_house)
                         inherit(person,heir)
                         return True
                     #Otherwise, not enough children
