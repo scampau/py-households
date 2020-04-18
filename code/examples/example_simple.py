@@ -35,7 +35,7 @@ def neolocality_husband_owner(husband,wife):
 
 #Run a simple, single example for 25 years
 households.rd.seed(505401)
-example = households.Community(pop=20,area = 20,startage = 15,mortab = death, marrtab = marr, birthtab = birth, locality = neolocality_husband_owner, inheritance = sons_or_none, fragmentation = households.behavior.fragmentation.no_fragmentation)
+example = households.Community(name = 'Sweetwater',pop=20,area = 20,startage = 15,mortab = death, marrtab = marr, birthtab = birth, locality = neolocality_husband_owner, inheritance = sons_or_none, fragmentation = households.behavior.fragmentation.no_fragmentation)
 
 while example.year < 25:
     example.progress()

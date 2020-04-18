@@ -63,7 +63,7 @@ def brother_loses_out_15(house):
         households.behavior.fragmentation.brother_loses_out(house,15)
             
 #An example of a single realistic run
-testcase = households.Community(pop = 500,area = 500,startage = 12, mortab = bagnallfrier,marrtab = examplemarriage,birthtab = examplebirth,locality = households.behavior.locality.patrilocality,inheritance =  inheritance_moderate,fragmentation = brother_loses_out_15)
+testcase = households.Community(name = 'EgyptianVillage',pop = 500,area = 500,startage = 12, mortab = bagnallfrier,marrtab = examplemarriage,birthtab = examplebirth,locality = households.behavior.locality.patrilocality,inheritance =  inheritance_moderate,fragmentation = brother_loses_out_15)
 
 #Lets progress this 100 years
 for y in range(100):

@@ -21,7 +21,7 @@ from households.identity import *
 print('Importing main.py')
 
 
-class World:
+class World(object):
     """The world of the simulation.
     
     This contains Community objects and will run the clock. Currently
@@ -41,6 +41,8 @@ class Community(object):
     
     Parameters
     ----------
+    name : str
+        The name of the community
     pop : int
         The initial population of the simulation
     area : int
@@ -63,6 +65,8 @@ class Community(object):
         
     Attributes
     ---------
+    name : str
+        The name of the community
     year : int
         The year of the simulation of this community.
     area : int
@@ -117,9 +121,10 @@ class Community(object):
     """
     
     #global male, female
-    def __init__(self,pop,area,startage,mortab,marrtab,birthtab,locality,inheritance,fragmentation):
+    def __init__(self,name,pop,area,startage,mortab,marrtab,birthtab,locality,inheritance,fragmentation):
         
         self.year = 0
+        self.name = name
         
         # Create the houses
         self.area = area #The number of houses to create
