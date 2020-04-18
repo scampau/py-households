@@ -54,11 +54,11 @@ def patrilocality(husband,wife):
     """
     if husband.myhouse == None:
         #The husband has no house; find a new one
-        neolocality(husband,wife)
+        neolocality(husband,wife,male)
         return False
     elif len(husband.myhouse.people)+1 >= husband.myhouse.maxpeople:
         #If the house is full, find a new one and move out
-        neolocality(husband,wife)
+        neolocality(husband,wife,male)
         return False
     else:
         #If the house has capacity, the wife moves in with the husband
@@ -66,7 +66,38 @@ def patrilocality(husband,wife):
         if wife.myhouse is not None: wife.myhouse.remove_person(wife)
         wife.myhouse = husband.myhouse
         return True
-        
+
+def matrilocality(husband,wife):
+    """Newlyweds live at the wife's family's house, or if no house find a new one.
+    
+    Changes the house of the couple to that of the wife,
+    If none or full, runs neolocality().
+    
+    Parameters
+    ----------
+    husband, wife : Person
+        The people just married, identified by sex.
+    
+    Returns
+    -------
+    bool
+        True if matrilocality achieved, False if neolocality chosen instead.
+    
+    """
+    if wife.myhouse == None:
+        #The husband has no house; find a new one
+        neolocality(husband,wife,female)
+        return False
+    elif len(husband.myhouse.people)+1 >= husband.myhouse.maxpeople:
+        #If the house is full, find a new one and move out
+        neolocality(husband,wife,female)
+        return False
+    else:
+        #If the house has capacity, the wife moves in with the husband
+        wife.myhouse.add_person(husband)
+        if husband.myhouse is not None: wife.myhouse.remove_person(wife)
+        husband.myhouse = wife.myhouse
+        return True
 
 def neolocality(husband,wife,primary):
     """Finds a new house for a couple. 
