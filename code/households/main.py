@@ -338,7 +338,10 @@ class Person(object):
         """
         
         if self.married == married: #if married, don't run this script
-            pass 
+            pass
+        elif self.married == widowed:
+            pass #NOTE: This needs to be changed in the future to allow 
+            ### remarriage rules
         elif self.married == unmarried: #if this person is eligible to be married
             #get the list of eligible candidates for marriage
             candidates = self.mycomm.get_eligible(self)
@@ -357,10 +360,12 @@ class Person(object):
                 ## Run the locality rules for this community
                 husband, wife = (self,choice) if self.sex == male else (choice,self)
                 self.mycomm.locality(husband,wife)
-        else: #if none (== too young for marriage), check eligibility
+        elif self.married == ineligible: #if none (== too young for marriage), check eligibility
             e = self.mycomm.marrtab.get_rate(self.sex,self.age)
             if rd.random() < e: #If eligibility possible, change staus
                 self.married = unmarried
+        else:
+            raise ValueError('married not of identity.MarriageStatus')
     
     def birth(self):
         """Determine whether this person gives birth.
