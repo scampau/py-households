@@ -12,17 +12,17 @@ print('importing inheritance')
 #male, female = range(2)
 
 #Basic inheritance functions
-def inherit(dead,heir):
+def inherit(person,heir):
     """Once an heir is selected, move a dead person's house's/houses' ownership.
     
     Parameters
     ----------
-    dead : Person
+    person : Person
         The Person who has died and whose property needs to be moved
     heir : Person
         The Person who will inherit and will become the owner of the property.
     """
-    for h in dead.mycomm.houses:
+    for h in person.mycomm.houses:
         if h.owner == dead:
             h.owner = heir
 
