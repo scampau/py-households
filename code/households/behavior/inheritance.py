@@ -49,7 +49,7 @@ def move_family(person,new_house):
         if member.dead == dead:
             pass
         else:
-            if member.married == married and member.sex == male and member != person:
+            if member.marriagestatus == married and member.sex == male and member != person:
                 #If the person is married, move their family over as well 
                 #families counted by husband so as not to duplicate
                 move_family(member,new_house)

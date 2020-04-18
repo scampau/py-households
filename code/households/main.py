@@ -217,7 +217,7 @@ class Community(object):
         self.poplist.append(self.population)
         self.arealist.append(self.area)
         self.occupiedlist.append(self.occupied)
-        self.marriages = len([x for x in [x for x in self.people if x.married == married] if x.married_to.dead == alive])
+        self.marriages = len([x for x in [x for x in self.people if x.marriagestatus == married] if x.married_to.dead == alive])
         self.marriedlist.append(self.marriages)
         
         self.year += 1
@@ -240,7 +240,7 @@ class Community(object):
         for x in self.people:
             if x.sex != person.sex:
                 #If unmarried and not a sibling
-                if x.married == unmarried and (x in relations) == False:
+                if x.marriagestatus == unmarried and (x in relations) == False:
                     candidates.append(x)
         return candidates                    
 
@@ -275,7 +275,7 @@ class Person(object):
         The house in which this individual resides.
     dead : bool
         Records whether the Person is dead or alive.
-    married : {None, False, True}
+    marriagestatus : {None, False, True}
         The marriage status of the individual.
             None - too young to be married;
             False - unmarried but eligible;
@@ -298,7 +298,7 @@ class Person(object):
         self.myhouse = myhouse #link to their house
         
         self.dead = alive
-        self.married = ineligible #Variable to store marriage status; None because not elegible
+        self.marriagestatus = ineligible #Variable to store marriage status; None because not elegible
         self.married_to = None #The individual to whom this individual is married
         
         self.birthyear = self.mycomm.year
@@ -319,8 +319,8 @@ class Person(object):
             self.age += 1
         else: #if this person died this year, toggle them to be removed from the community
             self.dead = dead
-            if self.married == married:
-                self.married_to.married = widowed
+            if self.marriagestatus == married:
+                self.married_to.marriagestatus = widowed
             self.mycomm.inheritance(self)
             if self.myhouse is not None:
                 self.myhouse.remove_person(self)
@@ -337,22 +337,22 @@ class Person(object):
         if there are any eligible candidates of the opposite sex. 
         """
         
-        if self.married == married: #if married, don't run this script
+        if self.marriagestatus == married: #if married, don't run this script
             pass
-        elif self.married == widowed:
+        elif self.marriagestatus == widowed:
             pass #NOTE: This needs to be changed in the future to allow 
             ### remarriage rules
-        elif self.married == unmarried: #if this person is eligible to be married
+        elif self.marriagestatus == unmarried: #if this person is eligible to be married
             #get the list of eligible candidates for marriage
             candidates = self.mycomm.get_eligible(self)
             ##NOTE: evntually this must be adapted to get those not related to a given person by a certain distance
             if len(candidates) != 0: #if there are any eligible people
                 choice = rd.choice(candidates) #Pick one
                 # Set self as married
-                self.married = married
+                self.marriagestatus = married
                 self.married_to = choice
                 #Set the other person as married
-                choice.married = married
+                choice.marriagestatus = married
                 choice.married_to = self
                 ## Add links to the network of families
                 self.mycomm.families.add_edges_from( [(self,choice, {'relation' :  'marriage'}),
@@ -360,10 +360,10 @@ class Person(object):
                 ## Run the locality rules for this community
                 husband, wife = (self,choice) if self.sex == male else (choice,self)
                 self.mycomm.locality(husband,wife)
-        elif self.married == ineligible: #if none (== too young for marriage), check eligibility
+        elif self.marriagestatus == ineligible: #if none (== too young for marriage), check eligibility
             e = self.mycomm.marrtab.get_rate(self.sex,self.age)
             if rd.random() < e: #If eligibility possible, change staus
-                self.married = unmarried
+                self.marriagestatus = unmarried
         else:
             raise ValueError('married not of identity.MarriageStatus')
     
@@ -375,7 +375,7 @@ class Person(object):
         child in the same house.        
         """
         
-        if self.sex == female and [self.married_to.dead if self.married == married else dead][0] == alive: #If married, husband is alive, and self is a woman
+        if self.sex == female and [self.married_to.dead if self.marriagestatus == married else dead][0] == alive: #If married, husband is alive, and self is a woman
             b = self.mycomm.birthtab.get_rate(self.sex,self.age)
             if rd.random() < b: # if giving birth
                 # Create a new child with age 0
