@@ -9,6 +9,7 @@ Created on Tue Apr  7 22:26:25 2020
 """
 #Import the households package
 import numpy as np
+import random as rd
 import pandas
 import os
 import matplotlib.pyplot as plt
@@ -63,11 +64,17 @@ def brother_loses_out_15(house):
             
 #An example of a single realistic run
 testcase = households.Community(pop = 500,area = 500,startage = 12, mortab = bagnallfrier,marrtab = examplemarriage,birthtab = examplebirth,locality = households.behavior.locality.patrilocality,inheritance =  inheritance_moderate,fragmentation = brother_loses_out_15)
-houstory = {}
-for h in testcase.houses:
-    houstory[h] = {'classify' : [],'pop' : []}
-for i in xrange(200):
+
+#Lets progress this 100 years
+for y in range(100):
     testcase.progress()
-    for h in testcase.houses:
-        houstory[h]['classify'].append(residency.classify_household(h))
-        houstory[h]['pop'].append(len(h.people))
+
+plt.hist([x.age for x in testcase.people])
+plt.plot(range(testcase.year+1),testcase.poplist)
+plt.hist([len(h.people) for h in testcase.houses],bins=range(20))
+
+#Pick a random occupied house
+h = rd.choice([h for h in testcase.houses if len(h.people)>1])
+print(households.narrative.census(h))
+for x in h.people:
+    print(households.narrative.biography(x))
