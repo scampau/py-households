@@ -46,7 +46,7 @@ def move_family(person,new_house):
     family = kinship.get_family(person,person.mycomm.families)
     family = [f for f in family if f in old_house.people]
     for member in family:
-        if member.dead == dead:
+        if member.lifestatus == dead:
             pass
         else:
             if member.marriagestatus == married and member.sex == male and member != person:
@@ -88,7 +88,7 @@ def inherit_sons(person,checkowner=True):
     children = kinship.get_children(person,person.mycomm.families)
     if children != []:
         #If there are children, select the men
-        select = [x for x in children if x.sex == male and x.dead == alive]
+        select = [x for x in children if x.sex == male and x.lifestatus == alive]
         #If there are alive men, select the oldest
         if len(select) != 0:
             select.sort(reverse=True,key=lambda x:x.age)
@@ -133,7 +133,7 @@ def inherit_brothers_sons(person,checkowner=True):
                 children = kinship.get_children(brother,brother.mycomm.families)
                 if children != []:
                     #If the brother has children, check for the alive men
-                    select = [x for x in children if x.sex == male and x.dead == alive]
+                    select = [x for x in children if x.sex == male and x.lifestatus == alive]
                     if checkowner == True:
                         select = [x for x in select if x.myhouse.owner != x]
                     if len(select) > 1:

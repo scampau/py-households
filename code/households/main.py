@@ -189,7 +189,7 @@ class Community(object):
             x.die()
             
         #Remove the dead from the community
-        remove = [i for i in range(len(self.people)) if self.people[i].dead == dead]
+        remove = [i for i in range(len(self.people)) if self.people[i].lifestatus == dead]
         remove.reverse()
         for i in remove:
             self.thedead.append(self.people.pop(i))
@@ -217,7 +217,7 @@ class Community(object):
         self.poplist.append(self.population)
         self.arealist.append(self.area)
         self.occupiedlist.append(self.occupied)
-        self.marriages = len([x for x in [x for x in self.people if x.marriagestatus == married] if x.married_to.dead == alive])
+        self.marriages = len([x for x in [x for x in self.people if x.marriagestatus == married] if x.married_to.lifestatus == alive])
         self.marriedlist.append(self.marriages)
         
         self.year += 1
@@ -265,7 +265,7 @@ class Person(object):
     ----------
     name : str
         The name of this individual. Used for narrative.
-    sex : Sex
+    sex : identity.Sex
         The sex of the person assigned at creation.
     age : int
         Age of the individual assigned at creation, then aging regularly.
@@ -273,9 +273,9 @@ class Person(object):
         The Community to which this individual belongs.
     myhouse : House
         The house in which this individual resides.
-    dead : bool
+    lifestatus : identity.LifeStatus
         Records whether the Person is dead or alive.
-    marriagestatus : {None, False, True}
+    marriagestatus : identity.MarriageStatus
         The marriage status of the individual.
             None - too young to be married;
             False - unmarried but eligible;
@@ -297,7 +297,7 @@ class Person(object):
         self.mycomm = mycomm #link to the community
         self.myhouse = myhouse #link to their house
         
-        self.dead = alive
+        self.lifestatus = alive
         self.marriagestatus = ineligible #Variable to store marriage status; None because not elegible
         self.married_to = None #The individual to whom this individual is married
         
@@ -318,7 +318,7 @@ class Person(object):
         if r <= rd.random(): #stay alive
             self.age += 1
         else: #if this person died this year, toggle them to be removed from the community
-            self.dead = dead
+            self.lifestatus = dead
             if self.marriagestatus == married:
                 self.married_to.marriagestatus = widowed
             self.mycomm.inheritance(self)
@@ -375,7 +375,7 @@ class Person(object):
         child in the same house.        
         """
         
-        if self.sex == female and [self.married_to.dead if self.marriagestatus == married else dead][0] == alive: #If married, husband is alive, and self is a woman
+        if self.sex == female and [self.married_to.lifestatus if self.marriagestatus == married else dead][0] == alive: #If married, husband is alive, and self is a woman
             b = self.mycomm.birthtab.get_rate(self.sex,self.age)
             if rd.random() < b: # if giving birth
                 # Create a new child with age 0
@@ -596,7 +596,7 @@ if __name__ == '__main__':
         
         
         
-        owner_dead = [h for h in [h for h in testcase.houses if h.owner is not None] if h.owner.dead == dead]
+        owner_dead = [h for h in [h for h in testcase.houses if h.owner is not None] if h.owner.lifestatus == dead]
         if len(owner_dead) > 0:
             print('Something has gone wrong')
             break

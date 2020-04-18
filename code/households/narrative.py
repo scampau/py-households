@@ -55,7 +55,7 @@ def biography(person):
         marriage_summary = person.marriagestatus.adjective + ' with ' + kids
     else:
         marriage_summary = person.marriagestatus.adjective
-    details = (person.name, person.dead.adjective, person.sex.noun, age_to_text(person.age),marriage_summary )
+    details = (person.name, person.lifestatus.adjective, person.sex.noun, age_to_text(person.age),marriage_summary )
     text = '%s is a %s %s, %s, %s' % details
     return text
 
