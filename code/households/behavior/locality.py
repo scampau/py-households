@@ -6,12 +6,12 @@ The locality package encodes options for where a new couple live.
 """
 
 from households import np, rd, scipy, nx, plt, kinship, residency
-
+from households.identity import *
 print('importing locality')
 #import kinship as kn
 
-global male, female
-male, female = range(2)
+#global male, female
+#male, female = range(2)
 
 def get_empty_house(houses):
     """Get a randomly chosen empty house to move into.
@@ -68,7 +68,7 @@ def patrilocality(husband,wife):
         return True
         
 
-def neolocality(husband,wife,primary=male):
+def neolocality(husband,wife,primary):
     """Finds a new house for a couple. 
     
     Ownership is given to the primary sex.
@@ -77,7 +77,7 @@ def neolocality(husband,wife,primary=male):
     ----------
     husband, wife : Person
         The people just married, identified by sex.
-    primary : {male, female}
+    primary : Sex
         Defines the sex of the partner who formally owns the property.
     
     Returns

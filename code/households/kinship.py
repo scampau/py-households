@@ -1,6 +1,6 @@
 """Kinship functions for analyzing birth and marriage relationships.
 
-This module uses the relationship network and a focal agent to identify 
+This module uses the relationship network and a focal person to identify 
 relationships such as spouses, children, parents, and nuclear families. By
 providing a basic definition of children and parents in particular, it enables
 more complex queries into cousins of varying degrees.
@@ -16,18 +16,18 @@ __all__ = ['get_spouse','get_parents','get_children','get_siblings',
 'get_family']
 
 from households import np, rd, scipy, nx, plt
-
+from households.identity import *
 print('importing kinship')
+#
+#global male, female
+#male, female = range(2)
 
-global male, female
-male, female = range(2)
-
-def get_spouse(agent,network):
-    """Return the spouse of an agent; otherwise return None.
+def get_spouse(person,network):
+    """Return the spouse of a person; otherwise return None.
     
     Parameters
     ----------
-    agent : Person
+    person : Person
         The person in question.
     network : networkx.DiGraph
         The social network which defines birth and marriage relations.
@@ -35,9 +35,9 @@ def get_spouse(agent,network):
     Returns
     -------
     Person or None
-        Returns the spouse of the agent, otherwise returns None.
+        Returns the spouse of the person, otherwise returns None.
     """
-    inedges = network.in_edges(agent)
+    inedges = network.in_edges(person)
     if len(inedges) == 0:
         return None;
     else:
@@ -47,12 +47,12 @@ def get_spouse(agent,network):
         return None
     
     
-def get_parents(agent,network):
+def get_parents(person,network):
     """Return the parents of an individual; otherwise return None.
     
     Parameters
     ----------
-    agent : Person
+    person : Person
         The Person in question.
     network : networkx.DiGraph
         The social network which defines birth and marriage relations.
@@ -60,9 +60,9 @@ def get_parents(agent,network):
     Returns
     -------
         {[Person, Person], None}
-            Returns a list with the parents of the agent, otherwise returns None.
+            Returns a list with the parents of the person, otherwise returns None.
     """
-    inedges = network.in_edges(agent)
+    inedges = network.in_edges(person)
     parents = []
     if len(inedges) == 0:
         return None;
@@ -76,12 +76,12 @@ def get_parents(agent,network):
         return parents
 
 
-def get_children(agent,network):
+def get_children(person,network):
     """Return the children of an individual; otherwise return empty list.
     
     Parameters
     ----------
-    agent : Person
+    person : Person
         The Person in question.
     network : networkx.DiGraph
         The social network which defines birth and marriage relations.
@@ -89,10 +89,10 @@ def get_children(agent,network):
     Returns
     -------
         {[Person,], None}
-            Returns a list with the children of the agent, otherwise returns None.
+            Returns a list with the children of the person, otherwise returns None.
     """
     
-    outedges = network.out_edges(agent)
+    outedges = network.out_edges(person)
     children = []
     if len(outedges) == 0:
         return children
@@ -103,12 +103,12 @@ def get_children(agent,network):
     return children            
     
     
-def get_siblings(agent,network):
+def get_siblings(person,network):
     """Return the siblings of an individual; otherwise, return None.
     
     Parameters
     ----------
-    agent : Person
+    person : Person
         The Person in question.
     network : networkx.DiGraph
         The social network which defines birth and marriage relations.
@@ -116,23 +116,23 @@ def get_siblings(agent,network):
     Returns
     -------
         {[Person,], None}
-            Returns a list with the siblings of the agent, otherwise returns None.
+            Returns a list with the siblings of the person, otherwise returns None.
     """
     
-    parents = get_parents(agent,network)
+    parents = get_parents(person,network)
     if parents == None:
         return [];
     children = get_children(parents[0],network)
-    children.remove(agent)
+    children.remove(person)
     return children
 
 
-def get_family(agent,network):
-    """Return an agents nuclear family (spouse and children) including themselves.
+def get_family(person,network):
+    """Return a person's nuclear family (spouse and children) including themselves.
     
     Parameters
     ----------
-    agent : Person
+    person : Person
         The Person in question.
     network : networkx.DiGraph
         The social network which defines birth and marriage relations.
@@ -140,17 +140,17 @@ def get_family(agent,network):
     Returns
     -------
         {[Person,], None}
-            Returns a list with the nuclear family of the agent,
+            Returns a list with the nuclear family of the person,
                 otherwise returns None.
     """
-    spouse = get_spouse(agent,network)
+    spouse = get_spouse(person,network)
     if spouse == None:
         #If no spouse, then no children, so return self
-        return [agent]
+        return [person]
     else:
         #If spouse, check for children
-        children = get_children(agent,network)
-        return [agent,spouse] + children    
+        children = get_children(person,network)
+        return [person,spouse] + children    
 
 
 

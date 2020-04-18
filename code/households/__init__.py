@@ -10,6 +10,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 print('Importing the households package')
+from households.identity import *
 import households.kinship
 import households.residency
 import households.behavior

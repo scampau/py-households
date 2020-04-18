@@ -12,19 +12,14 @@ variety of contexts. Demographic data are based on Bagnall and Frier.
 
 """
 
-from households import np, rd, scipy, nx, plt, kinship, residency, behavior
+from households import np, rd, scipy, nx, plt, kinship, residency, behavior, narrative
+from households.identity import *
 """Import the dependency packages defined in households.__init__.py
 
 """
 
 print('Importing main.py')
 
-global male, female
-male, female = range(2)
-"""int: integer values for men and women agents
-
-Global variable used throughout the households package for legibility.
-"""
 
 class World:
     """The world of the simulation.
@@ -51,7 +46,7 @@ class Community(object):
     area : int
         The number of houses in the community
     startage : int
-        The age at which all agents in the simulation start. Corrected for by burn-in.
+        The age at which all persons in the simulation start. Corrected for by burn-in.
     mortab : AgeTable
         An AgeTable storing a Coale and Demeny-style mortality schedule
     marrtab : AgeTable
@@ -106,7 +101,7 @@ class Community(object):
         This defines the circumstances of houshold fissioning from behavior.fragmentation, or a custom function
         
     thedead : list
-        List of all dead agents, still required for genealogy.
+        List of all dead persons, still required for genealogy.
     deathlist : list of int
         History of deaths per year.
     birthlist : list of int
@@ -121,7 +116,7 @@ class Community(object):
         History of number of occupied houses per year.        
     """
     
-    global male, female
+    #global male, female
     def __init__(self,pop,area,startage,mortab,marrtab,birthtab,locality,inheritance,fragmentation):
         
         self.year = 0
@@ -152,7 +147,7 @@ class Community(object):
         #Note: add an incest-rule option.
         #Note: add value checks.
         
-        #Define a network to keep track of relations between agents
+        #Define a network to keep track of relations between persons
         self.families = nx.DiGraph()
         for individual in self.people:
             self.families.add_node(individual) 
@@ -164,7 +159,7 @@ class Community(object):
         self.marriages = 0
                 
         #Define history of the statistics
-        self.thedead = [] #store the list of dead agents
+        self.thedead = [] #store the list of dead persons
         self.deathlist = [self.deaths]
         self.birthlist = [self.births]
         self.poplist = [self.population]
@@ -176,7 +171,7 @@ class Community(object):
         """Progress the community 1 time-step (year).
         
         The order of steps in the simulation follows this schedule:
-            1) randomize the order of agents,
+            1) randomize the order of persons,
             2) death (and thereby inheritance),
             3) fragmentation,
             4) marriage (and thereby locality), 
@@ -194,7 +189,7 @@ class Community(object):
             x.die()
             
         #Remove the dead from the community
-        remove = [i for i in range(len(self.people)) if self.people[i].dead == True]
+        remove = [i for i in range(len(self.people)) if self.people[i].dead == dead]
         remove.reverse()
         for i in remove:
             self.thedead.append(self.people.pop(i))
@@ -205,11 +200,11 @@ class Community(object):
         for h in self.houses:
             self.fragmentation(h)
         
-        #Go through the marriage routine for all agents
+        #Go through the marriage routine for all persons
         for x in self.people:
             x.marriage()
             
-        # Go through the birth routine for all agents
+        # Go through the birth routine for all persons
         for x in self.people:
             x.birth()
             
@@ -222,12 +217,12 @@ class Community(object):
         self.poplist.append(self.population)
         self.arealist.append(self.area)
         self.occupiedlist.append(self.occupied)
-        self.marriages = len([x for x in [x for x in self.people if x.married == True] if x.married_to.dead == False])
+        self.marriages = len([x for x in [x for x in self.people if x.married == married] if x.married_to.dead == alive])
         self.marriedlist.append(self.marriages)
         
         self.year += 1
 
-    def get_eligible(self,agent):
+    def get_eligible(self,person):
         """Returns list of all eligible marriage partners of the opposite sex.
         
         Searches through all 
@@ -238,27 +233,27 @@ class Community(object):
         """
         
         candidates = []
-        relations = kinship.get_siblings(agent,self.families) 
+        relations = kinship.get_siblings(person,self.families) 
         #Note at present that this only accounts for direct incest; a flexible
         ## incest rule would be a useful expansion here. 
         if relations == None: relations = []
         for x in self.people:
-            if x.sex != agent.sex:
+            if x.sex != person.sex:
                 #If unmarried and not a sibling
-                if x.married == False and (x in relations) == False:
+                if x.married == unmarried and (x in relations) == False:
                     candidates.append(x)
         return candidates                    
 
 
 class Person(object):
-    """An agent with a social structure and kinship.
+    """A representation of a human with a social structure and kinship.
     
     Create a new Person in the Community.
     
     Parameters
     ----------
-    sex : {male,female}
-        The sex of the agent assigned at creation.
+    sex : Sex
+        The sex of the person assigned at creation.
     age : int
         Age of the individual assigned at creation, then aging regularly.
     mycomm : Community
@@ -268,8 +263,10 @@ class Person(object):
     
     Attributes
     ----------
-    sex : {male,female}
-        The sex of the agent assigned at creation.
+    name : str
+        The name of this individual. Used for narrative.
+    sex : Sex
+        The sex of the person assigned at creation.
     age : int
         Age of the individual assigned at creation, then aging regularly.
     mycomm : Community
@@ -291,14 +288,17 @@ class Person(object):
     
     #Note: remarriage needs to be added as an option
     def __init__(self,sex,age,mycomm,myhouse):
-
         self.sex = sex
+        if sex == male:
+            self.name = rd.choice(narrative.male_names)
+        else:
+            self.name = rd.choice(narrative.female_names)
         self.age = age
         self.mycomm = mycomm #link to the community
         self.myhouse = myhouse #link to their house
         
-        self.dead = False
-        self.married = None #Variable to store marriage status; None because not elegible
+        self.dead = alive
+        self.married = ineligible #Variable to store marriage status; None because not elegible
         self.married_to = None #The individual to whom this individual is married
         
         self.birthyear = self.mycomm.year
@@ -318,7 +318,9 @@ class Person(object):
         if r <= rd.random(): #stay alive
             self.age += 1
         else: #if this person died this year, toggle them to be removed from the community
-            self.dead = True
+            self.dead = dead
+            if self.married == married:
+                self.married_to.married = widowed
             self.mycomm.inheritance(self)
             if self.myhouse is not None:
                 self.myhouse.remove_person(self)
@@ -328,26 +330,26 @@ class Person(object):
         ## once.
         
     def marriage(self):
-        """Check whether this agent gets married this timestep.
+        """Check whether this person gets married this timestep.
         
         This step determines marriage eligibility, as well as finding potential
         candidates for marriage. At present the algorithm guarantees marriage
         if there are any eligible candidates of the opposite sex. 
         """
         
-        if self.married == True: #if married, don't run this script
+        if self.married == married: #if married, don't run this script
             pass 
-        elif self.married == False: #if this agent is eligible to be married
+        elif self.married == unmarried: #if this person is eligible to be married
             #get the list of eligible candidates for marriage
             candidates = self.mycomm.get_eligible(self)
             ##NOTE: evntually this must be adapted to get those not related to a given person by a certain distance
             if len(candidates) != 0: #if there are any eligible people
                 choice = rd.choice(candidates) #Pick one
                 # Set self as married
-                self.married = True
+                self.married = married
                 self.married_to = choice
                 #Set the other person as married
-                choice.married = True
+                choice.married = married
                 choice.married_to = self
                 ## Add links to the network of families
                 self.mycomm.families.add_edges_from( [(self,choice, {'relation' :  'marriage'}),
@@ -358,17 +360,17 @@ class Person(object):
         else: #if none (== too young for marriage), check eligibility
             e = self.mycomm.marrtab.get_rate(self.sex,self.age)
             if rd.random() < e: #If eligibility possible, change staus
-                self.married = False
+                self.married = unmarried
     
     def birth(self):
-        """Determine whether this agent gives birth.
+        """Determine whether this person gives birth.
         
         This relies on the fertility schedule in self.mycomm.birthtab to decide
         whether a married woman gives birth this year. If so, this method creates that 
         child in the same house.        
         """
         
-        if self.sex == female and [self.married_to.dead if self.married == True else True][0] == False: #If married, husband is alive, and self is a woman
+        if self.sex == female and [self.married_to.dead if self.married == married else dead][0] == alive: #If married, husband is alive, and self is a woman
             b = self.mycomm.birthtab.get_rate(self.sex,self.age)
             if rd.random() < b: # if giving birth
                 # Create a new child with age 0
@@ -410,7 +412,7 @@ class House(object):
         self.maxpeople = maxpeople
         self.mycomm = mycomm
         self.people = []
-        self.owner = None #pointer to the agent who owns the house
+        self.owner = None #pointer to the person who owns the house
     
     def add_person(self,tobeadded):
         """Add a person to the house.
@@ -443,7 +445,7 @@ class AgeTable(object):
     ----------
     ages : list
         A list of ages including the lower bounds, such that ages[0] <= x < ages[1] is the comparison.
-    sex1, sex2 : {male, female}
+    sex1, sex2 : Sex
         The variables defining which rates correspond to which sex.
     rates1, rates2 : list
         Annual chance of occurence for each interval. n.b. that len(rates) - len(ages) - 1
@@ -453,7 +455,7 @@ class AgeTable(object):
     
     
     """
-    global male, female
+    #global male, female
 
     def __init__(self,ages,sex1,rates1,sex2,rates2):
         self._ages = ages
@@ -467,7 +469,7 @@ class AgeTable(object):
 
         Parameters
         ----------
-        sex : {male, female}
+        sex : Sex
             The sex in the table to be consulted.
         age : int
             The age of the individual. Must be within defined range of table
@@ -501,7 +503,7 @@ if __name__ == '__main__':
     
     examplemarriage = AgeTable([0,12,17,100],female,[0,1./7.5,1./7.5],male,[0,0,0.0866]) #These values based on Bagnall and Frier, 113-4 (women) and 116 (men) for Roman egypt
     
-    def inheritance_moderate(agent):
+    def inheritance_moderate(person):
         """
         Upon the death of the patriarch, the house is given to someone in this
         order:
@@ -513,15 +515,15 @@ if __name__ == '__main__':
         """
         #The moderate inheritance regime of Asheri 1963
         # Check if patriarch
-        if agent.sex == male and any([h.owner == agent for h in agent.comm.houses]):
+        if person.sex == male and any([h.owner == person for h in person.comm.houses]):
             #First priority: male children
-            inherited = bhv.inheritance.inherit_sons(agent,True) #what about grandchildren?
+            inherited = bhv.inheritance.inherit_sons(person,True) #what about grandchildren?
             if inherited == False:
                 #Second priority: adoption of brothers' younger sons
-                inherited = bhv.inheritance.inherit_brothers_sons(agent)
+                inherited = bhv.inheritance.inherit_brothers_sons(person)
                 if inherited == False:
                     #If there is still no heir, for now the ownership defaults
-                    bhv.inheritance.inherit(agent,None)    
+                    bhv.inheritance.inherit(person,None)    
     def brother_loses_out_15(house):
         if house.people != [] and house.owner != None:
             bhv.fragmentation.brother_loses_out(house,15)
@@ -589,7 +591,7 @@ if __name__ == '__main__':
         
         
         
-        owner_dead = [h for h in [h for h in testcase.houses if h.owner is not None] if h.owner.dead == True]
+        owner_dead = [h for h in [h for h in testcase.houses if h.owner is not None] if h.owner.dead == dead]
         if len(owner_dead) > 0:
             print('Something has gone wrong')
             break

@@ -13,7 +13,7 @@ import numpy as np
 import pandas
 import os
 import matplotlib.pyplot as plt
-os.chdir('..')
+#os.chdir('..')
 import households
 
 
@@ -25,35 +25,46 @@ birth = households.AgeTable([0,16,40,100],male,[0,0,0],female,[0,.1,0])
 marr = households.AgeTable([0,16,100],male,[0,.8],female,[0,.8])
 death = households.AgeTable([0,5,40,100],male,[0,0,1],female,[0,0,1])
 
-def sons_or_none(agent):
-    result = households.behavior.inheritance.inherit_sons(agent,False)
+def sons_or_none(person):
+    result = households.behavior.inheritance.inherit_sons(person,False)
     if result == False:
-        households.behavior.inheritance.inherit(agent,None)  
+        households.behavior.inheritance.inherit(person,None)  
+
+def neolocality_husband_owner(husband,wife):
+    households.behavior.locality.neolocality(husband,wife,male)
 
 #Run a simple, single example for 25 years
-np.random.seed(505401)
-example = households.Community(pop=20,area = 20,startage = 15,mortab = death, marrtab = marr, birthtab = birth, locality = households.behavior.locality.neolocality, inheritance = sons_or_none, fragmentation = households.behavior.fragmentation.no_fragmentation)
+households.rd.seed(505401)
+example = households.Community(pop=20,area = 20,startage = 15,mortab = death, marrtab = marr, birthtab = birth, locality = neolocality_husband_owner, inheritance = sons_or_none, fragmentation = households.behavior.fragmentation.no_fragmentation)
 
 while example.year < 25:
     example.progress()
 
 #Let's look at one family
 h = [x for x in example.houses if len(x.people) >2][0]
-peter, isabel = [(h.people[0], h.people[1]) if h.people[0].sex == male else (h.people[1],h.people[0])][0]
-teddy = h.people[2]
-print(households.narrative.biography(isabel))
-print(households.narrative.biography(teddy))
+for x in h.people:
+    print(households.narrative.biography(x)) 
 print(households.narrative.census(h))
+print(' ')
+#What about the eldest?
+children = households.kinship.get_children(h.people[0],h.people[0].mycomm.families)
+print(households.narrative.biography(children[0]))
+print(households.narrative.biography(children[0].married_to)) #Charlotte's husband
+ ## is fromt he first generation, and as such she will soon be a widowed mother
 
 #Now let's run another 25 years
 while example.year < 50:
     example.progress()
     
-#Let's check in again on teddy
-h = teddy.myhouse
-for x in h.people:
+#Let's check in again on each of the children
+for x in children:
+    print('One of the original children:')
     print(households.narrative.biography(x))
-dolores, maeve, buttercup, robert = h.people[1:]
+    print(x.sex.possessive + ' household:')
+    print(households.narrative.census(x.myhouse))
+    for y in x.myhouse.people:
+        print(households.narrative.biography(y))
+    print(' ')
 
 #And now let's run another 25 years
 while example.year < 75:
@@ -92,7 +103,7 @@ examplebirth = households.AgeTable([0,12,40,50,100],female,[0,.3,.1,0],male,[0,0
 
 examplemarriage = households.AgeTable([0,12,17,100],female,[0,1./7.5,1./7.5],male,[0,0,0.0866]) #These values based on Bagnall and Frier, 113-4 (women) and 116 (men) for Roman egypt
 
-def inheritance_moderate(agent):
+def inheritance_moderate(person):
     """
     Upon the death of the patriarch, the house is given to someone in this
     order:
@@ -104,15 +115,15 @@ def inheritance_moderate(agent):
     """
     #The moderate inheritance regime of Asheri 1963
     # Check if patriarch
-    if agent.sex == male and any([h.owner == agent for h in agent.mycomm.houses]):
+    if person.sex == male and any([h.owner == person for h in person.mycomm.houses]):
         #First priority: male children
-        inherited = households.behavior.inheritance.inherit_sons(agent,True) #what about grandchildren?
+        inherited = households.behavior.inheritance.inherit_sons(person,True) #what about grandchildren?
         if inherited == False:
             #Second priority: adoption of brothers' younger sons
-            inherited = households.behavior.inheritance.inherit_brothers_sons(agent)
+            inherited = households.behavior.inheritance.inherit_brothers_sons(person)
             if inherited == False:
                 #If there is still no heir, for now the ownership defaults
-                households.behavior.inheritance.inherit(agent,None)    
+                households.behavior.inheritance.inherit(person,None)    
                 
 def brother_loses_out_15(house):
     """Fragmentation rule with age of majority 15.

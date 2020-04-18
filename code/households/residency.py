@@ -21,13 +21,13 @@ __all__ = ['count_married','get_married','is_solitary','is_no_family',
 'family_extract']
 
 from households import np, rd, scipy, nx, plt, kinship
-
+from households.identity import *
 print('importing residency')
 
-global male, female
-male, female = range(2)
-"""Constants for refering to sex.
-"""
+#global male, female
+#male, female = range(2)
+#"""Constants for refering to sex.
+#"""
 
 ######Identify household/family types
 # Using the Cambridge Group typology
@@ -55,17 +55,17 @@ def count_married(house):
     return m/2
 
 def get_married(house):
-    """Returns which agents are married in a household.
+    """Returns which persons are married in a household.
     
     Parameters
     ----------
     house : House
-        A house object to examine for coresident married agents.
+        A house object to examine for coresident married persons.
         
     Returns
     -------
     list of Person
-        A list of the coresident married agents in a house.
+        A list of the coresident married persons in a house.
     """
     if is_solitary(house):
         return []

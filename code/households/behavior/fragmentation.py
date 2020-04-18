@@ -10,19 +10,8 @@ whether anyone in that household needs to leave. If they do, move them.
 """
 
 from households import np, rd, scipy, nx, plt, kinship, residency, behavior
-
+from households.identity import *
 print('importing fragmentation')
-
-#import kinship as kn
-#import inheritance as ih 
-#import locality as lc
-
-global male, female
-male, female = range(2)
-"""int: integer values for men and women agents
-
-Global variable used throughout the households package for legibility.
-"""
 
 def no_fragmentation(house):
     """No fragmentation rule.
@@ -54,7 +43,7 @@ def brother_loses_out(house,age):
     if house.people != [] and house.owner != None:    
         siblings = kinship.get_siblings(house.owner,house.mycomm.families)
         if siblings != []:
-            siblings = [x for x in siblings if x.sex == male and x.age >= age and x.dead == False]
+            siblings = [x for x in siblings if x.sex == male and x.age >= age and x.dead == alive]
             if len(siblings) > 0:
                 for s in siblings:
                     #For each brother who lives in the house
