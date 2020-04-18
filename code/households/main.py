@@ -217,7 +217,7 @@ class Community(object):
         self.poplist.append(self.population)
         self.arealist.append(self.area)
         self.occupiedlist.append(self.occupied)
-        self.marriages = len([x for x in [x for x in self.people if x.marriagestatus == married] if x.married_to.lifestatus == alive])
+        self.marriages = len([x for x in [x for x in self.people if x.marriagestatus == married] if x.has_spouse.lifestatus == alive])
         self.marriedlist.append(self.marriages)
         
         self.year += 1
@@ -280,7 +280,7 @@ class Person(object):
             None - too young to be married;
             False - unmarried but eligible;
             True - married or widowed (the model does not allow remarriage)
-    married_to : {None, Person}
+    has_spouse : {None, Person}
         The spouse of this individual.
     birthyear : int
         The year this individual was born.        
@@ -299,7 +299,7 @@ class Person(object):
         
         self.lifestatus = alive
         self.marriagestatus = ineligible #Variable to store marriage status; None because not elegible
-        self.married_to = None #The individual to whom this individual is married
+        self.has_spouse = None #The individual to whom this individual is married
         
         self.birthyear = self.mycomm.year
         # Options for married include None (too young for marriage), False 
@@ -320,7 +320,7 @@ class Person(object):
         else: #if this person died this year, toggle them to be removed from the community
             self.lifestatus = dead
             if self.marriagestatus == married:
-                self.married_to.marriagestatus = widowed
+                self.has_spouse.marriagestatus = widowed
             self.mycomm.inheritance(self)
             if self.myhouse is not None:
                 self.myhouse.remove_person(self)
@@ -350,10 +350,10 @@ class Person(object):
                 choice = rd.choice(candidates) #Pick one
                 # Set self as married
                 self.marriagestatus = married
-                self.married_to = choice
+                self.has_spouse = choice
                 #Set the other person as married
                 choice.marriagestatus = married
-                choice.married_to = self
+                choice.has_spouse = self
                 ## Add links to the network of families
                 self.mycomm.families.add_edges_from( [(self,choice, {'relation' :  'marriage'}),
                 (choice,self,{'relation' : 'marriage'})])
@@ -375,7 +375,7 @@ class Person(object):
         child in the same house.        
         """
         
-        if self.sex == female and [self.married_to.lifestatus if self.marriagestatus == married else dead][0] == alive: #If married, husband is alive, and self is a woman
+        if self.sex == female and [self.has_spouse.lifestatus if self.marriagestatus == married else dead][0] == alive: #If married, husband is alive, and self is a woman
             b = self.mycomm.birthtab.get_rate(self.sex,self.age)
             if rd.random() < b: # if giving birth
                 # Create a new child with age 0
@@ -384,7 +384,7 @@ class Person(object):
                 self.myhouse.add_person(child)
                 # Add the child to the family network
                 self.mycomm.families.add_edge(self,child,relation = 'birth')
-                self.mycomm.families.add_edge(self.married_to,child,relation= 'birth')
+                self.mycomm.families.add_edge(self.has_spouse,child,relation= 'birth')
 
 class House(object):
     """Creates a house in which persons reside.
