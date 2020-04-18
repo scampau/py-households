@@ -256,7 +256,7 @@ class Person(object):
         The sex of the person assigned at creation.
     age : int
         Age of the individual assigned at creation, then aging regularly.
-    mycomm : Community
+    has_community : Community
         The Community to which this individual belongs.
     myhouse : House
         The house in which this individual resides.
@@ -269,7 +269,7 @@ class Person(object):
         The sex of the person assigned at creation.
     age : int
         Age of the individual assigned at creation, then aging regularly.
-    mycomm : Community
+    has_community : Community
         The Community to which this individual belongs.
     myhouse : House
         The house in which this individual resides.
@@ -287,21 +287,21 @@ class Person(object):
     """
     
     #Note: remarriage needs to be added as an option
-    def __init__(self,sex,age,mycomm,myhouse):
+    def __init__(self,sex,age,has_community,myhouse):
         self.sex = sex
         if sex == male:
             self.name = rd.choice(narrative.male_names)
         else:
             self.name = rd.choice(narrative.female_names)
         self.age = age
-        self.mycomm = mycomm #link to the community
+        self.has_community = has_community #link to the community
         self.myhouse = myhouse #link to their house
         
         self.lifestatus = alive
         self.marriagestatus = ineligible #Variable to store marriage status; None because not elegible
         self.has_spouse = None #The individual to whom this individual is married
         
-        self.birthyear = self.mycomm.year
+        self.birthyear = self.has_community.year
         # Options for married include None (too young for marriage), False 
         ## (old enough but not eligible yet), or True (yes or widowed)
         
@@ -314,14 +314,14 @@ class Person(object):
         """
         
         #figure out if this person dies
-        r = self.mycomm.mortab.get_rate(self.sex,self.age)
+        r = self.has_community.mortab.get_rate(self.sex,self.age)
         if r <= rd.random(): #stay alive
             self.age += 1
         else: #if this person died this year, toggle them to be removed from the community
             self.lifestatus = dead
             if self.marriagestatus == married:
                 self.has_spouse.marriagestatus = widowed
-            self.mycomm.inheritance(self)
+            self.has_community.inheritance(self)
             if self.myhouse is not None:
                 self.myhouse.remove_person(self)
         # Some inheritance rules need to happen here!
@@ -344,7 +344,7 @@ class Person(object):
             ### remarriage rules
         elif self.marriagestatus == unmarried: #if this person is eligible to be married
             #get the list of eligible candidates for marriage
-            candidates = self.mycomm.get_eligible(self)
+            candidates = self.has_community.get_eligible(self)
             ##NOTE: evntually this must be adapted to get those not related to a given person by a certain distance
             if len(candidates) != 0: #if there are any eligible people
                 choice = rd.choice(candidates) #Pick one
@@ -355,13 +355,13 @@ class Person(object):
                 choice.marriagestatus = married
                 choice.has_spouse = self
                 ## Add links to the network of families
-                self.mycomm.families.add_edges_from( [(self,choice, {'relation' :  'marriage'}),
+                self.has_community.families.add_edges_from( [(self,choice, {'relation' :  'marriage'}),
                 (choice,self,{'relation' : 'marriage'})])
                 ## Run the locality rules for this community
                 husband, wife = (self,choice) if self.sex == male else (choice,self)
-                self.mycomm.locality(husband,wife)
+                self.has_community.locality(husband,wife)
         elif self.marriagestatus == ineligible: #if none (== too young for marriage), check eligibility
-            e = self.mycomm.marrtab.get_rate(self.sex,self.age)
+            e = self.has_community.marrtab.get_rate(self.sex,self.age)
             if rd.random() < e: #If eligibility possible, change staus
                 self.marriagestatus = unmarried
         else:
@@ -370,21 +370,21 @@ class Person(object):
     def birth(self):
         """Determine whether this person gives birth.
         
-        This relies on the fertility schedule in self.mycomm.birthtab to decide
+        This relies on the fertility schedule in self.has_community.birthtab to decide
         whether a married woman gives birth this year. If so, this method creates that 
         child in the same house.        
         """
         
         if self.sex == female and [self.has_spouse.lifestatus if self.marriagestatus == married else dead][0] == alive: #If married, husband is alive, and self is a woman
-            b = self.mycomm.birthtab.get_rate(self.sex,self.age)
+            b = self.has_community.birthtab.get_rate(self.sex,self.age)
             if rd.random() < b: # if giving birth
                 # Create a new child with age 0
-                child = Person(rd.choice([male,female]),0,self.mycomm,self.myhouse)
-                self.mycomm.people.append(child) #add to the community
+                child = Person(rd.choice([male,female]),0,self.has_community,self.myhouse)
+                self.has_community.people.append(child) #add to the community
                 self.myhouse.add_person(child)
                 # Add the child to the family network
-                self.mycomm.families.add_edge(self,child,relation = 'birth')
-                self.mycomm.families.add_edge(self.has_spouse,child,relation= 'birth')
+                self.has_community.families.add_edge(self,child,relation = 'birth')
+                self.has_community.families.add_edge(self.has_spouse,child,relation= 'birth')
 
 class House(object):
     """Creates a house in which persons reside.
@@ -394,7 +394,7 @@ class House(object):
     maxpeople : int
         Maximum number of residents before the house is crowded. Currently no 
         repercussion for a crowded house.
-    mycomm : Community
+    has_community : Community
         The Community in which this house was built
 
 
@@ -403,7 +403,7 @@ class House(object):
     maxpeople : int
         Maximum number of residents before the house is crowded. Currently no 
         repercussion for a crowded house.
-    mycomm : Community
+    has_community : Community
         The Community in which this house was built
     people : list of Person
         List of the people who reside in the house.
@@ -413,9 +413,9 @@ class House(object):
     
     #Houses belong to the community, have an owner, contain people
     #EVENTUALLY, houses may be expanded, change through time, etc. 
-    def __init__(self,maxpeople,mycomm):
+    def __init__(self,maxpeople,has_community):
         self.maxpeople = maxpeople
-        self.mycomm = mycomm
+        self.has_community = has_community
         self.people = []
         self.owner = None #pointer to the person who owns the house
     

@@ -119,8 +119,7 @@ def neolocality(husband,wife,primary):
     #Select the primary person
     owner = husband if husband.sex == primary else wife
     # Find an empty house
-    #rd.shuffle(owner.mycomm.houses) #oh no no no no no no [get out meme]
-    new_house = get_empty_house(owner.mycomm.houses)
+    new_house = get_empty_house(owner.has_community.houses)
     if new_house == None:
         # If no house, end
         return False

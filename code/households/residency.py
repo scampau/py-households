@@ -48,7 +48,7 @@ def count_married(house):
         return 0
     m = 0
     for p in house.people:
-        spouse = kinship.get_spouse(p,p.mycomm.families)
+        spouse = kinship.get_spouse(p,p.has_community.families)
         if spouse is not None:
             if spouse in house.people:
                 m += 1
@@ -71,7 +71,7 @@ def get_married(house):
         return []
     m = []
     for p in house.people:
-        spouse = kinship.get_spouse(p,p.mycomm.families)
+        spouse = kinship.get_spouse(p,p.has_community.families)
         if spouse is not None:
             if spouse in house.people:
                 m.append(spouse)
@@ -134,7 +134,7 @@ def is_nuclear(house):
         #Check whether the married couple has parents there
         married = get_married(house)
         for p in married:
-            parents = kinship.get_parents(p,p.mycomm.families)
+            parents = kinship.get_parents(p,p.has_community.families)
             if parents is not None:
                 for q in parents:
                     if q in house.people:
@@ -166,7 +166,7 @@ def is_extended(house):
         #Check whether the married couple has parents there
         married = get_married(house)
         for p in married:
-            parents = kinship.get_parents(p,p.mycomm.families)
+            parents = kinship.get_parents(p,p.has_community.families)
             if parents is not None:
                 for q in parents:
                     if q in house.people:

@@ -22,7 +22,7 @@ def inherit(person,heir):
     heir : Person
         The Person who will inherit and will become the owner of the property.
     """
-    for h in person.mycomm.houses:
+    for h in person.has_community.houses:
         if h.owner == dead:
             h.owner = heir
 
@@ -43,7 +43,7 @@ def move_family(person,new_house):
     """
     old_house = person.myhouse
     #Get the coresident family
-    family = kinship.get_family(person,person.mycomm.families)
+    family = kinship.get_family(person,person.has_community.families)
     family = [f for f in family if f in old_house.people]
     for member in family:
         if member.lifestatus == dead:
@@ -85,7 +85,7 @@ def inherit_sons(person,checkowner=True):
     """
     heir = None
     # Get a list of children
-    children = kinship.get_children(person,person.mycomm.families)
+    children = kinship.get_children(person,person.has_community.families)
     if children != []:
         #If there are children, select the men
         select = [x for x in children if x.sex == male and x.lifestatus == alive]
@@ -122,7 +122,7 @@ def inherit_brothers_sons(person,checkowner=True):
     """
     heir = None
     #Get a list of siblings
-    siblings = kinship.get_siblings(person,person.mycomm.families)
+    siblings = kinship.get_siblings(person,person.has_community.families)
     if siblings != []:
         #If there are siblings, select the men
         select = [x for x in siblings if x.sex == male]
@@ -130,7 +130,7 @@ def inherit_brothers_sons(person,checkowner=True):
             select.sort(reverse=True,key=lambda x:x.age)
             for brother in select:
                 #Check whether each brother for sons
-                children = kinship.get_children(brother,brother.mycomm.families)
+                children = kinship.get_children(brother,brother.has_community.families)
                 if children != []:
                     #If the brother has children, check for the alive men
                     select = [x for x in children if x.sex == male and x.lifestatus == alive]

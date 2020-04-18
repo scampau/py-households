@@ -41,7 +41,7 @@ def brother_loses_out(house,age):
     """
     # Check whether any brothers are there
     if house.people != [] and house.owner != None:    
-        siblings = kinship.get_siblings(house.owner,house.mycomm.families)
+        siblings = kinship.get_siblings(house.owner,house.has_community.families)
         if siblings != []:
             siblings = [x for x in siblings if x.sex == male and x.age >= age and x.lifestatus == alive]
             if len(siblings) > 0:
@@ -52,7 +52,7 @@ def brother_loses_out(house,age):
                         ## not hte ownerwho lives there that person ( and their family)
                         ## moves out
                         # Pick a new house
-                        new_house = behavior.locality.get_empty_house(house.mycomm.houses)
+                        new_house = behavior.locality.get_empty_house(house.has_community.houses)
                         if new_house != None:
                             # Identify their family and move them
                             behavior.inheritance.move_family(s,new_house)
