@@ -99,7 +99,7 @@ class Community(object):
         An AgeTable storing probability of giving birth once married by sex (0 for men)
     locality : callable
         This defines the location newlyweds move to from behavior.locality, or a custom function.
-    inheritance : callable
+    inheritance : behavior.inheritance.InheritanceRule
         This defines the inheritance system from behavior.inheritance, or a custom function.
     fragmentation : callable
         This defines the circumstances of houshold fissioning from behavior.fragmentation, or a custom function
@@ -147,6 +147,8 @@ class Community(object):
         self.marrtab = marrtab #the probability of marriage at a given age by sex
         self.birthtab = birthtab #the probability of a woman giving birth at a given age if married
         self.locality = locality
+        if isinstance(inheritance,behavior.inheritance.InheritanceRule) == False:
+            raise TypeError('inheritance was not behavior.inheritance.InheritanceRule')
         self.inheritance = inheritance
         self.fragmentation = fragmentation
         #Note: add an incest-rule option.
@@ -433,6 +435,7 @@ class House(object):
             The person to be added to the residents of the house.
         """
         self.people.append(tobeadded)
+        tobeadded.has_house = self
     
     def remove_person(self,toberemoved):
         """Remove a person from the house.
@@ -443,6 +446,7 @@ class House(object):
             The person to be removed from the residents of the house
         """
         self.people.remove(toberemoved)
+        toberemoved.has_house = None
         
 
 class AgeTable(object):

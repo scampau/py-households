@@ -13,9 +13,9 @@ import numpy as np
 import pandas
 import os
 import matplotlib.pyplot as plt
-#os.chdir('..')
+os.chdir('..')
 import households
-
+from households import behavior
 
 male, female = (households.male,households.female)
 
@@ -25,31 +25,33 @@ birth = households.AgeTable([0,16,40,100],male,[0,0,0],female,[0,.1,0])
 marr = households.AgeTable([0,16,100],male,[0,.8],female,[0,.8])
 death = households.AgeTable([0,5,40,100],male,[0,0,1],female,[0,0,1])
 
-def sons_or_none(person):
-    result = households.behavior.inheritance.inherit_sons(person,False)
-    if result == False:
-        households.behavior.inheritance.inherit(person,None)  
+
+sons_brothers_then_none = behavior.inheritance.InheritanceRule(behavior.inheritance.has_property_houses ,
+                                                    behavior.inheritance.inherit_sons_then_brothers_sons,
+                                                    behavior.inheritance.failed_inheritance_no_owner)
+
 
 def neolocality_husband_owner(husband,wife):
     households.behavior.locality.neolocality(husband,wife,male)
 
 #Run a simple, single example for 25 years
 households.rd.seed(505401)
-example = households.Community(name = 'Sweetwater',pop=20,area = 20,startage = 15,mortab = death, marrtab = marr, birthtab = birth, locality = neolocality_husband_owner, inheritance = sons_or_none, fragmentation = households.behavior.fragmentation.no_fragmentation)
+example = households.Community(name = 'Sweetwater',pop=20,area = 20,startage = 15,mortab = death, marrtab = marr, birthtab = birth, locality = neolocality_husband_owner, inheritance = sons_brothers_then_none, fragmentation = households.behavior.fragmentation.no_fragmentation)
 
 while example.year < 25:
     example.progress()
 
 #Let's look at one family
-h = [x for x in example.houses if len(x.people) >2][0]
+h = [x for x in example.houses if len(x.people) >2][1]
 for x in h.people:
     print(households.narrative.biography(x)) 
 print(households.narrative.census(h))
 print(' ')
+will, elsie1, elsie2, hector = h.people
 #What about the eldest?
-children = households.kinship.get_children(h.people[0],h.people[0].mycomm.families)
+children = households.kinship.get_children(h.people[0],h.people[0].has_community.families)
 print(households.narrative.biography(children[0]))
-print(households.narrative.biography(children[0].married_to)) #Charlotte's husband
+print(households.narrative.biography(children[0].has_spouse)) #Charlotte's husband
  ## is fromt he first generation, and as such she will soon be a widowed mother
 
 #Now let's run another 25 years

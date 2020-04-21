@@ -31,6 +31,21 @@ print('importing residency')
 
 ######Identify household/family types
 # Using the Cambridge Group typology
+def get_household(house):
+    """Get the current residential members of a house.
+    
+    Parameters
+    ---------
+    house : House
+        A house object to check.
+    
+    Returns
+    -------
+    list of People
+        The current residents
+    """
+    return house.people
+
 def count_married(house):
     """Count the number of couples in a house.
     
