@@ -1,0 +1,9 @@
+name: households_env
+channels:
+  - defaults
+dependencies:
+  - numpy
+  - pandas
+  - scipy
+  - networkx
+  - matplotlib
