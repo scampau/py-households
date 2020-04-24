@@ -298,22 +298,23 @@ class InheritanceRuleComplex(InheritanceRule):
             if heirs == []:
                 #No heirs, return False
                 return False
-            elif [x == [] for x in heirs]:
+            elif all([x == [] for x in heirs]):
                 #No heirs in complex form, return False
                 return False
-            #remove any heirs who lack a qualification
-            heirs = self.__limit_heirs(heirs) 
-            #if there are any qualified heirs left, distribute the property
-            if len(heirs) != 0:
-                #Run the distribution algorithm
-                outcome = self.__distribute_property(person,heirs)
-                return outcome
             else:
-                outcome = self.__failure(person)
-                if outcome == True:
-                    return False                   
+                #remove any heirs who lack a qualification
+                heirs = self.__limit_heirs(heirs) 
+                #if there are any qualified heirs left, distribute the property
+                if len(heirs) != 0:
+                    #Run the distribution algorithm
+                    outcome = self.__distribute_property(person,heirs)
+                    return outcome
                 else:
-                    raise ValueError('Something has gone horribly wrong')
+                    outcome = self.__failure(person)
+                    if outcome == True:
+                        return False                   
+                    else:
+                        raise ValueError('Something has gone horribly wrong')
         else:
             return False #nothing to inherit
 
@@ -341,6 +342,46 @@ def has_property_houses(person):
 
 ## Each of these checks a subset of individuals and returns whether one of them
 ### inherited property
+def find_heirs_children_oldest_to_youngest(person,sex = None):
+    """Returns the children of a person as a list
+    
+    Parameters
+    ----------
+    person : Person
+        The Person whose property will be inherited.
+    sex : identity.Sex or None
+        If Sex, only return children of that sex; if None return either
+        
+    Returns
+    -------
+    list of Person
+        The children of a person
+    
+    Notes
+    -----
+    Note that this includes an age bias towards the oldest;
+    this needs to be a strategy/variable.
+    
+    This also includes an assumption that ownership is part of residency.
+    """
+    if isinstance(person,main.Person) == False:
+        raise TypeError('person not Person')
+    if isinstance(sex, Sex) == False and sex != None:
+        raise TypeError('sex neither Sex nor None')
+    # Get a list of children
+    children = kinship.get_children(person,person.has_community.families)
+    if children != []:
+        #If there are children, select the living children
+        if sex == None:
+            select = [x for x in children if x.lifestatus == alive]
+        else:
+            [x for x in children if x.sex == sex and x.lifestatus == alive]
+        select.sort(reverse=True,key=lambda x:x.age)
+        return select
+    return [] #no heirs, return empty list
+
+
+
 def find_heirs_sons_oldest_to_youngest(person):
     """Returns the sons of a person as a list
     
@@ -348,8 +389,6 @@ def find_heirs_sons_oldest_to_youngest(person):
     ----------
     person : Person
         The Person whose property will be inherited.
-    checkowner : bool, optional
-        If True, do not let current owners inherit; if False, let them inherit any way.
     
     Returns
     -------
@@ -363,16 +402,31 @@ def find_heirs_sons_oldest_to_youngest(person):
     
     This also includes an assumption that ownership is part of residency.
     """
-    if isinstance(person,main.Person) == False:
-        raise TypeError('person not Person')
-    # Get a list of children
-    children = kinship.get_children(person,person.has_community.families)
-    if children != []:
-        #If there are children, select the living male children
-        select = [x for x in children if x.sex == male and x.lifestatus == alive]
-        select.sort(reverse=True,key=lambda x:x.age)
-        return select
-    return [] #no heirs, return empty list
+    select = find_heirs_children_oldest_to_youngest(person,sex = male)
+    return select
+
+def find_heirs_daughters_oldest_to_youngest(person):
+    """Returns the daughters of a person as a list
+    
+    Parameters
+    ----------
+    person : Person
+        The Person whose property will be inherited.
+    
+    Returns
+    -------
+    list of Person
+        The daughters of a person
+    
+    Notes
+    -----
+    Note that this includes an age bias towards the oldest;
+    this needs to be a strategy/variable.
+    
+    This also includes an assumption that ownership is part of residency.
+    """
+    select = find_heirs_children_oldest_to_youngest(person,sex = female)
+    return select
     
 def find_heirs_brothers_sons_oldest_to_youngest(person,checkowner=True):
     """The sons of a man's brothers inherit, ranked by age.

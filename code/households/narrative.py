@@ -68,6 +68,10 @@ def census(house):
         text = 'a %s household with %i person residing' % details
     else:
         text = 'a %s household with %i people residing' % details
+    if house.owner == None:
+        text += ' with no owner'
+    else:
+        text += ' owned by ' + house.owner.name
     return text
 
 

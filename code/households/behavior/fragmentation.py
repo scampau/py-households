@@ -55,7 +55,7 @@ def brother_loses_out(house,age):
                         new_house = behavior.locality.get_empty_house(house.has_community.houses)
                         if new_house != None:
                             # Identify their family and move them
-                            behavior.inheritance.move_family(s,new_house)
+                            behavior.inheritance.move_family_to_new_house(s,new_house)
                         else:
                             # There is no new house, so stay put.
                             pass               

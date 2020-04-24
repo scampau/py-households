@@ -143,8 +143,14 @@ class Community(object):
 
 
         #Define dynamics of demography
+        if isinstance(mortab,AgeTable) == False:
+            raise TypeError('mortab not of type AgeTable')
         self.mortab = mortab # the death table for the community
+        if isinstance(marrtab,AgeTable) == False:
+            raise TypeError('mortab not of type AgeTable')
         self.marrtab = marrtab #the probability of marriage at a given age by sex
+        if isinstance(birthtab,AgeTable) == False:
+            raise TypeError('mortab not of type AgeTable')
         self.birthtab = birthtab #the probability of a woman giving birth at a given age if married
         self.locality = locality
         if isinstance(inheritance,behavior.inheritance.InheritanceRule) == False:
@@ -332,9 +338,7 @@ class Person(object):
             if self.has_house is not None:
                 self.has_house.remove_person(self)
         # Some inheritance rules need to happen here!
-        #Note that at present this means that there is no update in the marriage
-        ## state of the other person; this means people can only be married 
-        ## once.
+
         
     def marriage(self):
         """Check whether this person gets married this timestep.
@@ -410,6 +414,9 @@ class House(object):
     maxpeople : int
         Maximum number of residents before the house is crowded. Currently no 
         repercussion for a crowded house.
+    rooms : int
+        Number of rooms in the house. An alternative way of thinking about space.
+        Currently no repercussions.
     has_community : Community
         The Community in which this house was built
     people : list of Person
@@ -422,9 +429,11 @@ class House(object):
     #EVENTUALLY, houses may be expanded, change through time, etc. 
     def __init__(self,maxpeople,has_community):
         self.maxpeople = maxpeople
+        self.rooms = 1
         self.has_community = has_community
         self.people = []
         self.owner = None #pointer to the person who owns the house
+        
     
     def add_person(self,tobeadded):
         """Add a person to the house.
