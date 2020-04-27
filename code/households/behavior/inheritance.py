@@ -511,6 +511,63 @@ def find_heirs_brothers_sons_oldest_to_youngest(person):
             # Every brother has been checked
     return heirs
 
+def find_heirs_multiple_constructor(*args):
+    """Generate a new find_heirs function out of multiple find_heirs functions.
+    
+    Given a variable length list of find_heirs functions, a new find_heirs
+    function is constructed by running each function sequentially and then 
+    returning the combined output of them in the order provided.    
+
+    Parameters
+    ----------
+    *args : callable
+        All find_heirs or equivalent functions, to be combined.
+
+    Returns
+    -------
+    callable
+        returns a new function that takes person as an argument; this is the 
+        input to the actual InheritanceRuleComplex or equivalent class.
+    """
+    #Check that all args are in fact callable
+    for f in args:
+        if callable(f) == False:
+            raise TypeError(str(f) + ' is not callable')
+    def find_heirs_multiple(person):
+        """Find_heirs combining multiple basic find_heirs functions.
+        
+
+        Parameters
+        ----------
+        person : Person
+            The person whose heirs are to be found.
+
+        Returns
+        -------
+        list of Person or list of list of Person
+            The heirs of a person
+        """
+        if isinstance(person,main.Person) == False:
+            raise TypeError('person not Person')
+        output = []
+        for f in args:
+            #For each function, get heirs
+            heirs = f(person)
+            if heirs == None or heirs == []:
+                pass
+            elif isinstance(heirs,main.Person):
+                #Person, so add double brackets and then add
+                output += [[heirs]]
+            elif type(heirs) == list and isinstance(heirs[0],main.Person):
+                #list of Persons, add brackets then 
+                output += [heirs]
+            elif type(heirs) == list and type(heirs[0]) == list and isinstance(heirs[0][0],main.Person):
+                #list of lists of person, just add
+                output += heirs
+            else:
+                raise ValueError('heirs returned not valid')
+        return output
+    return find_heirs_multiple
 
 #Limitation of heirs
 def limit_heirs_none(heirs):

@@ -25,13 +25,20 @@ birth = households.AgeTable([0,16,40,100],male,[0,0,0],female,[0,.5,0]) #high bi
 marr = households.AgeTable([0,16,100],male,[0,.8],female,[0,.8])
 death = households.AgeTable([0,5,40,100],male,[0,0,1],female,[0,0,1])
 
+# Short-form definition of an inheritance rule
+#sons_brothers_then_none = behavior.inheritance.InheritanceRule(behavior.inheritance.has_property_houses ,
+#                                                    behavior.inheritance.inherit_sons_then_brothers_sons,
+#                                                    behavior.inheritance.failed_inheritance_no_owner)
 
-sons_brothers_then_none = behavior.inheritance.InheritanceRule(behavior.inheritance.has_property_houses ,
-                                                    behavior.inheritance.inherit_sons_then_brothers_sons,
-                                                    behavior.inheritance.failed_inheritance_no_owner)
+#Longform definition of the same
+find_heirs_sons_then_brothers_sons = behavior.inheritance.find_heirs_multiple_constructor(lambda person: behavior.inheritance.find_heirs_children_oldest_to_youngest(person,male),
+                                                                                                  lambda person: behavior.inheritance.find_heirs_siblings_children_oldest_to_youngest(person, male))
 
-
-
+sons_brothers_then_none = behavior.inheritance.InheritanceRuleComplex(has_property = behavior.inheritance.has_property_houses,
+                                                                      find_heirs = find_heirs_sons_then_brothers_sons, 
+                                                                      limit_heirs = behavior.inheritance.limit_heirs_not_owners, 
+                                                                      distribute_property = behavior.inheritance.distribute_property_to_first_heir_and_move_household, 
+                                                                      failure = behavior.inheritance.failed_inheritance_no_owner)
 
 def neolocality_husband_owner(husband,wife):
     households.behavior.locality.neolocality(husband,wife,male)
