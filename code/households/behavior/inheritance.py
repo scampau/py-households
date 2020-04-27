@@ -380,8 +380,6 @@ def find_heirs_children_oldest_to_youngest(person,sex = None):
         return select
     return [] #no heirs, return empty list
 
-
-
 def find_heirs_sons_oldest_to_youngest(person):
     """Returns the sons of a person as a list
     
@@ -427,8 +425,56 @@ def find_heirs_daughters_oldest_to_youngest(person):
     """
     select = find_heirs_children_oldest_to_youngest(person,sex = female)
     return select
+
+def find_heirs_siblings_children_oldest_to_youngest(person, sex = None):
+    """The children of a Person's siblings inherit, ranked by age.
     
-def find_heirs_brothers_sons_oldest_to_youngest(person,checkowner=True):
+    The ranking is both by brothers
+
+    Parameters
+    ----------
+    person : Person
+        The Person whose property will be inherited.
+    sex : identity.Sex or None
+        If Sex, only return children of that sex; if None return either
+    
+    Returns
+    -------
+    list of list of Person
+        The sons of a Person's brother, grouped by brother, all sorted by age
+    """
+    # Type check
+    if isinstance(person,main.Person) == False:
+        raise TypeError('person not Person')
+    if isinstance(sex, Sex) == False and sex != None:
+        raise TypeError('sex neither Sex nor None')
+    heirs = []
+    #Get a list of siblings
+    siblings = kinship.get_siblings(person,person.has_community.families)
+    if siblings != []:
+        #If there are siblings, do sex selection
+        if sex != None:
+            siblings = [x for x in siblings if x.sex == sex]
+        if len(siblings) != 0:
+            #If there are siblings, rank by age and select their chidlren
+            siblings.sort(reverse=True,key=lambda x:x.age)
+            for sibling in siblings:
+                #Check whether each sibling has children
+                children = kinship.get_children(sibling,sibling.has_community.families)
+                if sex != None:
+                    children = [x for x in children if x.sex == sex]
+                if children != []:
+                    #If the sibling has children, check for the alive children
+                    select = [x for x in children if x.lifestatus == alive]
+                    select.sort(reverse=True,key=lambda x:x.age)
+                    heirs.append(select)
+                else:
+                    pass # Otherwise, no children
+            # Every brother has been checked
+    return heirs    
+
+
+def find_heirs_brothers_sons_oldest_to_youngest(person):
     """The sons of a man's brothers inherit, ranked by age.
     
     The ranking is both by brothers
