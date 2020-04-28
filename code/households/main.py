@@ -13,6 +13,7 @@ variety of contexts. Demographic data are based on Bagnall and Frier.
 """
 
 from households import np, rd, scipy, nx, plt, kinship, residency, behavior, narrative
+from households.narrative import Diary
 from households.identity import *
 """Import the dependency packages defined in households.__init__.py
 
@@ -29,8 +30,32 @@ class World(object):
     """
     
     def __init__(self):
-        pass
+        self.communities = []
+    
+    @property
+    def people(self):
+        output = []
+        if self.communities != []:
+            for c in self.communities:
+                output.extend(c.people)
+        return output
+                
+    def deadpeople(self):
+        pass #to be implemented
+    
+    def add_community(self,community):
+        """Add a community to this World.
 
+        Parameters
+        ----------
+        community : Community
+            Community to add to World
+        """
+        if isinstance(community,Community):
+            self.communities.append(community)
+        else:
+            raise TypeError('community not type Community')
+    
 
 class Community(object):
     """Communities are collections of people and houses following a schedule.
@@ -423,6 +448,8 @@ class House(object):
         List of the people who reside in the house.
     owner : Person
         The person who owns this house. Assumes single or primary ownership.
+    address : str
+        The name of the house, to make individuality clearer
     """
     
     #Houses belong to the community, have an owner, contain people
@@ -433,6 +460,7 @@ class House(object):
         self.has_community = has_community
         self.people = []
         self.owner = None #pointer to the person who owns the house
+        #self.address = str(rd.randrange(1,63,2)) + ' ' + rd.choice(narrative.address_names) 
         
     
     def add_person(self,tobeadded):
@@ -509,7 +537,8 @@ class AgeTable(object):
             return self._rates1[i]
         else:
             return self._rates2[i]
-        
+
+
 
 ##Example code
 if __name__ == '__main__':
