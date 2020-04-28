@@ -13,7 +13,9 @@ class Sex:
     adjective : str
         The adjective of this sex for use in text-based output
     noun : str
-        The noun for use in text-based output    
+        The noun for use in text-based output
+    possessive : str
+        The possessive to use for text-based output
     """
     def __init__(self,adjective,noun,possessive):
         self.adjective = adjective

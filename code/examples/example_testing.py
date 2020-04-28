@@ -47,6 +47,11 @@ def neolocality_husband_owner(husband,wife):
 households.rd.seed(505401)
 example = households.Community(name = 'Sweetwater',pop=20,area = 20,startage = 15,mortab = death, marrtab = marr, birthtab = birth, locality = neolocality_husband_owner, inheritance = sons_brothers_then_none, fragmentation = households.behavior.fragmentation.no_fragmentation)
 
+westworld = households.World()
+
+
+
+
 while example.year < 25:
     example.progress()
 

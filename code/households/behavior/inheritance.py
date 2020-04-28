@@ -669,6 +669,47 @@ def limit_heirs_by_age(heirs,age_of_majority = 15):
         raise TypeError('heirs neither list of Persons or list of lists of Person')
     return new_heirs
 
+def limit_heirs_multiple_constructor(*args):
+    """Create a new limit_heirs function that iterates over other limit_heirs functions
+
+    Parameters
+    ----------
+    *args : callables
+        Other limit_heirs functions to be iterated over in succession
+
+    Returns
+    -------
+    callable
+        Returns a new limit_heirs funcitons
+
+    """
+    for f in args:
+        if callable(f) == False:
+            raise TypeError(str(f) + ' is not callable')
+    def limit_heirs_multiple(heirs):
+        """limit_heirs combining multiple basic limit_heirs functions.
+        
+
+        Parameters
+        ----------
+        heirs : list of Person or list of list of Person
+            heirs, the return argument of find_heirs type functions
+
+        Returns
+        -------
+        list of Person or list of list of Person
+            The remaining heirs of a person
+        """
+        if isinstance(person,main.Person) == False:
+            raise TypeError('person not Person')
+        for f in args:
+            #For each function, get the new remainingheirs
+            heirs = f(heirs)
+            if heirs == [] or all([x == [] for x in heirs]):
+                return []              
+        return heirs
+    return limit_heirs_multiple
+
 #Distribution of property and moving families/households
 def distribute_property_to_first_heir_and_move_household(person,heirs):
     """Select first heir, move a dead person's house's/houses' ownership.
