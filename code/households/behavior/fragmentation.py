@@ -13,6 +13,13 @@ from households import np, rd, scipy, nx, plt, kinship, residency, behavior
 from households.identity import *
 print('importing fragmentation')
 
+class FissionRule(object):
+    """Defining how a household can break apart.
+    
+    """
+    def __init__(self):
+        pass
+
 def no_fragmentation(house):
     """No fragmentation rule.
     
