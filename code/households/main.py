@@ -55,6 +55,15 @@ class World(object):
             self.communities.append(community)
         else:
             raise TypeError('community not type Community')
+            
+    def progress(self):
+        """Progress the simulation one year.
+
+        Returns
+        -------
+        None.
+
+        """
     
 
 class Community(object):
@@ -82,8 +91,8 @@ class Community(object):
         AgeTable storing probability of giving birth once married by sex (0 for men)
     locality : callable
         This defines the location newlyweds move to from behavior.locality, or a custom function.
-    inheritance : callable
-        This defines the inheritance system from behavior.inheritance, or a custom function.
+    inheritance : behavior.inheritance.InheritanceRule
+        This defines the inheritance rule  from behavior.inheritance, or a custom function.
     fragmentation : callable
         This defines the circumstances of houshold fissioning from behavior.fragmentation, or a custom function
         
@@ -124,8 +133,6 @@ class Community(object):
         An AgeTable storing probability of giving birth once married by sex (0 for men)
     locality : callable
         This defines the location newlyweds move to from behavior.locality, or a custom function.
-    inheritance : behavior.inheritance.InheritanceRule
-        This defines the inheritance system from behavior.inheritance, or a custom function.
     fragmentation : callable
         This defines the circumstances of houshold fissioning from behavior.fragmentation, or a custom function
         
@@ -146,7 +153,7 @@ class Community(object):
     """
     
     #global male, female
-    def __init__(self,name,pop,area,startage,mortab,marrtab,birthtab,locality,inheritance,fragmentation):
+    def __init__(self,name,pop,area,startage,mortab,marrtab,birthtab,locality,inheritancerule,fragmentation):
         
         self.year = 0
         self.name = name
@@ -158,15 +165,6 @@ class Community(object):
             self.houses.append(House(10,self)) #Create each house with a maximum number of people who can reside there
         self.housingcapacity = sum([i.maxpeople for i in self.houses])    
         
-        # Generate the population
-        self.population = pop #The number of individuals to start in the community
-        # populate the community
-        self.people = []
-        for i in range(pop):
-            self.people.append(Person(rd.choice([male,female]),startage,self,None)) #Generate a new person with age startage
-            #NB: currently a 50-50 sex ratio, should be customisable. Consider for expansion. 
-
-
         #Define dynamics of demography
         if isinstance(mortab,AgeTable) == False:
             raise TypeError('mortab not of type AgeTable')
@@ -178,12 +176,20 @@ class Community(object):
             raise TypeError('mortab not of type AgeTable')
         self.birthtab = birthtab #the probability of a woman giving birth at a given age if married
         self.locality = locality
-        if isinstance(inheritance,behavior.inheritance.InheritanceRule) == False:
+        if isinstance(inheritancerule,behavior.inheritance.InheritanceRule) == False:
             raise TypeError('inheritance was not behavior.inheritance.InheritanceRule')
-        self.inheritance = inheritance
         self.fragmentation = fragmentation
         #Note: add an incest-rule option.
         #Note: add value checks.
+        
+        # Generate the population
+        self.population = pop #The number of individuals to start in the community
+        # populate the community
+        self.people = []
+        for i in range(pop):
+            self.people.append(Person(rd.choice([male,female]),startage,self,None,inheritancerule)) #Generate a new person with age startage
+            #NB: currently a 50-50 sex ratio, should be customisable. Consider for expansion. 
+
         
         #Define a network to keep track of relations between persons
         self.families = nx.DiGraph()
@@ -325,7 +331,7 @@ class Person(object):
     """
     
     #Note: remarriage needs to be added as an option
-    def __init__(self,sex,age,has_community,has_house):
+    def __init__(self,sex,age,has_community,has_house,inheritancerule):
         self.sex = sex
         if sex == male:
             self.name = rd.choice(narrative.male_names)
@@ -334,12 +340,14 @@ class Person(object):
         self.age = age
         self.has_community = has_community #link to the community
         self.has_house = has_house #link to their house
+        self.inheritancerule = inheritancerule
         
         self.lifestatus = alive
-        self.marriagestatus = ineligible #Variable to store marriage status; None because not elegible
+        self.marriagestatus = ineligible #Variable to store marriage status
         self.has_spouse = None #The individual to whom this individual is married
         
         self.birthyear = self.has_community.year
+        
         # Options for married include None (too young for marriage), False 
         ## (old enough but not eligible yet), or True (yes or widowed)
         
@@ -359,10 +367,10 @@ class Person(object):
             self.lifestatus = dead
             if self.marriagestatus == married:
                 self.has_spouse.marriagestatus = widowed
-            self.has_community.inheritance(self)
+            self.inheritancerule(self)
             if self.has_house is not None:
                 self.has_house.remove_person(self)
-        # Some inheritance rules need to happen here!
+
 
         
     def marriage(self):
@@ -415,7 +423,7 @@ class Person(object):
             b = self.has_community.birthtab.get_rate(self.sex,self.age)
             if rd.random() < b: # if giving birth
                 # Create a new child with age 0
-                child = Person(rd.choice([male,female]),0,self.has_community,self.has_house)
+                child = Person(rd.choice([male,female]),0,self.has_community,self.has_house,self.inheritancerule) #currently maternal transmission of inheritance rules
                 self.has_community.people.append(child) #add to the community
                 self.has_house.add_person(child)
                 # Add the child to the family network
