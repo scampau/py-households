@@ -63,7 +63,7 @@ def count_married(house):
         return 0
     m = 0
     for p in house.people:
-        spouse = kinship.get_spouse(p,p.has_community.families)
+        spouse = kinship.get_spouse(p)
         if spouse is not None:
             if spouse in house.people:
                 m += 1
@@ -86,7 +86,7 @@ def get_married(house):
         return []
     m = []
     for p in house.people:
-        spouse = kinship.get_spouse(p,p.has_community.families)
+        spouse = kinship.get_spouse(p)
         if spouse is not None:
             if spouse in house.people:
                 m.append(spouse)
@@ -149,7 +149,7 @@ def is_nuclear(house):
         #Check whether the married couple has parents there
         married = get_married(house)
         for p in married:
-            parents = kinship.get_parents(p,p.has_community.families)
+            parents = kinship.get_parents(p)
             if parents is not None:
                 for q in parents:
                     if q in house.people:
@@ -181,7 +181,7 @@ def is_extended(house):
         #Check whether the married couple has parents there
         married = get_married(house)
         for p in married:
-            parents = kinship.get_parents(p,p.has_community.families)
+            parents = kinship.get_parents(p)
             if parents is not None:
                 for q in parents:
                     if q in house.people:
@@ -254,11 +254,3 @@ def plot_classify(houses):
     order = [2,4,3,0,1]
     plt.bar(range(5),data[1][order]*1./sum(data[1]),width=.95)
     plt.xticks([i for i in range(5)],data[0][order])
-    
-    
-#def family_extract(house):
-#    """ACTIVE DEVELOPMENT: extract 
-#    """
-#    s = nx.subgraph(testcase.families,testcase.houses[0].people)
-#    return s
-#   ##THIS NEEDS WORK!!!

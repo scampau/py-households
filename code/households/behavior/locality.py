@@ -25,6 +25,9 @@ class MarriageRule(object):
     These three steps can be thought of as eligiblity determination, mate choice, and locality.
     The only universal is that both agents must fit each other's standards.
     
+    The other information stored in a MarriageRule is the eligibility agetable,
+    which defines when a person becomes eligible for marriage.
+    
     Parameters
     ----------
     eligibility_agetable : main.AgeTable
@@ -59,12 +62,13 @@ class MarriageRule(object):
 
         Parameters
         ----------
-        person : TYPE
-            DESCRIPTION.
+        person : main.Person
+            The person seeking to get married.
 
         Returns
         -------
-        None.
+        bool
+            whether the person got married, and made the changes along the way.
 
         """
         #get eligible 
@@ -94,6 +98,10 @@ class MarriageRule(object):
         for p in [personone,persontwo]:
             if isinstance(p,main.Person) == False:
                 raise TypeError('person not Person')
+        if (persontwo in personone.marriagerule.__get_eligible(personone)) == True:
+            return True
+        else:
+            return False
             
     def __verify_rule__(self,rule,argnum = [1]):
         """Check that rule is callable and has only one non-default argument.
@@ -137,7 +145,7 @@ class MarriageRule(object):
 #         """
         
 #         candidates = []
-#         relations = kinship.get_siblings(person,self.families) 
+#         relations = kinship.get_siblings(person) 
 #         #Note at present that this only accounts for direct incest; a flexible
 #         ## incest rule would be a useful expansion here. 
 #         if relations == None: relations = []
@@ -168,7 +176,29 @@ def get_eligible_all_same_community(person):
     candidates = [p for p in person.has_community.people if p.sex != person.sex and p.marraigestatus == unmarried]
     return candidates
 
+def get_eligible_not_sibling_same_community(person):
+    """Gets all eligible individuals in the community. Incest prohibition against siblings.
 
+    Parameters
+    ----------
+    person : main.Person
+        The person who we are seeking matches for.
+
+    Returns
+    -------
+    candidates : list of main.Person
+        eligible individuals
+
+    """
+    if isinstance(person, main.Person) == False:
+        raise TypeError('person not Person')
+    #get all individuals in the community who are themselves eligible
+    siblings = kinship.get_siblings(person)
+    if siblings == []:
+        candidates = [p for p in person.has_community.people if p.sex != person.sex and p.marraigestatus == unmarried]
+    else:
+        candidates = [p for p in person.has_community.people if p.sex != person.sex and p.marraigestatus == unmarried and p not in siblings]
+    return candidates
 
 
 #picking functions

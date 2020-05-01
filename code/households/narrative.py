@@ -153,7 +153,7 @@ def biography(person):
     str
         str of life details
     """
-    num_kids = len(kinship.get_children(person,person.has_community.families))
+    num_kids = len(kinship.get_children(person))
     if person.marriagestatus == married or person.marriagestatus == widowed:
         if num_kids == 0:
             kids = 'no children'

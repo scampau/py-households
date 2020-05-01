@@ -132,7 +132,7 @@ def inherit_sons(person,checkowner=True):
     """
     heir = None
     # Get a list of children
-    children = kinship.get_children(person,person.has_community.families)
+    children = kinship.get_children(person)
     if children != []:
         #If there are children, select the alive male children
         select = [x for x in children if x.sex == male and x.lifestatus == alive]
@@ -174,7 +174,7 @@ def inherit_brothers_sons(person,checkowner=True):
     """
     heir = None
     #Get a list of siblings
-    siblings = kinship.get_siblings(person,person.has_community.families)
+    siblings = kinship.get_siblings(person)
     if siblings != []:
         #If there are siblings, select the men
         select = [x for x in siblings if x.sex == male]
@@ -182,7 +182,7 @@ def inherit_brothers_sons(person,checkowner=True):
             select.sort(reverse=True,key=lambda x:x.age)
             for brother in select:
                 #Check whether each brother for sons
-                children = kinship.get_children(brother,brother.has_community.families)
+                children = kinship.get_children(brother)
                 if children != []:
                     #If the brother has children, check for the alive male children
                     select = [x for x in children if x.sex == male and x.lifestatus == alive]
@@ -369,7 +369,7 @@ def find_heirs_children_oldest_to_youngest(person,sex = None):
     if isinstance(sex, Sex) == False and sex != None:
         raise TypeError('sex neither Sex nor None')
     # Get a list of children
-    children = kinship.get_children(person,person.has_community.families)
+    children = kinship.get_children(person)
     if children != []:
         #If there are children, select the living children
         if sex == None:
@@ -450,7 +450,7 @@ def find_heirs_siblings_children_oldest_to_youngest(person, sex = None):
         raise TypeError('sex neither Sex nor None')
     heirs = []
     #Get a list of siblings
-    siblings = kinship.get_siblings(person,person.has_community.families)
+    siblings = kinship.get_siblings(person)
     if siblings != []:
         #If there are siblings, do sex selection
         if sex != None:
@@ -460,7 +460,7 @@ def find_heirs_siblings_children_oldest_to_youngest(person, sex = None):
             siblings.sort(reverse=True,key=lambda x:x.age)
             for sibling in siblings:
                 #Check whether each sibling has children
-                children = kinship.get_children(sibling,sibling.has_community.families)
+                children = kinship.get_children(sibling)
                 if sex != None:
                     children = [x for x in children if x.sex == sex]
                 if children != []:
@@ -491,7 +491,7 @@ def find_heirs_brothers_sons_oldest_to_youngest(person):
     """
     #Get a list of siblings
     heirs = []
-    siblings = kinship.get_siblings(person,person.has_community.families)
+    siblings = kinship.get_siblings(person)
     if siblings != []:
         #If there are siblings, select the brothers
         select_brothers = [x for x in siblings if x.sex == male]
@@ -500,7 +500,7 @@ def find_heirs_brothers_sons_oldest_to_youngest(person):
             select_brothers.sort(reverse=True,key=lambda x:x.age)
             for brother in select_brothers:
                 #Check whether each brother for sons
-                children = kinship.get_children(brother,brother.has_community.families)
+                children = kinship.get_children(brother)
                 if children != []:
                     #If the brother has children, check for the alive male children
                     select = [x for x in children if x.sex == male and x.lifestatus == alive]
@@ -771,7 +771,7 @@ def move_family_to_new_house(person,new_house):
     else:
         old_house = person.has_house
         #Get the coresident nuclear family
-        family = kinship.get_family(person,person.has_community.families)
+        family = kinship.get_family(person)
         family = [f for f in family if f in old_house.people]
         for member in family:
             if member.lifestatus == dead:

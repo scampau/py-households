@@ -122,8 +122,6 @@ class Community(object):
         The houses of the community.
     people : list of Person objects
         The people who currently live in the community.
-    families : networkx DiGraph
-        The network of kinship relations.
     
     mortab : AgeTable
         An AgeTable storing a mortality schedule for the community.
@@ -190,11 +188,6 @@ class Community(object):
             self.people.append(Person(rd.choice([male,female]),startage,self,None,inheritancerule)) #Generate a new person with age startage
             #NB: currently a 50-50 sex ratio, should be customisable. Consider for expansion. 
 
-        
-        #Define a network to keep track of relations between persons
-        self.families = nx.DiGraph()
-        for individual in self.people:
-            self.families.add_node(individual) 
         
         #Define statistics to keep track of each step
         self.deaths = 0
@@ -277,7 +270,7 @@ class Community(object):
         """
         
         candidates = []
-        relations = kinship.get_siblings(person,self.families) 
+        relations = kinship.get_siblings(person) 
         #Note at present that this only accounts for direct incest; a flexible
         ## incest rule would be a useful expansion here. 
         if relations == None: relations = []
@@ -324,8 +317,12 @@ class Person(object):
             None - too young to be married;
             False - unmarried but eligible;
             True - married or widowed (the model does not allow remarriage)
+    has_parents : list of Person
+        The parents of this individual
     has_spouse : {None, Person}
         The spouse of this individual.
+    has_children : list of Person
+        The children of this individual
     birthyear : int
         The year this individual was born.        
     """
@@ -345,6 +342,8 @@ class Person(object):
         self.lifestatus = alive
         self.marriagestatus = ineligible #Variable to store marriage status
         self.has_spouse = None #The individual to whom this individual is married
+        self.has_parents = []
+        self.has_children = []
         
         self.birthyear = self.has_community.year
         
@@ -398,9 +397,6 @@ class Person(object):
                 #Set the other person as married
                 choice.marriagestatus = married
                 choice.has_spouse = self
-                ## Add links to the network of families
-                self.has_community.families.add_edges_from( [(self,choice, {'relation' :  'marriage'}),
-                (choice,self,{'relation' : 'marriage'})])
                 ## Run the locality rules for this community
                 husband, wife = (self,choice) if self.sex == male else (choice,self)
                 self.has_community.locality(husband,wife)
@@ -409,7 +405,7 @@ class Person(object):
             if rd.random() < e: #If eligibility possible, change staus
                 self.marriagestatus = unmarried
         else:
-            raise ValueError('married not of identity.MarriageStatus')
+            raise ValueError('marriagestatus not of identity.MarriageStatus')
     
     def birth(self):
         """Determine whether this person gives birth.
@@ -424,11 +420,12 @@ class Person(object):
             if rd.random() < b: # if giving birth
                 # Create a new child with age 0
                 child = Person(rd.choice([male,female]),0,self.has_community,self.has_house,self.inheritancerule) #currently maternal transmission of inheritance rules
+                child.has_parents = [self,self.has_spouse]
+                self.has_children.append(child)
+                self.has_spouse.has_children.append(child)
                 self.has_community.people.append(child) #add to the community
                 self.has_house.add_person(child)
-                # Add the child to the family network
-                self.has_community.families.add_edge(self,child,relation = 'birth')
-                self.has_community.families.add_edge(self.has_spouse,child,relation= 'birth')
+                
 
 class House(object):
     """Creates a house in which persons reside.
