@@ -6,8 +6,6 @@ This is now slowly being turned into issues in the github to make this more tran
 
 **Short-term**
 
-- X Eliminate duplicate names. 
-	- some terms (house, person) are used both as class names and as variables. Go through and update teh nomenclature such that classes are always capitalized, and variable names follow numpy and python conventions.
 - X Classes need to be defined that create a unified class for inheritance, locality, and fragmentation rules.
 - X Birth rules need to allow uneven sex ratios.
 - X Value checks need to make sure that agetables and different rules are used where they need to be.

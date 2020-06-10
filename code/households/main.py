@@ -151,7 +151,7 @@ class Community(object):
     """
     
     #global male, female
-    def __init__(self,name,pop,area,startage,mortab,marrtab,birthtab,locality,inheritancerule,fragmentation):
+    def __init__(self,name,pop,area,startage,mortab,birthtab,marriagerule,inheritancerule,fragmentation):
         
         self.year = 0
         self.name = name
@@ -167,13 +167,11 @@ class Community(object):
         if isinstance(mortab,AgeTable) == False:
             raise TypeError('mortab not of type AgeTable')
         self.mortab = mortab # the death table for the community
-        if isinstance(marrtab,AgeTable) == False:
-            raise TypeError('mortab not of type AgeTable')
-        self.marrtab = marrtab #the probability of marriage at a given age by sex
         if isinstance(birthtab,AgeTable) == False:
             raise TypeError('mortab not of type AgeTable')
         self.birthtab = birthtab #the probability of a woman giving birth at a given age if married
-        self.locality = locality
+        if isinstance(marriagerule,behavior.locality.MarriageRule) == False:
+            raise TypeError('marriagerule not of type behavior.locality.MarriageRule')
         if isinstance(inheritancerule,behavior.inheritance.InheritanceRule) == False:
             raise TypeError('inheritance was not behavior.inheritance.InheritanceRule')
         self.fragmentation = fragmentation
@@ -185,10 +183,9 @@ class Community(object):
         # populate the community
         self.people = []
         for i in range(pop):
-            self.people.append(Person(rd.choice([male,female]),startage,self,None,inheritancerule)) #Generate a new person with age startage
+            self.people.append(Person(rd.choice([male,female]),startage,self,None,marriagerule,inheritancerule)) #Generate a new person with age startage
             #NB: currently a 50-50 sex ratio, should be customisable. Consider for expansion. 
 
-        
         #Define statistics to keep track of each step
         self.deaths = 0
         self.births = 0
@@ -314,9 +311,6 @@ class Person(object):
         Records whether the Person is dead or alive.
     marriagestatus : identity.MarriageStatus
         The marriage status of the individual.
-            None - too young to be married;
-            False - unmarried but eligible;
-            True - married or widowed (the model does not allow remarriage)
     has_parents : list of Person
         The parents of this individual
     has_spouse : {None, Person}
@@ -328,7 +322,7 @@ class Person(object):
     """
     
     #Note: remarriage needs to be added as an option
-    def __init__(self,sex,age,has_community,has_house,inheritancerule):
+    def __init__(self,sex,age,has_community,has_house,marriagerule,inheritancerule):
         self.sex = sex
         if sex == male:
             self.name = rd.choice(narrative.male_names)
@@ -337,6 +331,7 @@ class Person(object):
         self.age = age
         self.has_community = has_community #link to the community
         self.has_house = has_house #link to their house
+        self.marriagerule = marriagerule
         self.inheritancerule = inheritancerule
         
         self.lifestatus = alive
@@ -370,8 +365,6 @@ class Person(object):
             if self.has_house is not None:
                 self.has_house.remove_person(self)
 
-
-        
     def marriage(self):
         """Check whether this person gets married this timestep.
         
@@ -382,27 +375,16 @@ class Person(object):
         
         if self.marriagestatus == married: #if married, don't run this script
             pass
-        elif self.marriagestatus == widowed:
-            pass #NOTE: This needs to be changed in the future to allow 
-            ### remarriage rules
         elif self.marriagestatus == unmarried: #if this person is eligible to be married
-            #get the list of eligible candidates for marriage
-            candidates = self.has_community.get_eligible(self)
-            ##NOTE: evntually this must be adapted to get those not related to a given person by a certain distance
-            if len(candidates) != 0: #if there are any eligible people
-                choice = rd.choice(candidates) #Pick one
-                # Set self as married
-                self.marriagestatus = married
-                self.has_spouse = choice
-                #Set the other person as married
-                choice.marriagestatus = married
-                choice.has_spouse = self
-                ## Run the locality rules for this community
-                husband, wife = (self,choice) if self.sex == male else (choice,self)
-                self.has_community.locality(husband,wife)
+            #run the marriage rules
+            self.marriagerule(self)
         elif self.marriagestatus == ineligible: #if none (== too young for marriage), check eligibility
-            e = self.has_community.marrtab.get_rate(self.sex,self.age)
+            e = self.marriagerule.eligibility_agetable.get_rate(self.sex,self.age)
             if rd.random() < e: #If eligibility possible, change staus
+                self.marriagestatus = unmarried
+        elif self.marriagestatus == widowed:
+            r = self.marriagerule.remarriage_agetable.get_rate(self.sex,self.age)
+            if rd.random() < r:
                 self.marriagestatus = unmarried
         else:
             raise ValueError('marriagestatus not of identity.MarriageStatus')
@@ -419,7 +401,7 @@ class Person(object):
             b = self.has_community.birthtab.get_rate(self.sex,self.age)
             if rd.random() < b: # if giving birth
                 # Create a new child with age 0
-                child = Person(rd.choice([male,female]),0,self.has_community,self.has_house,self.inheritancerule) #currently maternal transmission of inheritance rules
+                child = Person(rd.choice([male,female]),0,self.has_community,self.has_house,self.marriagerule,self.inheritancerule) #currently maternal transmission of inheritance rules
                 child.has_parents = [self,self.has_spouse]
                 self.has_children.append(child)
                 self.has_spouse.has_children.append(child)
@@ -542,8 +524,11 @@ class AgeTable(object):
             return self._rates1[i]
         else:
             return self._rates2[i]
-
-
+        
+    def NullAgeTable():
+        """Defines a null AgeTable.
+        """
+        return AgeTable([0,1000],male,[0],female,[0])
 
 ##Example code
 if __name__ == '__main__':

@@ -751,6 +751,28 @@ def distribute_property_to_first_heir_and_move_household(person,heirs):
     return transfer_happened
     
 
+def move_person_to_new_house(person,new_house):
+    """Move an individual to a new house.
+    
+    Parameters
+    ----------
+    person : Person
+        A Person who will be moved along with their co-resident family.
+    new_house : House
+        The new house into which they will be moved.    
+
+    """
+    if person.has_house == new_house:
+        pass #do nothing, already lives there!
+    else:
+        old_house = person.has_house
+        #Get the coresident nuclear family
+        if person.lifestatus == dead:
+            pass
+        else:
+            old_house.remove_person(person)
+            new_house.add_person(person)
+
 def move_family_to_new_house(person,new_house):
     """Move an individual and their co-resident family to a new house.
     

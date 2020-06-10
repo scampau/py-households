@@ -6,7 +6,7 @@ This needs to be renamed marriage or something like it.
 
 """
 
-from households import np, rd, scipy, nx, plt, kinship, residency
+from households import np, rd, scipy, nx, plt,inspect, kinship, residency, main
 from households.identity import *
 print('importing locality')
 #import kinship as kn
@@ -25,8 +25,9 @@ class MarriageRule(object):
     These three steps can be thought of as eligiblity determination, mate choice, and locality.
     The only universal is that both agents must fit each other's standards.
     
-    The other information stored in a MarriageRule is the eligibility agetable,
-    which defines when a person becomes eligible for marriage.
+    MarriageRule also defines the eligibility agetable,
+    which defines when a person becomes eligible for marriage,
+    as well as the remarriage AgeTable.
     
     Parameters
     ----------
@@ -39,12 +40,14 @@ class MarriageRule(object):
     locality : callable
         One of the locality functions described below (patrilocality, matrilocality,
         neolocality) or equivalent function that determines where people live
+    remarriage_agetable : main.AgeTable
+        Determines whether individuals can remarry after death. 
     
     Attributes
     ----------
     
     """
-    def __init__(self,get_eligible,pick_spouse,locality):
+    def __init__(self, eligibility_agetable,get_eligible,pick_spouse,locality,remarriage_agetable):
         for f, a in zip([get_eligible,pick_spouse,locality],[[1],[1],[2]]):
             if self.__verify_rule__(f,a) == True:
                 pass
@@ -55,7 +58,10 @@ class MarriageRule(object):
         self.__locality = locality
         if isinstance(eligibility_agetable, main.AgeTable) == False:
             raise TypeError('eligibility_agetable not of type main.AgeTable')
-        self.agetable = eligiblity_agetable
+        if isinstance(remarriage_agetable, main.AgeTable) == False:
+            raise TypeError('remarriage_agetable not of type main.AgeTable')
+        self.eligibility_agetable = eligibility_agetable
+        self.remarriage_agetable = remarriage_agetable
         
     def __call__(self,person):
         """
@@ -71,13 +77,41 @@ class MarriageRule(object):
             whether the person got married, and made the changes along the way.
 
         """
-        #get eligible 
-        #check that they are all actual matches
-        #pick spouse
+        #get eligible individuals
+        candidates = self.__get_eligible(person)
+        #check that they are all actual matches who would accept this person back
+        ##this could be changed to allow non-reciprocal to take a year and fail
+        candidates = [c for c in candidates if c.marriagerule.__get_reciprocal(c,person) == True]
+        if len(candidates) == 0:
+            #No candidates, so no marriage
+            return False     
+        #pick spouse and set marriage status
+        spouse = self.__pick_spouse(candidates)
+        husband, wife = self.__marry(person,spouse)
         #locality
-        #bool for whether marriage happened
+        result = self.__locality(husband,wife)
+        #bool for whether marriage happened; result is just whether locality was succesful.
+        return True
 
-    def get_reciprocal(self,personone,persontwo):
+    def __marry(self,person,spouse):
+        """Actually marry the two people
+
+        Parameters
+        ----------
+        personone, persontwo: main.Person
+        
+        Returns
+        -------
+        husband, wife: main.Person
+        """
+        husband, wife = (person,spouse) if person.sex == male else (spouse,person)
+        husband.marriagestatus = married
+        husband.has_spouse = wife
+        wife.marriagestatus = married
+        wife.has_spouse = husband
+        return (husband,wife)
+
+    def __get_reciprocal(self,personone,persontwo):
         """Returns whether persontwo is in personone's definitions of eligibility.
         
         This should be called by persontwo if they wish to marry personone using 
@@ -133,29 +167,6 @@ class MarriageRule(object):
         
     
 #eligiblity functions
-
-# def get_eligible(self,person):
-#         """Returns list of all eligible marriage partners of the opposite sex.
-        
-#         Searches through all 
-        
-#         Parameters
-#         ----------
-        
-#         """
-        
-#         candidates = []
-#         relations = kinship.get_siblings(person) 
-#         #Note at present that this only accounts for direct incest; a flexible
-#         ## incest rule would be a useful expansion here. 
-#         if relations == None: relations = []
-#         for x in self.people:
-#             if x.sex != person.sex:
-#                 #If unmarried and not a sibling
-#                 if x.marriagestatus == unmarried and (x in relations) == False:
-#                     candidates.append(x)
-#         return candidates 
-
 def get_eligible_all_same_community(person):
     """Gets all eligible individuals in the community. No incest prohibition.
 
@@ -173,7 +184,7 @@ def get_eligible_all_same_community(person):
     if isinstance(person, main.Person) == False:
         raise TypeError('person not Person')
     #get all individuals in the community who are themselves eligible
-    candidates = [p for p in person.has_community.people if p.sex != person.sex and p.marraigestatus == unmarried]
+    candidates = [p for p in person.has_community.people if p.sex != person.sex and p.marriagestatus == unmarried]
     return candidates
 
 def get_eligible_not_sibling_same_community(person):
@@ -195,17 +206,15 @@ def get_eligible_not_sibling_same_community(person):
     #get all individuals in the community who are themselves eligible
     siblings = kinship.get_siblings(person)
     if siblings == []:
-        candidates = [p for p in person.has_community.people if p.sex != person.sex and p.marraigestatus == unmarried]
+        candidates = [p for p in person.has_community.people if p.sex != person.sex and p.marriagestatus == unmarried]
     else:
-        candidates = [p for p in person.has_community.people if p.sex != person.sex and p.marraigestatus == unmarried and p not in siblings]
+        candidates = [p for p in person.has_community.people if p.sex != person.sex and p.marriagestatus == unmarried and p not in siblings]
     return candidates
 
 
 #picking functions
-
 def pick_spouse_random(candidates):
     """
-    
 
     Parameters
     ----------
