@@ -3,7 +3,7 @@
 This module models inheritance as well as families moving as part of inheriting new property.
 """
 
-from households import np, rd, scipy, nx, plt, inspect, kinship, residency, main
+from households import np, rd, scipy, nx, plt, inspect, kinship, residency, main, behavior
 from households.identity import *
 print('importing inheritance')
 #import kinship as kn
@@ -193,7 +193,7 @@ def inherit_brothers_sons(person,checkowner=True):
                         ## the second oldest (first must stay for brother's inheritance)
                         select.sort(reverse=True,key=lambda x:x.age)
                         heir = select[1]
-                        move_family_to_new_house(heir,person.has_house)
+                        behavior.mobility.move_family_to_new_house(heir,person.has_house)
                         for h in person.has_community.houses:
                             if h.owner == person:
                                 h.owner = heir
@@ -375,7 +375,7 @@ def find_heirs_children_oldest_to_youngest(person,sex = None):
         if sex == None:
             select = [x for x in children if x.lifestatus == alive]
         else:
-            [x for x in children if x.sex == sex and x.lifestatus == alive]
+            select = [x for x in children if x.sex == sex and x.lifestatus == alive]
         select.sort(reverse=True,key=lambda x:x.age)
         return select
     return [] #no heirs, return empty list
@@ -746,87 +746,9 @@ def distribute_property_to_first_heir_and_move_household(person,heirs):
         if h.owner == person:
             h.owner = heir
             old_house = heir.has_house
-            move_household_to_new_house(heir,h)
+            behavior.mobility.move_household_to_new_house(heir,h)
             transfer_happened = True
     return transfer_happened
-    
-
-def move_person_to_new_house(person,new_house):
-    """Move an individual to a new house.
-    
-    Parameters
-    ----------
-    person : Person
-        A Person who will be moved along with their co-resident family.
-    new_house : House
-        The new house into which they will be moved.    
-
-    """
-    if person.has_house == new_house:
-        pass #do nothing, already lives there!
-    else:
-        old_house = person.has_house
-        #Get the coresident nuclear family
-        if person.lifestatus == dead:
-            pass
-        else:
-            old_house.remove_person(person)
-            new_house.add_person(person)
-
-def move_family_to_new_house(person,new_house):
-    """Move an individual and their co-resident family to a new house.
-    
-    Parameters
-    ----------
-    person : Person
-        A Person who will be moved along with their co-resident family.
-    new_house : House
-        The new house into which they will be moved.    
-    
-    Note
-    ----
-    This function assumes a patriline/male dominance of household. This needs to 
-    be updated as part of the matrilineal update.
-    """
-    if person.has_house == new_house:
-        pass #do nothing, already lives there!
-    else:
-        old_house = person.has_house
-        #Get the coresident nuclear family
-        family = kinship.get_family(person)
-        family = [f for f in family if f in old_house.people]
-        for member in family:
-            if member.lifestatus == dead:
-                pass
-            else:
-                old_house.remove_person(member)
-                new_house.add_person(member)
-
-
-def move_household_to_new_house(person,new_house):
-    """Move an individual and their co-residential group to a new house.
-    
-    Parameters
-    ----------
-    person : Person
-        A Person who will be moved along with their co-residential group.
-    new_house : House
-        The new house into which they will be moved.    
-    
-    Note
-    ----
-    This function assumes a patriline/male dominance of household. This needs to 
-    be updated as part of the matrilineal update.
-    """
-    if person.has_house == new_house:
-        pass #Nothing happens, person already lives there!
-    else:
-        old_house = person.has_house
-        #Get the coresident household
-        household = residency.get_household(old_house)
-        for member in household:
-            old_house.remove_person(member)
-            new_house.add_person(member)
 
 #What happens if inheritance fails?
 def failed_inheritance_no_owner(person):

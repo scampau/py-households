@@ -1,14 +1,13 @@
-"""Locality decisions for newlyweds.
+"""Marriage decisions for newlyweds.
 
-The locality package encodes options for where a new couple live.
-This needs to be renamed marriage or something like it.
+The marriage package encodes options for where a new couple live.
 
 
 """
 
-from households import np, rd, scipy, nx, plt,inspect, kinship, residency, main
+from households import np, rd, scipy, nx, plt,inspect, kinship, residency, main, behavior
 from households.identity import *
-print('importing locality')
+print('importing marriage')
 #import kinship as kn
 
 #global male, female
@@ -280,9 +279,7 @@ def patrilocality(husband,wife):
         return False
     else:
         #If the house has capacity, the wife moves in with the husband
-        husband.has_house.add_person(wife)
-        if wife.has_house is not None: wife.has_house.remove_person(wife)
-        wife.has_house = husband.has_house
+        behavior.mobility.move_person_to_new_house(wife, husband.has_house)
         return True
 
 def matrilocality(husband,wife):
@@ -306,15 +303,13 @@ def matrilocality(husband,wife):
         #The husband has no house; find a new one
         neolocality(husband,wife,female)
         return False
-    elif len(husband.has_house.people)+1 >= husband.has_house.maxpeople:
+    elif len(wife.has_house.people)+1 >= wife.has_house.maxpeople:
         #If the house is full, find a new one and move out
         neolocality(husband,wife,female)
         return False
     else:
         #If the house has capacity, the wife moves in with the husband
-        wife.has_house.add_person(husband)
-        if husband.has_house is not None: wife.has_house.remove_person(wife)
-        husband.has_house = wife.has_house
+        behavior.mobility.move_person_to_new_house(husband, wife.has_house)
         return True
 
 def neolocality(husband,wife,primary):
@@ -344,15 +339,8 @@ def neolocality(husband,wife,primary):
         pass #Future extension: if none found, couple may leave community or build
     else:
         # Add husband and wife to house
-        new_house.people.extend([husband, wife])
-        # Remove from their old houses
-        if husband.has_house is not None:
-            husband.has_house.people.remove(husband)
-        if wife.has_house is not None:
-            wife.has_house.people.remove(wife)
+        behavior.mobility.move_person_to_new_house(husband, new_house)
+        behavior.mobility.move_person_to_new_house(wife, new_house)
         # make whoever is of the primary sex the owner
         new_house.owner = owner
-        # Add a pointed to the house from both individuals
-        husband.has_house = new_house
-        wife.has_house = new_house
         return True

@@ -7,10 +7,12 @@ such that future modules can extend types of behavioral diversity that can be
 modeled.
 """
 
-__all__ = ['inheritance','locality','fragmentation']
+__all__ = ['inheritance','marriage','mobility','conception','transmission']
 
 print('importing behavior')
 
 from . import inheritance
-from . import locality
-from . import fragmentation
+from . import marriage
+from . import mobility
+from . import conception
+from . import transmission
