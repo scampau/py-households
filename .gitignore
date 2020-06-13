@@ -1,5 +1,7 @@
 *.md~
 *.md#
 *.pyc
+~$*.xlsx
+/.ipynb_checkpoints/
 /results/
 /analysis/

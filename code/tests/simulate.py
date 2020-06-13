@@ -40,7 +40,7 @@ bagnallfriermarriage = agetable([0,12,17,100],female,[0,1./7.5,1./7.5],male,[0,0
 
 
 # Step 2: Define inheritance and fragmentation regimes
-def inheritance_moderate(agent):
+def inheritance_moderate(person):
     """
     Upon the death of the patriarch, the house is given to someone in this
     order:
@@ -52,15 +52,15 @@ def inheritance_moderate(agent):
     """
     #The moderate inheritance regime of Asheri 1963
     # Check if patriarch
-    if agent.sex == male and any([h.owner == agent for h in agent.comm.houses]):
+    if person.sex == male and any([h.owner == person for h in person.comm.houses]):
         #First priority: male children
-        inherited = cr.inheritance.inherit_sons(agent,True) #what about grandchildren?
+        inherited = cr.inheritance.inherit_sons(person,True) #what about grandchildren?
         if inherited == False:
             #Second priority: adoption of brothers' younger sons
-            inherited = cr.inheritance.inherit_brothers_sons(agent)
+            inherited = cr.inheritance.inherit_brothers_sons(person)
             if inherited == False:
                 #If there is still no heir, for now the ownership defaults
-                cr.inheritance.inherit(agent,None)       
+                cr.inheritance.inherit(person,None)       
 
 def inheritance_radical():
     """

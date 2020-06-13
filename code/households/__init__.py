@@ -8,10 +8,13 @@ import random as rd
 import scipy
 import networkx as nx
 import matplotlib.pyplot as plt
+import inspect
 
+print('Importing the households package')
+from households.identity import *
 import households.kinship
 import households.residency
 import households.behavior
 from households.main import *
+import households.narrative
 
-print('Importing the households package')
