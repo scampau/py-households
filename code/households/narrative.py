@@ -6,21 +6,18 @@ that make them easier to read for a user of the households package.
 This will eventually be extended to include Community and and World objects.
 """
 
-from households import kinship, residency
+from households import kinship, residency, main
 from households.identity import *
 #male, female = range(2)
 print('loading narrative')
 
 class Diary(object):
-    """A place to record events as they occur
+    """A place to record events as they occur for Persons.
     
     Parameters
     ----------
     associated
-        The associated entity this is a diary of
-    has_community : main.Community
-        The associated community of this Diary
-    
+        The associated Person this is a diary of
     
     Attributes
     ----------
@@ -28,25 +25,32 @@ class Diary(object):
         A dict of Events by year.
     
     """
-    def __init__(self,associated,has_community):
-        self.events = {}
-        self.associated = associated
-        if isinstance(has_community, main.Community) == False:
-            raise TypeError('has_community not Community')
+    def __init__(self,associated):
+        if isinstance(associated, main.Person) == False and isinstance(associated, main.House) == False:
+            raise TypeError('associated neither House nor Person')
         else:
-            self.has_community = has_community        
+            self.associated = associated
+            self.events = {}
     
-    def add_event(self,event):
+    @property
+    def current_year(self):
+        return self.associated.has_community.has_world.year
+    
+    def add_event(self,eventtype,detail = None):
         """Add an event to the Diary.
         
         Parameters
         ----------
-        event : Event
-            An event that has occurred with its own particular 
+        eventtype : Event Class
+            An event that has occurred with its own particular class
         """
-        if isinstance(event,Event) == False:
-            raise TypeError('event not Event')
-        year = main.Community.year
+        if issubclass(eventtype,Event) == False:
+            raise TypeError('event not of subclass Event')
+        year = self.current_year
+        if detail == None:
+            event = eventtype(year,self.associated.has_house,self.associated)
+        else:
+            event = eventtype(year,self.associated.has_house,self.associated, detail)
         if year in self.events.keys():
             #This year already exists, so add to it
             self.events[year].append(event)
@@ -79,7 +83,7 @@ class Diary(object):
 
 
 class Event(object):
-    """The sort of thing recorded in a Diary.
+    """The sort of circumstance recorded in a Diary.
     
     All events must take their inputs from __init__ and create a human-readable
     summary that includes the date as a formatted string
@@ -87,35 +91,83 @@ class Event(object):
     
     def __init__(self):
         pass
-
     
+    # def summary(self):
+    #     if len(self.__dict__.keys()) == 4: #transitive
+    #         s = 'Year {}: {} ' + self.verb() + ' {}'
+    #         return s.format(self.year, self.person, self.house)
+
+
+#ALL OF THESE need a case for what happens when house is null
+class BornEvent(Event):
+    """When born
+    
+    """
+    def __init__(self,year,house,person):
+        self.year = year
+        self.house = house
+        self.person = person
+    
+    def summary(self):
+        return 'Year {}: {} was born by {} at {}, {}'.format(self.year,self.person.name,self.mother.name,self.house.address,self.house.has_community.name)
 
 class BirthEvent(Event):
     """Marks the birth of an individual
     
     """
-    def __init__(self,year,mother,child,house):
+    def __init__(self,year,house,person,child):
         self.year = year
-        self.mother = mother
-        self.child = child
         self.house = house
+        self.person = person
+        self.child = child
 
     def summary(self):
-        return 'Year {}: {} gave birth to {} at {}'.format(self.year,self.mother,self.child,self.house)
+        return 'Year {}: {} gave birth to {} at {}, {}'.format(self.year,self.person.name,self.child.name,self.house.address,self.house.has_community.name)
 
 class MarriageEvent(Event):
     """Marks the mariage of two people
     
     """
-    def __init__(self,year,husband,wife):
+    def __init__(self,year,house,person,spouse):
         self.year = year
-        self.husband = husband
-        self.wife = wife
+        self.house = house
+        self.person = person
+        self.spouse = spouse
     
-    def suummary(self):
-        return 'Year {}: {} married {}'.format(self.year,self.husband,self.wife)
+    def summary(self):
+        return 'Year {}: {} married {} at {}, {}'.format(self.year,self.person.name,self.spouse.name,self.house.address,self.house.has_community.name)
 
+class MobilityEvent(Event):
+    """Marks one person leaving a house for another
+    
+    """
+    def __init__(self, year, house, person, oldhouse):
+        self.year = year
+        self.house = house
+        self.person = person
+        self.oldhouse = oldhouse
+    
+    def summary(self):
+        return 'Year {}: {} moved from {}, {} to {}, {}'.format(self.year,self.person.name,self.oldhouse.address,self.oldhouse.has_community.name,self.house.address,self.house.has_community.name)
 
+class DeathEvent(Event):
+    def __init__(self,year,house,person):
+        self.year = year
+        self.house = house
+        self.person = person
+    
+    def summary(self):
+        return 'Year {}: {} died at {}, {}'.format(self.year,self.person.name,self.house.address,self.house.has_community.name)
+    
+class LeaveHouseEvent(Event):
+    pass
+    
+    
+class EnterhouseEvent(Event):
+    pass
+
+class ChangeOwnerEvent(Event):
+    pass
 
 
 ###For biography and census of individual Person objects and House objects

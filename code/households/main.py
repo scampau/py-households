@@ -31,17 +31,33 @@ class World(object):
     
     def __init__(self):
         self.communities = []
+        self.library = {'Person' : [], 'House' : []} #stores the narrative.Diary objects
+        self.year = 0
     
     @property
     def people(self):
+        "Dynamic property of the population of all constitutent communities"
         output = []
         if self.communities != []:
             for c in self.communities:
                 output.extend(c.people)
         return output
-                
+    
+    @property            
     def deadpeople(self):
-        pass #to be implemented
+        output = []
+        if self.communities != []:
+            for c in self.communities:
+                output.extend(c.thedead)
+        return output
+    
+    @property            
+    def houses(self):
+        output = []
+        if self.communities != []:
+            for c in self.communities:
+                output.extend(c.houses)
+        return output
     
     def add_community(self,community):
         """Add a community to this World.
@@ -53,29 +69,66 @@ class World(object):
         """
         if isinstance(community,Community):
             self.communities.append(community)
+            #community.has_world = self
         else:
             raise TypeError('community not type Community')
             
-    def progress(self):
-        """Progress the simulation one year.
-
-        Returns
-        -------
-        None.
-
+    def add_diary(self,diary):
+        """Add a diary object to the library
         """
+        
+        self.library[type(diary.associated).__name__].append(diary)
+            
+    def progress(self):
+        """Progress the world 1 time-step (year).
+        
+        The order of steps in the simulation follows this schedule:
+            1) randomize the order of persons,
+            2) death (and thereby inheritance),
+            3) mobility,
+            4) marriage, 
+            5) birth, and 
+            6) end the year.
+        """
+        
+        #Step 1: randomize population order and reset statistics
+        rolodex = self.people.copy() #create a copy of the list of people
+        rd.shuffle(rolodex) #randomize the order
+        
+        #Step 2: iterate through each person for death, marriage, and birth
+        for p in rolodex:
+            #Check if anyone dies, which also runs inheritance and removes them
+            ## from houses and teh community
+            p.die()
+ 
+        #Now run everything else in turn 
+        for p in rolodex:
+            #Check for household mobility
+            p.leave_home() #runs each person's mobility rule
+        
+        #Go through the marriage routine for all persons
+        for p in rolodex:
+            p.marriage()
+            
+        # Go through the birth routine for all persons
+        for p in rolodex:
+            p.birth()
+            
+        #Recalculate statistics        
+        self.year += 1
     
 
 class Community(object):
     """Communities are collections of people and houses following a schedule.
     
-    community is both the storage for people living in houses and the container
-    for the simulation that runs the schedule of the year.
+    community is the storage for people living in houses and isa  unit of residency.
     
     Note: this doc-string is out of date and needs to be updated.
     
     Parameters
     ----------
+    world : World
+        The world in which this community will exist
     name : str
         The name of the community
     pop : int
@@ -102,60 +155,29 @@ class Community(object):
     ---------
     name : str
         The name of the community
-    year : int
-        The year of the simulation of this community.
     area : int
         Number of houses in the community.
     population : int
         The current population of the community.
-    housingcapacity : int
-        The total housing capacity of the community in terms of people.
-    births : int
-        Total births this year.
-    marriages : int
-        Total marriages this year.
-    deaths : int
-        Total deaths this year.
-    occupied : int
-        Number of occupied houses.        
-        
+      
     houses : list of House objects
         The houses of the community.
     people : list of Person objects
         The people who currently live in the community.
+    thedead : list of Person
+        List of all dead persons, still required for genealogy. 
     
     mortab : AgeTable
         An AgeTable storing a mortality schedule for the community.
-    marrtab : AgeTable
-        An AgeTable storing marriage eligiblity probability by age and sex
     birthtab : AgeTable
         An AgeTable storing probability of giving birth once married by sex (0 for men)
-    marriagerule : marriage.MarriageRule
-        This defines the location newlyweds move to from behavior.marriage, or a custom function.
-    mobilityrule : callable
-        This defines the circumstances of houshold fissioning from behavior.mobility, or a custom function
-        
-    thedead : list
-        List of all dead persons, still required for genealogy.
-    deathlist : list of int
-        History of deaths per year.
-    birthlist : list of int
-        History of births per year.
-    marriedlist : list of int
-        History of number of marriages per year.
-    poplist : list of int
-        History of population by year.
-    arealist : list of int
-        History of number of houses per year.
-    occupiedlist : list of int
-        History of number of occupied houses per year.        
     """
     
-    #global male, female
-    def __init__(self,name,pop,area,startage,mortab,birthtab,marriagerule,inheritancerule,mobilityrule):
-        
-        self.year = 0
+    def __init__(self,world,name,pop,area,startage,mortab,birthtab,marriagerule,inheritancerule,mobilityrule):
+
         self.name = name
+        self.has_world = world
+        self.has_world.add_community(self)
         
         # Create the houses
         self.area = area #The number of houses to create
@@ -186,102 +208,7 @@ class Community(object):
         for i in range(pop):
             self.people.append(Person(rd.choice([male,female]),startage,self,None,marriagerule,inheritancerule,mobilityrule)) #Generate a new person with age startage
             #NB: currently a 50-50 sex ratio, should be customisable. Consider for expansion. 
-
-        #Define statistics to keep track of each step
-        self.deaths = 0
-        self.births = 0
-        self.occupied = 0 # Occupied houses
-        self.marriages = 0
-        self.moves = 0 #events that track mobility
-                
-        #Define history of the statistics
-        self.thedead = [] #store the list of dead persons
-        self.deathlist = [self.deaths]
-        self.birthlist = [self.births]
-        self.poplist = [self.population]
-        self.arealist = [self.area]
-        self.occupiedlist = [self.occupied]
-        self.marriedlist = [self.marriages]
-        
-    def progress(self):
-        """Progress the community 1 time-step (year).
-        
-        The order of steps in the simulation follows this schedule:
-            1) randomize the order of persons,
-            2) death (and thereby inheritance),
-            3) mobility,
-            4) marriage, 
-            5) birth, and 
-            6) recalculate all statistics and end the year.
-        """
-        
-        #Step 1: randomize population order and reset statistics
-        rd.shuffle(self.people)
-        self.deaths = 0
-        self.births = 0
-        self.moves = 0
-        
-        #Step 2: iterate through each person for death, marriage, and birth
-        for x in self.people:
-            x.die()
-            
-        #Remove the dead from the community
-        remove = [i for i in range(len(self.people)) if self.people[i].lifestatus == dead]
-        remove.reverse()
-        for i in remove:
-            self.thedead.append(self.people.pop(i))
-            #This simultaneously adds a person to thedead and removes them from people
-            self.deaths += 1
-            
-        #Check for household mobility
-        for p in self.people:
-            r = p.leave_home() #runs each person's fission rule
-            self.moves += int(r)
-        
-        #Go through the marriage routine for all persons
-        for p in self.people:
-            p.marriage()
-            
-        # Go through the birth routine for all persons
-        for p in self.people:
-            p.birth()
-            
-        #Recalculate statistics
-        self.population = len(self.people)
-        self.births = len([1 for x in self.people if x.age == 0])
-        self.occupied = len([x for x in self.houses if x.people != []])
-        self.deathlist.append(self.deaths)
-        self.birthlist.append(self.births)
-        self.poplist.append(self.population)
-        self.arealist.append(self.area)
-        self.occupiedlist.append(self.occupied)
-        self.marriages = len([x for x in [p for p in self.people if p.marriagestatus == married] if x.has_spouse.lifestatus == alive])
-        self.marriedlist.append(self.marriages)
-        
-        self.year += 1
-    
-    #Deprecated function, will be removed
-    # def get_eligible(self,person):
-    #     """Returns list of all eligible marriage partners of the opposite sex.
-        
-    #     Searches through all 
-        
-    #     Parameters
-    #     ----------
-        
-    #     """
-        
-    #     candidates = []
-    #     relations = kinship.get_siblings(person) 
-    #     #Note at present that this only accounts for direct incest; a flexible
-    #     ## incest rule would be a useful expansion here. 
-    #     if relations == None: relations = []
-    #     for x in self.people:
-    #         if x.sex != person.sex:
-    #             #If unmarried and not a sibling
-    #             if x.marriagestatus == unmarried and (x in relations) == False:
-    #                 candidates.append(x)
-    #     return candidates                    
+        self.thedead = [] #store the list of dead Persons
 
 
 class Person(object):
@@ -346,7 +273,10 @@ class Person(object):
         self.has_parents = []
         self.has_children = []
         
-        self.birthyear = self.has_community.year
+        self.birthyear = self.has_community.has_world.year
+        self.diary = Diary(self)
+        self.has_community.has_world.add_diary(self.diary)
+        self.diary.add_event(narrative.BornEvent)
         
         # Options for married include None (too young for marriage), False 
         ## (old enough but not eligible yet), or True (yes or widowed)
@@ -365,11 +295,13 @@ class Person(object):
             self.age += 1
         else: #if this person died this year, toggle them to be removed from the community
             self.lifestatus = dead
+            self.diary.add_event(narrative.DeathEvent)
             if self.marriagestatus == married:
                 self.has_spouse.marriagestatus = widowed
             self.inheritancerule(self)
             if self.has_house is not None:
                 self.has_house.remove_person(self)
+            self.has_community.thedead.append(self.has_community.people.remove(self))
 
     def marriage(self):
         """Check whether this person gets married this timestep.
@@ -384,6 +316,8 @@ class Person(object):
         elif self.marriagestatus == unmarried: #if this person is eligible to be married
             #run the marriage rules
             self.marriagerule(self)
+            if self.marriagestatus == married: #if successful, record it
+                self.diary.add_event(narrative.MarriageEvent,self.has_spouse)
         elif self.marriagestatus == ineligible: #if none (== too young for marriage), check eligibility
             e = self.marriagerule.eligibility_agetable.get_rate(self.sex,self.age)
             if rd.random() < e: #If eligibility possible, change staus
@@ -413,6 +347,7 @@ class Person(object):
                 self.has_spouse.has_children.append(child)
                 self.has_community.people.append(child) #add to the community
                 self.has_house.add_person(child)
+                self.diary.add_event(narrative.BirthEvent,child)
     
     def leave_home(self):
         """Determine whether this person leaves home through household mobility/fission/migration.
