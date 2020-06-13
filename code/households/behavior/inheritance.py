@@ -3,7 +3,7 @@
 This module models inheritance as well as families moving as part of inheriting new property.
 """
 
-from households import np, rd, scipy, nx, plt, inspect, kinship, residency, main
+from households import np, rd, scipy, nx, plt, inspect, kinship, residency, main, behavior
 from households.identity import *
 print('importing inheritance')
 #import kinship as kn
@@ -132,7 +132,7 @@ def inherit_sons(person,checkowner=True):
     """
     heir = None
     # Get a list of children
-    children = kinship.get_children(person,person.has_community.families)
+    children = kinship.get_children(person)
     if children != []:
         #If there are children, select the alive male children
         select = [x for x in children if x.sex == male and x.lifestatus == alive]
@@ -174,7 +174,7 @@ def inherit_brothers_sons(person,checkowner=True):
     """
     heir = None
     #Get a list of siblings
-    siblings = kinship.get_siblings(person,person.has_community.families)
+    siblings = kinship.get_siblings(person)
     if siblings != []:
         #If there are siblings, select the men
         select = [x for x in siblings if x.sex == male]
@@ -182,7 +182,7 @@ def inherit_brothers_sons(person,checkowner=True):
             select.sort(reverse=True,key=lambda x:x.age)
             for brother in select:
                 #Check whether each brother for sons
-                children = kinship.get_children(brother,brother.has_community.families)
+                children = kinship.get_children(brother)
                 if children != []:
                     #If the brother has children, check for the alive male children
                     select = [x for x in children if x.sex == male and x.lifestatus == alive]
@@ -193,7 +193,7 @@ def inherit_brothers_sons(person,checkowner=True):
                         ## the second oldest (first must stay for brother's inheritance)
                         select.sort(reverse=True,key=lambda x:x.age)
                         heir = select[1]
-                        move_family_to_new_house(heir,person.has_house)
+                        behavior.mobility.move_family_to_new_house(heir,person.has_house)
                         for h in person.has_community.houses:
                             if h.owner == person:
                                 h.owner = heir
@@ -369,13 +369,13 @@ def find_heirs_children_oldest_to_youngest(person,sex = None):
     if isinstance(sex, Sex) == False and sex != None:
         raise TypeError('sex neither Sex nor None')
     # Get a list of children
-    children = kinship.get_children(person,person.has_community.families)
+    children = kinship.get_children(person)
     if children != []:
         #If there are children, select the living children
         if sex == None:
             select = [x for x in children if x.lifestatus == alive]
         else:
-            [x for x in children if x.sex == sex and x.lifestatus == alive]
+            select = [x for x in children if x.sex == sex and x.lifestatus == alive]
         select.sort(reverse=True,key=lambda x:x.age)
         return select
     return [] #no heirs, return empty list
@@ -450,7 +450,7 @@ def find_heirs_siblings_children_oldest_to_youngest(person, sex = None):
         raise TypeError('sex neither Sex nor None')
     heirs = []
     #Get a list of siblings
-    siblings = kinship.get_siblings(person,person.has_community.families)
+    siblings = kinship.get_siblings(person)
     if siblings != []:
         #If there are siblings, do sex selection
         if sex != None:
@@ -460,7 +460,7 @@ def find_heirs_siblings_children_oldest_to_youngest(person, sex = None):
             siblings.sort(reverse=True,key=lambda x:x.age)
             for sibling in siblings:
                 #Check whether each sibling has children
-                children = kinship.get_children(sibling,sibling.has_community.families)
+                children = kinship.get_children(sibling)
                 if sex != None:
                     children = [x for x in children if x.sex == sex]
                 if children != []:
@@ -491,7 +491,7 @@ def find_heirs_brothers_sons_oldest_to_youngest(person):
     """
     #Get a list of siblings
     heirs = []
-    siblings = kinship.get_siblings(person,person.has_community.families)
+    siblings = kinship.get_siblings(person)
     if siblings != []:
         #If there are siblings, select the brothers
         select_brothers = [x for x in siblings if x.sex == male]
@@ -500,7 +500,7 @@ def find_heirs_brothers_sons_oldest_to_youngest(person):
             select_brothers.sort(reverse=True,key=lambda x:x.age)
             for brother in select_brothers:
                 #Check whether each brother for sons
-                children = kinship.get_children(brother,brother.has_community.families)
+                children = kinship.get_children(brother)
                 if children != []:
                     #If the brother has children, check for the alive male children
                     select = [x for x in children if x.sex == male and x.lifestatus == alive]
@@ -669,6 +669,47 @@ def limit_heirs_by_age(heirs,age_of_majority = 15):
         raise TypeError('heirs neither list of Persons or list of lists of Person')
     return new_heirs
 
+def limit_heirs_multiple_constructor(*args):
+    """Create a new limit_heirs function that iterates over other limit_heirs functions
+
+    Parameters
+    ----------
+    *args : callables
+        Other limit_heirs functions to be iterated over in succession
+
+    Returns
+    -------
+    callable
+        Returns a new limit_heirs funcitons
+
+    """
+    for f in args:
+        if callable(f) == False:
+            raise TypeError(str(f) + ' is not callable')
+    def limit_heirs_multiple(heirs):
+        """limit_heirs combining multiple basic limit_heirs functions.
+        
+
+        Parameters
+        ----------
+        heirs : list of Person or list of list of Person
+            heirs, the return argument of find_heirs type functions
+
+        Returns
+        -------
+        list of Person or list of list of Person
+            The remaining heirs of a person
+        """
+        if isinstance(person,main.Person) == False:
+            raise TypeError('person not Person')
+        for f in args:
+            #For each function, get the new remainingheirs
+            heirs = f(heirs)
+            if heirs == [] or all([x == [] for x in heirs]):
+                return []              
+        return heirs
+    return limit_heirs_multiple
+
 #Distribution of property and moving families/households
 def distribute_property_to_first_heir_and_move_household(person,heirs):
     """Select first heir, move a dead person's house's/houses' ownership.
@@ -705,65 +746,9 @@ def distribute_property_to_first_heir_and_move_household(person,heirs):
         if h.owner == person:
             h.owner = heir
             old_house = heir.has_house
-            move_household_to_new_house(heir,h)
+            behavior.mobility.move_household_to_new_house(heir,h)
             transfer_happened = True
     return transfer_happened
-    
-
-def move_family_to_new_house(person,new_house):
-    """Move an individual and their co-resident family to a new house.
-    
-    Parameters
-    ----------
-    person : Person
-        A Person who will be moved along with their co-resident family.
-    new_house : House
-        The new house into which they will be moved.    
-    
-    Note
-    ----
-    This function assumes a patriline/male dominance of household. This needs to 
-    be updated as part of the matrilineal update.
-    """
-    if person.has_house == new_house:
-        pass #do nothing, already lives there!
-    else:
-        old_house = person.has_house
-        #Get the coresident nuclear family
-        family = kinship.get_family(person,person.has_community.families)
-        family = [f for f in family if f in old_house.people]
-        for member in family:
-            if member.lifestatus == dead:
-                pass
-            else:
-                old_house.remove_person(member)
-                new_house.add_person(member)
-
-
-def move_household_to_new_house(person,new_house):
-    """Move an individual and their co-residential group to a new house.
-    
-    Parameters
-    ----------
-    person : Person
-        A Person who will be moved along with their co-residential group.
-    new_house : House
-        The new house into which they will be moved.    
-    
-    Note
-    ----
-    This function assumes a patriline/male dominance of household. This needs to 
-    be updated as part of the matrilineal update.
-    """
-    if person.has_house == new_house:
-        pass #Nothing happens, person already lives there!
-    else:
-        old_house = person.has_house
-        #Get the coresident household
-        household = residency.get_household(old_house)
-        for member in household:
-            old_house.remove_person(member)
-            new_house.add_person(member)
 
 #What happens if inheritance fails?
 def failed_inheritance_no_owner(person):
