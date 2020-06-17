@@ -67,7 +67,7 @@ class World(object):
     
     @property
     def people(self):
-        "Dynamic property of the population of all constitutent communities"
+        """List of people of all constitutent communities."""
         output = []
         if self.communities != []:
             for c in self.communities:
@@ -76,6 +76,7 @@ class World(object):
     
     @property            
     def deadpeople(self):
+        """List of dead people of all constitutent communities."""
         output = []
         if self.communities != []:
             for c in self.communities:
@@ -84,6 +85,7 @@ class World(object):
     
     @property            
     def houses(self):
+        """List of houses of all constitutent communities."""
         output = []
         if self.communities != []:
             for c in self.communities:
@@ -112,7 +114,6 @@ class World(object):
         diary : narrative.Diary
             Diary to be added to the library
         """
-        
         self.library[type(diary.associated).__name__].append(diary)
             
     def progress(self):
@@ -126,7 +127,6 @@ class World(object):
             5) birth, and 
             6) end the year.
         """
-        
         #Step 1: randomize population order and reset statistics
         rolodex = self.people.copy() #create a copy of the list of people
         rd.shuffle(rolodex) #randomize the order
@@ -160,7 +160,7 @@ class World(object):
     
 
 class Community(object):
-    """Communities are collections of Persons living in Houses. 
+    """Communities are collections of Persons living in Houses.
     
     Community is the coresidential living group of Persons who reside in Houses. 
 
@@ -190,7 +190,7 @@ class Community(object):
         
         
     Attributes
-    ---------
+    ----------
     name : str
         The name of the community
     has_world : World
@@ -274,9 +274,15 @@ class Person(object):
     age : int
         Age of the individual assigned at creation, then aging regularly.
     has_community : Community
-        The Community to which this individual belongs.
+        The Community to which this individual belongs. Required because of founder problems.
     has_house : House
-        The house in which this individual resides.
+        The house in which this individual resides. 
+    marriagerule : behavior.marriage.MarriageRule
+        The MarriageRule implemented by this agent.
+    inheritancerule : behavior.inheritance.InheritanceRule
+        The InheritanceRule implemented by this agent each year.
+    mobilityrule : behavior.mobility.MobilityRule
+        The MobilityRule implemented by this agent each year.    
     
     Attributes
     ----------
@@ -301,11 +307,19 @@ class Person(object):
     has_children : list of Person
         The children of this individual
     birthyear : int
-        The year this individual was born.        
+        The year this individual was born.   
+    marriagerule : behavior.marriage.MarriageRule
+        The MarriageRule implemented by this agent.
+    inheritancerule : behavior.inheritance.InheritanceRule
+        The InheritanceRule implemented by this agent each year.
+    mobilityrule : behavior.mobility.MobilityRule
+        The MobilityRule implemented by this agent each year.  
+    diary : narrative.Diary
+        The diary of this individual that records life events.
     """
     
     #Note: remarriage needs to be added as an option
-    def __init__(self,sex,age,has_community,has_house,marriagerule,inheritancerule, mobilityrule):
+    def __init__(self, sex, age, has_community, has_house, marriagerule, inheritancerule, mobilityrule):
         self.sex = sex
         if sex == male:
             self.name = rd.choice(narrative.male_names)
@@ -328,9 +342,7 @@ class Person(object):
         self.diary = Diary(self)
         self.has_community.has_world.add_diary(self.diary)
         self.diary.add_event(narrative.BornEvent)
-        
-        # Options for married include None (too young for marriage), False 
-        ## (old enough but not eligible yet), or True (yes or widowed)
+
         
     def die(self):
         """Check whether this Person dies or ages 1 year.
@@ -339,7 +351,6 @@ class Person(object):
         lives, they age one year. Otherwise, they die, inheritance takes place, and
         the Person is removed from the house.
         """
-        
         #figure out if this person dies
         r = self.has_community.mortab.get_rate(self.sex,self.age)
         if r <= rd.random(): #stay alive
@@ -358,10 +369,8 @@ class Person(object):
         """Check whether this person gets married this timestep.
         
         This step determines marriage eligibility, as well as finding potential
-        candidates for marriage. At present the algorithm guarantees marriage
-        if there are any eligible candidates of the opposite sex. 
+        candidates for marriage. All of this occurs through the MarriageRule.
         """
-        
         if self.marriagestatus == married: #if married, don't run this script
             pass
         elif self.marriagestatus == unmarried: #if this person is eligible to be married
@@ -387,7 +396,6 @@ class Person(object):
         whether a married woman gives birth this year. If so, this method creates that 
         child in the same house.        
         """
-        
         if self.sex == female and [self.has_spouse.lifestatus if self.marriagestatus == married else dead][0] == alive: #If married, husband is alive, and self is a woman
             b = self.has_community.birthtab.get_rate(self.sex,self.age)
             if rd.random() < b: # if giving birth
@@ -402,6 +410,8 @@ class Person(object):
     
     def leave_home(self):
         """Determine whether this person leaves home through household mobility/fission/migration.
+        
+        This runs the MobilityRule the person currently has.
 
         """
         result = self.mobilityrule(self)
@@ -410,13 +420,15 @@ class Person(object):
                 
 
 class House(object):
-    """Creates a house in which persons reside.
+    """Creates a house in which Persons reside.
+    
+    The House is an environmental object that doesn't move but can be modified
+    by Persons.
     
     Parameters
     ----------
     maxpeople : int
-        Maximum number of residents before the house is crowded. Currently no 
-        repercussion for a crowded house.
+        Maximum number of residents before the house is considered crowded.
     has_community : Community
         The Community in which this house was built
 
@@ -428,19 +440,18 @@ class House(object):
         repercussion for a crowded house.
     rooms : int
         Number of rooms in the house. An alternative way of thinking about space.
-        Currently no repercussions.
     has_community : Community
-        The Community in which this house was built
+        The Community in which this house was built.
     people : list of Person
         List of the people who reside in the house.
     owner : Person
         The person who owns this house. Assumes single or primary ownership.
     address : str
-        The name of the house, to make individuality clearer
+        The name of the house, to make individuality clearer in narrative.
     """
     
-    #Houses belong to the community, have an owner, contain people
-    #EVENTUALLY, houses may be expanded, change through time, etc. 
+    #EVENTUALLY, houses may be expanded, change through time, have value,
+    ## require maintenance, etc. 
     def __init__(self,maxpeople,has_community):
         self.maxpeople = maxpeople
         self.rooms = 1
@@ -454,7 +465,7 @@ class House(object):
         """Add a person to the house.
         
         Parameters
-        ---------
+        ----------
         tobeadded : Person
             The person to be added to the residents of the house.
         """
@@ -465,7 +476,7 @@ class House(object):
         """Remove a person from the house.
         
         Parameters
-        ---------
+        ----------
         toberemoved : Person
             The person to be removed from the residents of the house
         """
@@ -474,7 +485,7 @@ class House(object):
         
 
 class AgeTable(object):
-    """AgeTables store age-specific annual rates of death, marriage, birth, etc.
+    """Store age-specific annual rates of death, marriage, birth, etc.
     
     AgeTables create a schedule of age- and sex- dependent annual rates of 
     different phenomena, literally anything from marriage eligibility to death.
@@ -482,19 +493,15 @@ class AgeTable(object):
     Parameters
     ----------
     ages : list
-        A list of ages including the lower bounds, such that ages[0] <= x < ages[1] is the comparison.
+        A list of ages to define the relevant intervals over which rates change.
+        Each interval includes the lower bounds, such that each is defined by
+        ages[i] <= x < ages[i+1].
     sex1, sex2 : Sex
         The variables defining which rates correspond to which sex.
     rates1, rates2 : list
-        Annual chance of occurence for each interval. n.b. that len(rates) - len(ages) - 1
-    
-    Attributes
-    ----------
-    
-    
+        Annual chance of occurence for each interval. n.b. that len(rates) - len(ages) - 1  
     """
-    #global male, female
-
+    
     def __init__(self,ages,sex1,rates1,sex2,rates2):
         self._ages = ages
         self._sex1 = sex1
@@ -503,14 +510,14 @@ class AgeTable(object):
         self._rates2 = rates2  
         
     def get_rate(self,sex,age):
-        """Returns the annual rate for a given sex and age.
+        """Return the annual rate for a given sex and age.
 
         Parameters
         ----------
         sex : Sex
             The sex in the table to be consulted.
         age : int
-            The age of the individual. Must be within defined range of table
+            The age of the individual. Must be within defined range of table.
  
         Returns
         -------
@@ -526,120 +533,11 @@ class AgeTable(object):
             return self._rates2[i]
         
     def NullAgeTable():
-        """Defines a null AgeTable.
+        """Define a null AgeTable.
         """
         return AgeTable([0,1000],male,[0],female,[0])
 
 ##Example code
 if __name__ == '__main__':
     pass
-    # #Life tables are Coale and Demeny: Male, west 4, female west 2, .2% annual increase. See Bagnall and frier
-    # maledeath = pd.read_csv('../data/demo/West4Male.csv')
-    # ages = list(maledeath.Age1) + [list(maledeath.Age2)[-1]]
-    # malerates = list(maledeath[maledeath.columns[2]])
-    # femaledeath = pd.read_csv('../data/demo/West2Female.csv')
-    # femalerates = list(femaledeath[femaledeath.columns[2]])
-    # bagnallfrier = households.AgeTable([0,1] + range(5,105,5), male, malerates, female, femalerates)
-    # del maledeath, femaledeath
-    
-    # examplebirth = AgeTable([0,12,40,50,100],female,[0,.3,.1,0],male,[0,0,0,0,0])
-    
-    # examplemarriage = AgeTable([0,12,17,100],female,[0,1./7.5,1./7.5],male,[0,0,0.0866]) #These values based on Bagnall and Frier, 113-4 (women) and 116 (men) for Roman egypt
-    
-    # def inheritance_moderate(person):
-    #     """
-    #     Upon the death of the patriarch, the house is given to someone in this
-    #     order:
-            
-    #     Male children in order of age
-    #     Children of brothers not in line for succession (have to move into household)
-        
-    #     This stems from the description of the moderate inheritance regime in Asheri
-    #     """
-    #     #The moderate inheritance regime of Asheri 1963
-    #     # Check if patriarch
-    #     if person.sex == male and any([h.owner == person for h in person.comm.houses]):
-    #         #First priority: male children
-    #         inherited = bhv.inheritance.inherit_sons(person,True) #what about grandchildren?
-    #         if inherited == False:
-    #             #Second priority: adoption of brothers' younger sons
-    #             inherited = bhv.inheritance.inherit_brothers_sons(person)
-    #             if inherited == False:
-    #                 #If there is still no heir, for now the ownership defaults
-    #                 bhv.inheritance.inherit(person,None)    
-    # def brother_loses_out_15(house):
-    #     if house.people != [] and house.owner != None:
-    #         bhv.mobility.brother_loses_out(house,15)
-                
-    # #An example of a single basic run
-    # testcase = Community(500,500,12,bagnallfrier,examplemarriage,examplebirth,bhv.locality.patrilocality,inheritance_moderate,brother_loses_out_15)
-    # houstory = {}
-    # for h in testcase.houses:
-    #     houstory[h] = {'classify' : [],'pop' : []}
-    # for i in range(200):
-    #     testcase.progress()
-    #     for h in testcase.houses:
-    #         houstory[h]['classify'].append(residency.classify_household(h))
-    #         houstory[h]['pop'].append(len(h.people))
-    # plt.plot(testcase.poplist)
-    
-    # #Plot the changing types of houses
-    # array = []
-    # labels = ['empty','solitary','no-family','nuclear','extended','multiple']
-    # which = lambda x: [i for i in range(len(labels)) if labels[i] == x][0]
-    # for y in range(testcase.year):
-    #     new = [0.]*6
-    #     for k in houstory.keys():
-    #         w = which(houstory[k]['classify'][y])
-    #         new[w]+=1
-    #     new = [x*1./sum(new[1:]) for x in new[1:]]       
-    #     array.append(new)
-    # plt.stackplot(range(testcase.year),np.transpose(array),baseline='zero')
-    # plt.axis([0,300,0,1])
-    
-    # #An example of a repetition script
-    # record = []
-    # repeat = 50
-    # years=200
-    # for r in range(repeat):
-    #     rd.seed()
-    #     testcase = Community(500,500,12,west2male,examplemarriage,examplebirth,bhv.locality.patrilocality,inheritance_moderate,brother_loses_out_15)
-    #     houstory = {}
-    #     for h in testcase.houses:
-    #         houstory[h] = []
-    #     for i in range(years):
-    #         testcase.progress()
-    #         for h in testcase.houses:
-    #             houstory[h].append(classify_household(h))
-    #     record.append(testcase.poplist)
-    
-    # for i in record:
-    #     plot(i)
-    
-    # window = 20
-    # meancorr = []
-    # for y in range(years-window):
-    #     count = 0
-    #     meancorr.append(0.)
-    #     for i in range(repeat):
-    #         for j in range(i):
-    #             if j != i:
-    #                 meancorr[y] += corrcoef([record[i][x] for x in range(y,y+window)],[record[j][x] for x in range(y,y+window)])[0][1]
-    #                 count +=1
-    #     meancorr[y] = meancorr[y]/count
-        
-                    
-    
-    
-        
-        
-        
-    #     owner_dead = [h for h in [h for h in testcase.houses if h.owner is not None] if h.owner.lifestatus == dead]
-    #     if len(owner_dead) > 0:
-    #         print('Something has gone wrong')
-    #         break
-    # plot_classify(testcase.houses)
-    
-    # df = pd.DataFrame({'classify' : [classify_household(h) for h in testcase.houses if len(h.people)>0], 'size' : [len(h.people) for h in testcase.houses if len(h.people)>0]})
-    # groups = df.groupby('classify')
-    # groups.mean()
+

@@ -1,14 +1,24 @@
-"""Take machine-legible representations and make them human-legible
+"""Create human legible descriptions of Persons, Houses, and Diaries.
 
-This module provide functionality for summarizing Person and House instances
-that make them easier to read for a user of the households package.
+This module provides functionality for summarizing Person and House instances
+that make them easier to read for a user of the households package. This is to
+make qualitative exploration of a simulation easier, and frankly helps in
+debugging in order to guarantee that the simulation reflects the social 
+phenomena modeled.
 
+Narrative also defines the Diary instance, which is used to keep track of 
+events in each Person's life. It also defines the name base and address base
+used for the simulation, which should be modified if desired before generating 
+the founder's population.
+
+Notes
+-----
 This will eventually be extended to include Community and and World objects.
 """
 
 from households import kinship, residency, main
 from households.identity import *
-#male, female = range(2)
+
 print('loading narrative')
 
 class Diary(object):
@@ -17,7 +27,7 @@ class Diary(object):
     Parameters
     ----------
     associated
-        The associated Person this is a diary of
+        The Person this is a diary for.
     
     Attributes
     ----------
@@ -34,6 +44,7 @@ class Diary(object):
     
     @property
     def current_year(self):
+        """Get the current year from the World."""
         return self.associated.has_community.has_world.year
     
     def add_event(self,eventtype,detail = None):
@@ -41,11 +52,13 @@ class Diary(object):
         
         Parameters
         ----------
-        eventtype : Event Class
-            An event that has occurred with its own particular class
+        eventtype : Event class
+            An event that has occurred with its own particular class.
+        detail : optional
+            Any additional detail relevant for that Event class.
         """
         if issubclass(eventtype,Event) == False:
-            raise TypeError('event not of subclass Event')
+            raise TypeError('eventtype not of subclass Event')
         year = self.current_year
         if detail == None:
             event = eventtype(year,self.associated.has_house,self.associated)
@@ -83,10 +96,11 @@ class Diary(object):
 
 
 class Event(object):
-    """The sort of circumstance recorded in a Diary.
+    """The sort of life circumstance recorded in a Diary.
     
     All events must take their inputs from __init__ and create a human-readable
-    summary that includes the date as a formatted string
+    summary that includes the date as a formatted string. This is just a parent
+    class.
     """
     
     def __init__(self):
@@ -100,8 +114,25 @@ class Event(object):
 
 #ALL OF THESE need a case for what happens when house is null
 class BornEvent(Event):
-    """When born
+    """When born, a Person records this in their Diary.
     
+    Parameters
+    ----------
+    year : int
+        The current year
+    house : main.House
+        The House born into.
+    person : main.Person
+        The Person born.
+        
+    Attributes
+    ----------
+    year : int
+        The current year
+    house : main.House
+        The House born into.
+    person : main.Person
+        The Person born.
     """
     def __init__(self,year,house,person):
         self.year = year
@@ -109,12 +140,35 @@ class BornEvent(Event):
         self.person = person
     
     def summary(self):
-        return 'Year {}: {} was born by {} at {}, {}'.format(self.year,self.person.name,self.mother.name,self.house.address,self.house.has_community.name)
+        """Return a human-readable summary of this event."""
+        return 'Year {}: {} was born at {}, {}'.format(self.year,self.person.name,self.house.address,self.house.has_community.name)
 
 class BirthEvent(Event):
-    """Marks the birth of an individual
+    """When a mother gives birth, she records this in her Diary.
     
+    Parameters
+    ----------
+    year : int
+        The current year.
+    house : main.House
+        The House the birth occurred in.
+    person : main.Person
+        The Person giving birth.
+    child : main.Person
+        The Person born.
+        
+    Attributes
+    ----------
+    year : int
+        The current year.
+    house : main.House
+        The House the birth occurred in.
+    person : main.Person
+        The Person born.
+    child : main.Person
+        The Person born.
     """
+    
     def __init__(self,year,house,person,child):
         self.year = year
         self.house = house
@@ -122,11 +176,30 @@ class BirthEvent(Event):
         self.child = child
 
     def summary(self):
+        """Return a human-readable summary of this event."""
         return 'Year {}: {} gave birth to {} at {}, {}'.format(self.year,self.person.name,self.child.name,self.house.address,self.house.has_community.name)
 
 class MarriageEvent(Event):
-    """Marks the mariage of two people
+    """Marks the marriage of one person to another.
     
+    Parameters
+    ----------
+    year : int
+        The current year.
+    house : main.House
+        The House `person` lived in when married.
+    person, spouse : main.Person
+        One person marrying the other, depends on focal individual.
+
+        
+    Attributes
+    ----------
+    year : int
+        The current year.
+    house : main.House
+        The House `person` lived in when married.
+    person, spouse : main.Person
+        One person marrying the other, depends on focal individual.  
     """
     def __init__(self,year,house,person,spouse):
         self.year = year
@@ -135,11 +208,34 @@ class MarriageEvent(Event):
         self.spouse = spouse
     
     def summary(self):
+        """Return a human-readable summary of this event."""
         return 'Year {}: {} married {} at {}, {}'.format(self.year,self.person.name,self.spouse.name,self.house.address,self.house.has_community.name)
 
 class MobilityEvent(Event):
     """Marks one person leaving a house for another
     
+    Parameters
+    ----------
+    year : int
+        The current year.
+    house : main.House
+        The House moved into
+    person : main.Person
+        The Person moving.
+    oldhouse : main.House
+        The House left behind.
+    
+        
+    Attributes
+    ----------
+    year : int
+        The current year.
+    house : main.House
+        The House moved into
+    person : main.Person
+        The Person moving.
+    oldhouse : main.House
+        The House left behind.
     """
     def __init__(self, year, house, person, oldhouse):
         self.year = year
@@ -148,15 +244,38 @@ class MobilityEvent(Event):
         self.oldhouse = oldhouse
     
     def summary(self):
+        """Return a human-readable summary of this event."""
         return 'Year {}: {} moved from {}, {} to {}, {}'.format(self.year,self.person.name,self.oldhouse.address,self.oldhouse.has_community.name,self.house.address,self.house.has_community.name)
 
 class DeathEvent(Event):
+    """Records a Person dying.
+    
+    Parameters
+    ----------
+    year : int
+        The current year.
+    house : main.House
+        The House the `person` died in.
+    person : main.Person
+        The Person who died.
+    
+        
+    Attributes
+    ----------
+    year : int
+        The current year.
+    house : main.House
+        The House the `person` died in.
+    person : main.Person
+        The Person who died.
+    """
     def __init__(self,year,house,person):
         self.year = year
         self.house = house
         self.person = person
     
     def summary(self):
+        """Return a human-readable summary of this event."""
         return 'Year {}: {} died at {}, {}'.format(self.year,self.person.name,self.house.address,self.house.has_community.name)
     
 class LeaveHouseEvent(Event):
@@ -234,6 +353,24 @@ def census(house):
     else:
         text += ' owned by ' + house.owner.name
     return text
+
+def read_diary(diary):
+    """Create a single string that summarizes the contents of a `diary`.
+    
+    Currently unimplemented.
+    
+    Parameters
+    ----------
+    diary : Diary
+        The diary to read
+        
+    Returns
+    -------
+    str
+        The human-readable string form of the diary
+    """
+    pass
+    
 
 
 male_names = ['Bernard','Arnold','Teddy','Lee','Hector','William','Robert','Logan','Lawrence','Peter']

@@ -1,26 +1,30 @@
 """Kinship functions for analyzing birth and marriage relationships.
 
-This module uses the relationship network and a focal person to identify 
+The kinship module uses the relationship network and a focal person to identify 
 relationships such as spouses, children, parents, and nuclear families. By
 providing a basic definition of children and parents in particular, it enables
 more complex queries into cousins of varying degrees.
 
-See also
+While in a given implementation the Person objects may have easy-to-use variables
+for parents, spouses, and children, in general it is preferred to use the kinship
+functions for accessing these variables.
+
+A future extension will be to add kinship setter functions.
+
+See Also
 --------
 residency
     The module that analyzes kinship as it relates to residency, e.g. 
-    co-residntial household structure.
+    co-residential household structure.
 
 """
 __all__ = ['get_spouse','get_parents','get_children','get_siblings',
 'get_family']
 
 #from households import np, rd, scipy, nx, plt
-from households.identity import *
+#from households.identity import *
 print('importing kinship')
-#
-#global male, female
-#male, female = range(2)
+
 
 def get_spouse(person):
     """Return the spouse of a person; otherwise return None.
@@ -48,8 +52,8 @@ def get_parents(person):
     
     Returns
     -------
-        {[Person, Person], []}
-            Returns a list with the parents of the person, otherwise returns empty list.
+    {[Person, Person], []}
+        Returns a list with the parents of the person, otherwise returns empty list.
     """
     return person.has_parents.copy()
 
@@ -64,10 +68,9 @@ def get_children(person):
     
     Returns
     -------
-        {[Person,], None}
-            Returns a list with the children of the person, otherwise returns None.
+    {[Person,], None}
+        Returns a list with the children of the person, otherwise returns None.
     """
-    
     return person.has_children.copy()   
     
     
@@ -81,10 +84,9 @@ def get_siblings(person):
     
     Returns
     -------
-        {[Person,], None}
-            Returns a list with the siblings of the person, otherwise returns None.
+    {[Person,], None}
+        Returns a list with the siblings of the person, otherwise returns None.
     """
-    
     parents = get_parents(person)
     if parents == []:
         return [];

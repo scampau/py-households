@@ -5,12 +5,12 @@ to kinship to define the coresident group based on relations. This
 includes Laslett's 5-type typology as well as other definitions of households.
 
 Most of the functions at present rely on the Cambridge Group typology for 
-cross-cultural analysis, but are present in their most cited and thereby simplest
+cross-cultural analysis, but are present in their most cited and simplest
 forms. A future expansion for this package would be to break these definitions 
 into a subpackage of their own (e.g., residency.cambridge, residency.dukamakura,
 etc.)
 
-See also
+See Also
 --------
 kinship
     The module that determines social relations regardless of residency.
@@ -24,10 +24,6 @@ from households import np, rd, scipy, nx, plt, kinship
 from households.identity import *
 print('importing residency')
 
-#global male, female
-#male, female = range(2)
-#"""Constants for refering to sex.
-#"""
 
 ######Identify household/family types
 # Using the Cambridge Group typology
@@ -35,7 +31,7 @@ def get_household(house):
     """Get the current residential members of a house.
     
     Parameters
-    ---------
+    ----------
     house : House
         A house object to check.
     
@@ -70,7 +66,7 @@ def count_married(house):
     return m/2
 
 def get_married(house):
-    """Returns which persons are married in a household.
+    """Return which persons are married in a household.
     
     Parameters
     ----------
@@ -93,7 +89,7 @@ def get_married(house):
     return m
     
 def is_solitary(house):
-    """Returns whether the household is occupied by a solitary individual.
+    """Return whether the household is occupied by a solitary individual.
     
     Parameters
     ----------
@@ -110,7 +106,7 @@ def is_solitary(house):
     return False
 
 def is_no_family(house):
-    """Returns whether the hosuehold is a 'no-family' type.
+    """Return whether the hosuehold is a 'no-family' type.
     
     Parameters
     ----------
@@ -130,7 +126,7 @@ def is_no_family(house):
         return False    
                 
 def is_nuclear(house):
-    """Returns whether the household is a single nuclear family w/o a prior generation.
+    """Return whether the household is a single nuclear family w/o a prior generation.
 
     Parameters
     ----------
@@ -239,7 +235,7 @@ def classify(house):
         return None
 
 def plot_classify(houses):
-    """Classify houses at the present moment into their Cambridge Group typology
+    """Classify houses at the present moment into their Cambridge Group typology.
     
     Uses matplotlib.pyplot to create a bargraph of the current classification
     of households. Ignores empty houses (!).
