@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>households.residency &#8212; households alpha documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="households-residency">
+<h1>households.residency<a class="headerlink" href="#households-residency" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<span class="target" id="module-residency"></span><p>Household classification functions based on residency and kinship.</p>
+<p>This module implements definitions of household types, which relate residency
+to kinship to define the coresident group based on relations. This
+includes Laslett’s 5-type typology as well as other definitions of households.</p>
+<p>Most of the functions at present rely on the Cambridge Group typology for 
+cross-cultural analysis, but are present in their most cited and thereby simplest
+forms. A future expansion for this package would be to break these definitions 
+into a subpackage of their own (e.g., residency.cambridge, residency.dukamakura,
+etc.)</p>
+<div class="section" id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>kinship</dt><dd><p>The module that determines social relations regardless of residency.</p>
+</dd>
+</dl>
+<dl class="function">
+<dt id="residency.count_married">
+<code class="sig-prename descclassname">residency.</code><code class="sig-name descname">count_married</code><span class="sig-paren">(</span><em class="sig-param">house</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.count_married" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count the number of couples in a house.</p>
+<dl class="simple">
+<dt>house<span class="classifier">House</span></dt><dd><p>A house object to examine for coresident married couples.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>int</dt><dd><p>The number of coresident married couples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="residency.get_married">
+<code class="sig-prename descclassname">residency.</code><code class="sig-name descname">get_married</code><span class="sig-paren">(</span><em class="sig-param">house</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.get_married" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns which persons are married in a household.</p>
+<dl class="simple">
+<dt>house<span class="classifier">House</span></dt><dd><p>A house object to examine for coresident married persons.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>list of Person</dt><dd><p>A list of the coresident married persons in a house.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="residency.is_solitary">
+<code class="sig-prename descclassname">residency.</code><code class="sig-name descname">is_solitary</code><span class="sig-paren">(</span><em class="sig-param">house</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.is_solitary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether the household is occupied by a solitary individual.</p>
+<dl class="simple">
+<dt>house<span class="classifier">House</span></dt><dd><p>The house object to examine.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool</dt><dd><p>Whether the house is occupied by a single individual.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="residency.is_no_family">
+<code class="sig-prename descclassname">residency.</code><code class="sig-name descname">is_no_family</code><span class="sig-paren">(</span><em class="sig-param">house</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.is_no_family" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether the hosuehold is a ‘no-family’ type.</p>
+<dl class="simple">
+<dt>house<span class="classifier">House</span></dt><dd><p>The house object to examine.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool</dt><dd><p>Whether the house contains a ‘no-family’ type household.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="residency.is_nuclear">
+<code class="sig-prename descclassname">residency.</code><code class="sig-name descname">is_nuclear</code><span class="sig-paren">(</span><em class="sig-param">house</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.is_nuclear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether the household is a single nuclear family w/o a prior generation.</p>
+<dl class="simple">
+<dt>house<span class="classifier">House</span></dt><dd><p>The house object to examine.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool</dt><dd><p>Whether the house contains a single nuclear family.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="residency.is_extended">
+<code class="sig-prename descclassname">residency.</code><code class="sig-name descname">is_extended</code><span class="sig-paren">(</span><em class="sig-param">house</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.is_extended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether the house is a single extended family.</p>
+<p>The extended family is defined as a nuclear family plus one member of an 
+older generation.</p>
+<dl class="simple">
+<dt>house<span class="classifier">House</span></dt><dd><p>The house object to examine.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool</dt><dd><p>Whether the house contains an extended family household.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="residency.is_multiple">
+<code class="sig-prename descclassname">residency.</code><code class="sig-name descname">is_multiple</code><span class="sig-paren">(</span><em class="sig-param">house</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.is_multiple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the house is a multiple family household.</p>
+<p>The multiple family type is defined by the presence of two or more nuclear
+families cohabitating.</p>
+<dl class="simple">
+<dt>house<span class="classifier">House</span></dt><dd><p>The house object to examine.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool</dt><dd><p>Whether the house contains a multiple family household.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="residency.plot_classify">
+<code class="sig-prename descclassname">residency.</code><code class="sig-name descname">plot_classify</code><span class="sig-paren">(</span><em class="sig-param">houses</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.plot_classify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Classify houses at the present moment into their Cambridge Group typology</p>
+<p>Uses matplotlib.pyplot to create a bargraph of the current classification
+of households. Ignores empty houses (!).</p>
+<dl class="simple">
+<dt>houses<span class="classifier">list of House</span></dt><dd><p>A list of houses to classify, most easily a community.houses attribute.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">households</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="main.html">households.main</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Andrew Cabaniss.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/pages/residency.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

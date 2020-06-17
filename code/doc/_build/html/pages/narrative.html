@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>households.narrative &#8212; households alpha documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="households-narrative">
+<h1>households.narrative<a class="headerlink" href="#households-narrative" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<span class="target" id="module-narrative"></span><p>Take machine-legible representations and make them human-legible</p>
+<p>This module provide functionality for summarizing Person and House instances
+that make them easier to read for a user of the households package.</p>
+<p>This will eventually be extended to include Community and and World objects.</p>
+<dl class="class">
+<dt id="narrative.BirthEvent">
+<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">BirthEvent</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">house</em>, <em class="sig-param">person</em>, <em class="sig-param">child</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.BirthEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks the birth of an individual</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="narrative.BornEvent">
+<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">BornEvent</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">house</em>, <em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.BornEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>When born</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="narrative.ChangeOwnerEvent">
+<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">ChangeOwnerEvent</code><a class="headerlink" href="#narrative.ChangeOwnerEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="narrative.DeathEvent">
+<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">DeathEvent</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">house</em>, <em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.DeathEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="narrative.Diary">
+<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">Diary</code><span class="sig-paren">(</span><em class="sig-param">associated</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.Diary" title="Permalink to this definition">¶</a></dt>
+<dd><p>A place to record events as they occur for Persons.</p>
+<dl class="simple">
+<dt>associated</dt><dd><p>The associated Person this is a diary of</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>events<span class="classifier">dict</span></dt><dd><p>A dict of Events by year.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="narrative.Diary.add_event">
+<code class="sig-name descname">add_event</code><span class="sig-paren">(</span><em class="sig-param">eventtype</em>, <em class="sig-param">detail=None</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.Diary.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an event to the Diary.</p>
+<dl class="simple">
+<dt>eventtype<span class="classifier">Event Class</span></dt><dd><p>An event that has occurred with its own particular class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="narrative.Diary.get_events">
+<code class="sig-name descname">get_events</code><span class="sig-paren">(</span><em class="sig-param">year=None</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.Diary.get_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>REturns the dict of all events or events from one year</p>
+<dl class="simple">
+<dt>year<span class="classifier">None, int</span></dt><dd><p>None if all years, int if one given year</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>dict of list of Events</dt><dd><p>dict of Events, stored as lists of events with years as keys</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="narrative.EnterhouseEvent">
+<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">EnterhouseEvent</code><a class="headerlink" href="#narrative.EnterhouseEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="narrative.Event">
+<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">Event</code><a class="headerlink" href="#narrative.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>The sort of circumstance recorded in a Diary.</p>
+<p>All events must take their inputs from __init__ and create a human-readable
+summary that includes the date as a formatted string</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="narrative.LeaveHouseEvent">
+<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">LeaveHouseEvent</code><a class="headerlink" href="#narrative.LeaveHouseEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="narrative.MarriageEvent">
+<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">MarriageEvent</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">house</em>, <em class="sig-param">person</em>, <em class="sig-param">spouse</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.MarriageEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks the mariage of two people</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="narrative.MobilityEvent">
+<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">MobilityEvent</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">house</em>, <em class="sig-param">person</em>, <em class="sig-param">oldhouse</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.MobilityEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks one person leaving a house for another</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="narrative.age_to_text">
+<code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">age_to_text</code><span class="sig-paren">(</span><em class="sig-param">age</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.age_to_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format age as a string</p>
+<dl class="simple">
+<dt>age<span class="classifier">int</span></dt><dd><p>The age to format</p>
+</dd>
+</dl>
+<p>str</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="narrative.biography">
+<code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">biography</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.biography" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give a short, machine and human readable biography of a person</p>
+<dl class="simple">
+<dt>person<span class="classifier">Person</span></dt><dd><p>The person to return a biography of</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>str</dt><dd><p>str of life details</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="narrative.census">
+<code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">census</code><span class="sig-paren">(</span><em class="sig-param">house</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.census" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of people and the Laslett classification of the household.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">households</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="main.html">households.main</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Andrew Cabaniss.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/pages/narrative.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

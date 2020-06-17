@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>households.kinship &#8212; households alpha documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="households-kinship">
+<h1>households.kinship<a class="headerlink" href="#households-kinship" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<span class="target" id="module-kinship"></span><p>Kinship functions for analyzing birth and marriage relationships.</p>
+<p>This module uses the relationship network and a focal person to identify 
+relationships such as spouses, children, parents, and nuclear families. By
+providing a basic definition of children and parents in particular, it enables
+more complex queries into cousins of varying degrees.</p>
+<div class="section" id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>residency</dt><dd><p>The module that analyzes kinship as it relates to residency, e.g. 
+co-residntial household structure.</p>
+</dd>
+</dl>
+<dl class="function">
+<dt id="kinship.get_spouse">
+<code class="sig-prename descclassname">kinship.</code><code class="sig-name descname">get_spouse</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#kinship.get_spouse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the spouse of a person; otherwise return None.</p>
+<dl class="simple">
+<dt>person<span class="classifier">Person</span></dt><dd><p>The person in question.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Person or None</dt><dd><p>Returns the spouse of the person, otherwise returns None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinship.get_parents">
+<code class="sig-prename descclassname">kinship.</code><code class="sig-name descname">get_parents</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#kinship.get_parents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the parents of an individual; otherwise return empty list.</p>
+<dl class="simple">
+<dt>person<span class="classifier">Person</span></dt><dd><p>The Person in question.</p>
+</dd>
+</dl>
+<blockquote>
+<div><dl class="simple">
+<dt>{[Person, Person], []}</dt><dd><p>Returns a list with the parents of the person, otherwise returns empty list.</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinship.get_children">
+<code class="sig-prename descclassname">kinship.</code><code class="sig-name descname">get_children</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#kinship.get_children" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the children of an individual; otherwise return empty list.</p>
+<dl class="simple">
+<dt>person<span class="classifier">Person</span></dt><dd><p>The Person in question.</p>
+</dd>
+</dl>
+<blockquote>
+<div><dl class="simple">
+<dt>{[Person,], None}</dt><dd><p>Returns a list with the children of the person, otherwise returns None.</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinship.get_siblings">
+<code class="sig-prename descclassname">kinship.</code><code class="sig-name descname">get_siblings</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#kinship.get_siblings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the siblings of an individual; otherwise, return None.</p>
+<dl class="simple">
+<dt>person<span class="classifier">Person</span></dt><dd><p>The Person in question.</p>
+</dd>
+</dl>
+<blockquote>
+<div><dl class="simple">
+<dt>{[Person,], None}</dt><dd><p>Returns a list with the siblings of the person, otherwise returns None.</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinship.get_family">
+<code class="sig-prename descclassname">kinship.</code><code class="sig-name descname">get_family</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#kinship.get_family" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a person’s nuclear family (spouse and children) including themselves.</p>
+<dl class="simple">
+<dt>person<span class="classifier">Person</span></dt><dd><p>The Person in question.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>[Person,]</dt><dd><p>Returns a list with the nuclear family of the person,
+otherwise returns None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">households</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="main.html">households.main</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Andrew Cabaniss.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/pages/kinship.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

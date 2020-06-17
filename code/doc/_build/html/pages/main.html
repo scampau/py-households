@@ -1,0 +1,428 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>households.main &#8212; households alpha documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="households.identity" href="identity.html" />
+    <link rel="prev" title="An introduction to households" href="../intro.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="households-main">
+<h1>households.main<a class="headerlink" href="#households-main" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<span class="target" id="module-main"></span><p>A demographic agent-based model of individuals and households</p>
+<p>This module implements an object-oriented, agent-based model of how individuals
+live and die with empirical life tables and birth rates. It was originally
+designed for historical and archaeological modelling, but can be used in a
+variety of contexts. Demographic data are based on Bagnall and Frier for
+Roman Egypt, and as a result this asusmes a Coale and Demeny style life
+table for empirical demography (fertility schedules, marriage eligibility,
+and death rates.)</p>
+<p>The container for a given simulation is the World, which needs to be set up to contain at least
+one Community. The World also provides some pass-through access to the People contained in all
+Communities, as well as all Diaries (which record the events of individual lives) via a library.
+The World is where each year progresses for all people, resulting in deaths, marriages, moves, 
+and births throughout all Communities.</p>
+<p>Each Community is started with a given number of Persons and Houses, as well as core 
+characteristics for the people (i.e. what their behaviors should be.) Communities are currently
+homogeneous to start with, but can become heterogeneous in behavior by migration (mobility) 
+between different villages. The planned founders module will enable more heterogeneous starting 
+configurations.</p>
+<p>Persons are individual agents with an assigned sex who age and have the option to undergo major 
+life events once each year, and in the process develop kinship networks (as well as growing up
+within them). Schedules like mortality and fertility schedules are stored in AgeTables.
+Persons can be related via birth or marriage as well as through residency in Houses,
+and these different types of relationships are explored through the kinship and residency 
+modules. Houses are environmental and can only be affected by Persons. Persons (and eventually
+Houses) have their histories recorded in Diaries (defined in narrative).</p>
+<dl class="class">
+<dt id="main.AgeTable">
+<em class="property">class </em><code class="sig-prename descclassname">main.</code><code class="sig-name descname">AgeTable</code><span class="sig-paren">(</span><em class="sig-param">ages</em>, <em class="sig-param">sex1</em>, <em class="sig-param">rates1</em>, <em class="sig-param">sex2</em>, <em class="sig-param">rates2</em><span class="sig-paren">)</span><a class="headerlink" href="#main.AgeTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>AgeTables store age-specific annual rates of death, marriage, birth, etc.</p>
+<p>AgeTables create a schedule of age- and sex- dependent annual rates of 
+different phenomena, literally anything from marriage eligibility to death.</p>
+<dl class="simple">
+<dt>ages<span class="classifier">list</span></dt><dd><p>A list of ages including the lower bounds, such that ages[0] &lt;= x &lt; ages[1] is the comparison.</p>
+</dd>
+<dt>sex1, sex2<span class="classifier">Sex</span></dt><dd><p>The variables defining which rates correspond to which sex.</p>
+</dd>
+<dt>rates1, rates2<span class="classifier">list</span></dt><dd><p>Annual chance of occurence for each interval. n.b. that len(rates) - len(ages) - 1</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="main.AgeTable.NullAgeTable">
+<code class="sig-name descname">NullAgeTable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.AgeTable.NullAgeTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a null AgeTable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="main.AgeTable.get_rate">
+<code class="sig-name descname">get_rate</code><span class="sig-paren">(</span><em class="sig-param">sex</em>, <em class="sig-param">age</em><span class="sig-paren">)</span><a class="headerlink" href="#main.AgeTable.get_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the annual rate for a given sex and age.</p>
+<dl class="simple">
+<dt>sex<span class="classifier">Sex</span></dt><dd><p>The sex in the table to be consulted.</p>
+</dd>
+<dt>age<span class="classifier">int</span></dt><dd><p>The age of the individual. Must be within defined range of table</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>float</dt><dd><p>The rate for that age and sex.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="main.Community">
+<em class="property">class </em><code class="sig-prename descclassname">main.</code><code class="sig-name descname">Community</code><span class="sig-paren">(</span><em class="sig-param">world</em>, <em class="sig-param">name</em>, <em class="sig-param">pop</em>, <em class="sig-param">area</em>, <em class="sig-param">startage</em>, <em class="sig-param">mortab</em>, <em class="sig-param">birthtab</em>, <em class="sig-param">marriagerule</em>, <em class="sig-param">inheritancerule</em>, <em class="sig-param">mobilityrule</em><span class="sig-paren">)</span><a class="headerlink" href="#main.Community" title="Permalink to this definition">¶</a></dt>
+<dd><p>Communities are collections of Persons living in Houses.</p>
+<p>Community is the coresidential living group of Persons who reside in Houses.</p>
+<dl class="simple">
+<dt>world<span class="classifier">World</span></dt><dd><p>The world in which this community will exist</p>
+</dd>
+<dt>name<span class="classifier">str</span></dt><dd><p>The name of the community</p>
+</dd>
+<dt>pop<span class="classifier">int</span></dt><dd><p>The initial population of the simulation.</p>
+</dd>
+<dt>area<span class="classifier">int</span></dt><dd><p>The number of houses in the community</p>
+</dd>
+<dt>startage<span class="classifier">int</span></dt><dd><p>The age at which all persons in the simulation start. Corrected for by burn-in.</p>
+</dd>
+<dt>mortab<span class="classifier">AgeTable</span></dt><dd><p>An AgeTable storing a Coale and Demeny-style mortality schedule for all people.</p>
+</dd>
+<dt>birthtab<span class="classifier">AgeTable</span></dt><dd><p>AgeTable storing probability of giving birth once married by sex (0 for men)</p>
+</dd>
+<dt>marriagerule<span class="classifier">behavior.marriage.MarriageRule</span></dt><dd><p>This defines how spouses are found and where newlyweds move from behavior.marriage</p>
+</dd>
+<dt>inheritancerule<span class="classifier">behavior.inheritance.InheritanceRule</span></dt><dd><p>This defines the inheritance rule executed when a Person dies from behavior.inheritance.</p>
+</dd>
+<dt>mobilityrule<span class="classifier">behavior.mobility.MobilityRule</span></dt><dd><p>This defines the circumstances of mobility from households from behavior.mobility, or a custom function</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>name<span class="classifier">str</span></dt><dd><p>The name of the community</p>
+</dd>
+<dt>has_world<span class="classifier">World</span></dt><dd><p>The World this Community is a part of.</p>
+</dd>
+<dt>houses<span class="classifier">list of Houses</span></dt><dd><p>The houses of the community.</p>
+</dd>
+<dt>people<span class="classifier">list of Persons</span></dt><dd><p>The people who currently live in the community.</p>
+</dd>
+<dt>thedead<span class="classifier">list of Person</span></dt><dd><p>List of all dead persons, still required for genealogy.</p>
+</dd>
+<dt>mortab<span class="classifier">AgeTable</span></dt><dd><p>An AgeTable storing a mortality schedule for the community.</p>
+</dd>
+<dt>birthtab<span class="classifier">AgeTable</span></dt><dd><p>An AgeTable storing probability of giving birth once married (0 for men)</p>
+</dd>
+<dt>population<span class="classifier">int</span></dt><dd><p>The current population of the community.</p>
+</dd>
+<dt>area<span class="classifier">int</span></dt><dd><p>Number of houses in the community.</p>
+</dd>
+<dt>housingcapacity<span class="classifier">int</span></dt><dd><p>Total housing Capacity</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="main.Community.update_stats">
+<code class="sig-name descname">update_stats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.Community.update_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the statistics for the community at the end of each year.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="main.House">
+<em class="property">class </em><code class="sig-prename descclassname">main.</code><code class="sig-name descname">House</code><span class="sig-paren">(</span><em class="sig-param">maxpeople</em>, <em class="sig-param">has_community</em><span class="sig-paren">)</span><a class="headerlink" href="#main.House" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a house in which persons reside.</p>
+<dl class="simple">
+<dt>maxpeople<span class="classifier">int</span></dt><dd><p>Maximum number of residents before the house is crowded. Currently no 
+repercussion for a crowded house.</p>
+</dd>
+<dt>has_community<span class="classifier">Community</span></dt><dd><p>The Community in which this house was built</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>maxpeople<span class="classifier">int</span></dt><dd><p>Maximum number of residents before the house is crowded. Currently no 
+repercussion for a crowded house.</p>
+</dd>
+<dt>rooms<span class="classifier">int</span></dt><dd><p>Number of rooms in the house. An alternative way of thinking about space.
+Currently no repercussions.</p>
+</dd>
+<dt>has_community<span class="classifier">Community</span></dt><dd><p>The Community in which this house was built</p>
+</dd>
+<dt>people<span class="classifier">list of Person</span></dt><dd><p>List of the people who reside in the house.</p>
+</dd>
+<dt>owner<span class="classifier">Person</span></dt><dd><p>The person who owns this house. Assumes single or primary ownership.</p>
+</dd>
+<dt>address<span class="classifier">str</span></dt><dd><p>The name of the house, to make individuality clearer</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="main.House.add_person">
+<code class="sig-name descname">add_person</code><span class="sig-paren">(</span><em class="sig-param">tobeadded</em><span class="sig-paren">)</span><a class="headerlink" href="#main.House.add_person" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a person to the house.</p>
+<dl class="simple">
+<dt>tobeadded<span class="classifier">Person</span></dt><dd><p>The person to be added to the residents of the house.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="main.House.remove_person">
+<code class="sig-name descname">remove_person</code><span class="sig-paren">(</span><em class="sig-param">toberemoved</em><span class="sig-paren">)</span><a class="headerlink" href="#main.House.remove_person" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a person from the house.</p>
+<dl class="simple">
+<dt>toberemoved<span class="classifier">Person</span></dt><dd><p>The person to be removed from the residents of the house</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="main.Person">
+<em class="property">class </em><code class="sig-prename descclassname">main.</code><code class="sig-name descname">Person</code><span class="sig-paren">(</span><em class="sig-param">sex</em>, <em class="sig-param">age</em>, <em class="sig-param">has_community</em>, <em class="sig-param">has_house</em>, <em class="sig-param">marriagerule</em>, <em class="sig-param">inheritancerule</em>, <em class="sig-param">mobilityrule</em><span class="sig-paren">)</span><a class="headerlink" href="#main.Person" title="Permalink to this definition">¶</a></dt>
+<dd><p>A representation of a human with a social structure and kinship.</p>
+<p>Create a new Person in the Community.</p>
+<dl class="simple">
+<dt>sex<span class="classifier">Sex</span></dt><dd><p>The sex of the person assigned at creation.</p>
+</dd>
+<dt>age<span class="classifier">int</span></dt><dd><p>Age of the individual assigned at creation, then aging regularly.</p>
+</dd>
+<dt>has_community<span class="classifier">Community</span></dt><dd><p>The Community to which this individual belongs.</p>
+</dd>
+<dt>has_house<span class="classifier">House</span></dt><dd><p>The house in which this individual resides.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>name<span class="classifier">str</span></dt><dd><p>The name of this individual. Used for narrative.</p>
+</dd>
+<dt>sex<span class="classifier">identity.Sex</span></dt><dd><p>The sex of the person assigned at creation.</p>
+</dd>
+<dt>age<span class="classifier">int</span></dt><dd><p>Age of the individual assigned at creation, then aging regularly.</p>
+</dd>
+<dt>has_community<span class="classifier">Community</span></dt><dd><p>The Community to which this individual belongs.</p>
+</dd>
+<dt>has_house<span class="classifier">House</span></dt><dd><p>The house in which this individual resides.</p>
+</dd>
+<dt>lifestatus<span class="classifier">identity.LifeStatus</span></dt><dd><p>Records whether the Person is dead or alive.</p>
+</dd>
+<dt>marriagestatus<span class="classifier">identity.MarriageStatus</span></dt><dd><p>The marriage status of the individual.</p>
+</dd>
+<dt>has_parents<span class="classifier">list of Person</span></dt><dd><p>The parents of this individual</p>
+</dd>
+<dt>has_spouse<span class="classifier">{None, Person}</span></dt><dd><p>The spouse of this individual.</p>
+</dd>
+<dt>has_children<span class="classifier">list of Person</span></dt><dd><p>The children of this individual</p>
+</dd>
+<dt>birthyear<span class="classifier">int</span></dt><dd><p>The year this individual was born.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="main.Person.birth">
+<code class="sig-name descname">birth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.Person.birth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine whether this person gives birth.</p>
+<p>This relies on the fertility schedule in self.has_community.birthtab to decide
+whether a married woman gives birth this year. If so, this method creates that 
+child in the same house.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="main.Person.die">
+<code class="sig-name descname">die</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.Person.die" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether this Person dies or ages 1 year.</p>
+<p>Checks the community mortality table for this individual. If the individual
+lives, they age one year. Otherwise, they die, inheritance takes place, and
+the Person is removed from the house.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="main.Person.leave_home">
+<code class="sig-name descname">leave_home</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.Person.leave_home" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine whether this person leaves home through household mobility/fission/migration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="main.Person.marriage">
+<code class="sig-name descname">marriage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.Person.marriage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether this person gets married this timestep.</p>
+<p>This step determines marriage eligibility, as well as finding potential
+candidates for marriage. At present the algorithm guarantees marriage
+if there are any eligible candidates of the opposite sex.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="main.World">
+<em class="property">class </em><code class="sig-prename descclassname">main.</code><code class="sig-name descname">World</code><a class="headerlink" href="#main.World" title="Permalink to this definition">¶</a></dt>
+<dd><p>The world of the simulation.</p>
+<p>This contains Community objects and runs the clock.</p>
+<dl class="simple">
+<dt>communities<span class="classifier">list of Community</span></dt><dd><p>All communities in the simulation.</p>
+</dd>
+<dt>library: dict of Diary</dt><dd><p>The Diary objects for Persons and Houses in the simulation</p>
+</dd>
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year. Incremented at the end of each simulation run.</p>
+</dd>
+<dt>people<span class="classifier">list of Persons</span></dt><dd><p>All living Persons currently in the simulation</p>
+</dd>
+<dt>deadpeople<span class="classifier">list of Persons</span></dt><dd><p>All dead Persons in the simulation.</p>
+</dd>
+<dt>houses<span class="classifier">list of House</span></dt><dd><p>All Houses in all communities in the simulation.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="main.World.add_community">
+<code class="sig-name descname">add_community</code><span class="sig-paren">(</span><em class="sig-param">community</em><span class="sig-paren">)</span><a class="headerlink" href="#main.World.add_community" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a community to this World.</p>
+<dl class="simple">
+<dt>community<span class="classifier">Community</span></dt><dd><p>Community to add to World</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="main.World.add_diary">
+<code class="sig-name descname">add_diary</code><span class="sig-paren">(</span><em class="sig-param">diary</em><span class="sig-paren">)</span><a class="headerlink" href="#main.World.add_diary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a diary object to the library.</p>
+<dl class="simple">
+<dt>diary<span class="classifier">narrative.Diary</span></dt><dd><p>Diary to be added to the library</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="main.World.people">
+<em class="property">property </em><code class="sig-name descname">people</code><a class="headerlink" href="#main.World.people" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dynamic property of the population of all constitutent communities</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="main.World.progress">
+<code class="sig-name descname">progress</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.World.progress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Progress the world 1 time-step (year).</p>
+<dl class="simple">
+<dt>The order of steps in the simulation follows this schedule:</dt><dd><ol class="arabic simple">
+<li><p>randomize the order of persons,</p></li>
+<li><p>death (and thereby inheritance),</p></li>
+<li><p>mobility,</p></li>
+<li><p>marriage,</p></li>
+<li><p>birth, and</p></li>
+<li><p>end the year.</p></li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">households</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">An introduction to households</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">households.main</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identity.html">households.identity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kinship.html">households.kinship</a></li>
+<li class="toctree-l1"><a class="reference internal" href="residency.html">households.residency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="narrative.html">households.narrative</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_conception.html">households.behavior.conception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_transmission.html">households.behavior.transmission</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_learning.html">households.behavior.learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_marriage.html">households.behavior.marriage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_mobility.html">households.behavior.mobility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_inheritance.html">households.behavior.inheritance</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../intro.html" title="previous chapter">An introduction to households</a></li>
+      <li>Next: <a href="identity.html" title="next chapter">households.identity</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Andrew Cabaniss.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/pages/main.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

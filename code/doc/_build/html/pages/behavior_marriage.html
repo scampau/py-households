@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>households.behavior.marriage &#8212; households alpha documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="households-behavior-marriage">
+<h1>households.behavior.marriage<a class="headerlink" href="#households-behavior-marriage" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<span class="target" id="module-behavior.marriage"></span><p>Marriage decisions for newlyweds.</p>
+<p>The marriage package encodes options for where a new couple live.</p>
+<dl class="class">
+<dt id="behavior.marriage.MarriageRule">
+<em class="property">class </em><code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">MarriageRule</code><span class="sig-paren">(</span><em class="sig-param">eligibility_agetable</em>, <em class="sig-param">get_eligible</em>, <em class="sig-param">pick_spouse</em>, <em class="sig-param">locality</em>, <em class="sig-param">remarriage_agetable</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.MarriageRule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defining marriage rules for individuals.</p>
+<dl class="simple">
+<dt>The process of getting married involves:</dt><dd><ol class="arabic simple">
+<li><p>identifying the pool of who could be married</p></li>
+<li><p>finding someone within that pool to marry</p></li>
+<li><p>deciding where to move with them</p></li>
+</ol>
+</dd>
+</dl>
+<p>These three steps can be thought of as eligiblity determination, mate choice, and locality.
+The only universal is that both agents must fit each other’s standards.</p>
+<p>MarriageRule also defines the eligibility agetable,
+which defines when a person becomes eligible for marriage,
+as well as the remarriage AgeTable.</p>
+<dl class="simple">
+<dt>eligibility_agetable<span class="classifier">main.AgeTable</span></dt><dd><p>determine whether a person become eligible for marriage</p>
+</dd>
+<dt>get_eligible<span class="classifier">callable</span></dt><dd><p>Find all eligible individuals, based only on an input of the person.</p>
+</dd>
+<dt>pick_spouse<span class="classifier">callable</span></dt><dd><p>Out of those found by get_eligible, if any, pick one</p>
+</dd>
+<dt>locality<span class="classifier">callable</span></dt><dd><p>One of the locality functions described below (patrilocality, matrilocality,
+neolocality) or equivalent function that determines where people live</p>
+</dd>
+<dt>remarriage_agetable<span class="classifier">main.AgeTable</span></dt><dd><p>Determines whether individuals can remarry after death.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.marriage.get_eligible_all_same_community">
+<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">get_eligible_all_same_community</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.get_eligible_all_same_community" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all eligible individuals in the community. No incest prohibition.</p>
+<dl class="simple">
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The person who we are seeking matches for.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>candidates<span class="classifier">list of main.Person</span></dt><dd><p>eligible individuals</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.marriage.get_eligible_not_sibling_same_community">
+<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">get_eligible_not_sibling_same_community</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.get_eligible_not_sibling_same_community" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all eligible individuals in the community. Incest prohibition against siblings.</p>
+<dl class="simple">
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The person who we are seeking matches for.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>candidates<span class="classifier">list of main.Person</span></dt><dd><p>eligible individuals</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.marriage.get_empty_house">
+<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">get_empty_house</code><span class="sig-paren">(</span><em class="sig-param">houses</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.get_empty_house" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a randomly chosen empty house to move into.</p>
+<dl class="simple">
+<dt>houses<span class="classifier">list of House</span></dt><dd><p>The Community.houses list for the community in question, or another 
+subset of houses.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>None or House</dt><dd><p>Picks an empty house if one exists, otherwise returns None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.marriage.matrilocality">
+<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">matrilocality</code><span class="sig-paren">(</span><em class="sig-param">husband</em>, <em class="sig-param">wife</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.matrilocality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Newlyweds live at the wife’s family’s house, or if no house find a new one.</p>
+<p>Changes the house of the couple to that of the wife,
+If none or full, runs neolocality().</p>
+<dl class="simple">
+<dt>husband, wife<span class="classifier">Person</span></dt><dd><p>The people just married, identified by sex.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool</dt><dd><p>True if matrilocality achieved, False if neolocality chosen instead.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.marriage.neolocality">
+<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">neolocality</code><span class="sig-paren">(</span><em class="sig-param">husband</em>, <em class="sig-param">wife</em>, <em class="sig-param">primary</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.neolocality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds a new house for a couple.</p>
+<p>Ownership is given to the primary sex.</p>
+<dl class="simple">
+<dt>husband, wife<span class="classifier">Person</span></dt><dd><p>The people just married, identified by sex.</p>
+</dd>
+<dt>primary<span class="classifier">Sex</span></dt><dd><p>Defines the sex of the partner who formally owns the property.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool</dt><dd><p>If neolocality achieved, True; False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.marriage.patrilocality">
+<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">patrilocality</code><span class="sig-paren">(</span><em class="sig-param">husband</em>, <em class="sig-param">wife</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.patrilocality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Newlyweds live at the husband’s family’s house, or if no house find a new one.</p>
+<p>Changes the house of the couple to that of the husband,
+If none or full, runs neolocality().</p>
+<dl class="simple">
+<dt>husband, wife<span class="classifier">Person</span></dt><dd><p>The people just married, identified by sex.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool</dt><dd><p>True if patrilocality achieved, False if neolocality chosen instead.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.marriage.pick_spouse_random">
+<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">pick_spouse_random</code><span class="sig-paren">(</span><em class="sig-param">candidates</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.pick_spouse_random" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>candidates<span class="classifier">list of main.Person</span></dt><dd><p>Potential candidates who match</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>spouse</dt><dd><p>Chosen individual to marry</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">households</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="main.html">households.main</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Andrew Cabaniss.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/pages/behavior_marriage.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

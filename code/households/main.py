@@ -1,15 +1,32 @@
-
 """A demographic agent-based model of individuals and households
 
 This module implements an object-oriented, agent-based model of how individuals
 live and die with empirical life tables and birth rates. It was originally
 designed for historical and archaeological modelling, but can be used in a
-variety of contexts. Demographic data are based on Bagnall and Frier.
+variety of contexts. Demographic data are based on Bagnall and Frier for
+Roman Egypt, and as a result this asusmes a Coale and Demeny style life
+table for empirical demography (fertility schedules, marriage eligibility,
+and death rates.)
 
+The container for a given simulation is the World, which needs to be set up to contain at least
+one Community. The World also provides some pass-through access to the People contained in all
+Communities, as well as all Diaries (which record the events of individual lives) via a library.
+The World is where each year progresses for all people, resulting in deaths, marriages, moves, 
+and births throughout all Communities.
 
+Each Community is started with a given number of Persons and Houses, as well as core 
+characteristics for the people (i.e. what their behaviors should be.) Communities are currently
+homogeneous to start with, but can become heterogeneous in behavior by migration (mobility) 
+between different villages. The planned founders module will enable more heterogeneous starting 
+configurations. 
 
-
-
+Persons are individual agents with an assigned sex who age and have the option to undergo major 
+life events once each year, and in the process develop kinship networks (as well as growing up
+within them). Schedules like mortality and fertility schedules are stored in AgeTables.
+Persons can be related via birth or marriage as well as through residency in Houses,
+and these different types of relationships are explored through the kinship and residency 
+modules. Houses are environmental and can only be affected by Persons. Persons (and eventually
+Houses) have their histories recorded in Diaries (defined in narrative).
 """
 
 from households import np, rd, scipy, nx, plt, kinship, residency, behavior, narrative
@@ -25,8 +42,22 @@ print('Importing main.py')
 class World(object):
     """The world of the simulation.
     
-    This contains Community objects and will run the clock. Currently
-    unimplmented.
+    This contains Community objects and runs the clock.
+    
+    Attributes
+    ----------
+    communities : list of Community
+        All communities in the simulation.
+    library: dict of Diary
+        The Diary objects for Persons and Houses in the simulation
+    year : int
+        The current year. Incremented at the end of each simulation run.
+    people : list of Persons
+        All living Persons currently in the simulation
+    deadpeople : list of Persons
+        All dead Persons in the simulation.
+    houses : list of House
+        All Houses in all communities in the simulation.
     """
     
     def __init__(self):
@@ -74,7 +105,12 @@ class World(object):
             raise TypeError('community not type Community')
             
     def add_diary(self,diary):
-        """Add a diary object to the library
+        """Add a diary object to the library.
+        
+        Parameters
+        ----------
+        diary : narrative.Diary
+            Diary to be added to the library
         """
         
         self.library[type(diary.associated).__name__].append(diary)
@@ -100,30 +136,34 @@ class World(object):
             #Check if anyone dies, which also runs inheritance and removes them
             ## from houses and teh community
             p.die()
- 
+        
+        rolodex = self.people.copy() #create a copy of the list of people
+        rd.shuffle(rolodex) #randomize the order
         #Now run everything else in turn 
         for p in rolodex:
             #Check for household mobility
             p.leave_home() #runs each person's mobility rule
-        
+        rd.shuffle(rolodex) #randomize the order
         #Go through the marriage routine for all persons
         for p in rolodex:
             p.marriage()
-            
+        rd.shuffle(rolodex) #randomize the order
         # Go through the birth routine for all persons
         for p in rolodex:
             p.birth()
             
         #Recalculate statistics        
         self.year += 1
+        for c in self.communities:
+            c.update_stats()
+            
     
 
 class Community(object):
-    """Communities are collections of people and houses following a schedule.
+    """Communities are collections of Persons living in Houses. 
     
-    community is the storage for people living in houses and isa  unit of residency.
-    
-    Note: this doc-string is out of date and needs to be updated.
+    Community is the coresidential living group of Persons who reside in Houses. 
+
     
     Parameters
     ----------
@@ -132,37 +172,33 @@ class Community(object):
     name : str
         The name of the community
     pop : int
-        The initial population of the simulation
+        The initial population of the simulation.
     area : int
         The number of houses in the community
     startage : int
         The age at which all persons in the simulation start. Corrected for by burn-in.
     mortab : AgeTable
-        An AgeTable storing a Coale and Demeny-style mortality schedule
-    marrtab : AgeTable
-        AgeTable storing marriage eligiblity probability by age and sex
+        An AgeTable storing a Coale and Demeny-style mortality schedule for all people. 
     birthtab : AgeTable
         AgeTable storing probability of giving birth once married by sex (0 for men)
-    marriagerule : callable
-        This defines the location newlyweds move to from behavior.marriage, or a custom function.
-    inheritance : behavior.inheritance.InheritanceRule
-        This defines the inheritance rule  from behavior.inheritance, or a custom function.
-    mobilityrule : callable
-        This defines the circumstances of houshold fissioning from behavior.mobility, or a custom function
+    marriagerule : behavior.marriage.MarriageRule
+        This defines how spouses are found and where newlyweds move from behavior.marriage
+    inheritancerule : behavior.inheritance.InheritanceRule
+        This defines the inheritance rule executed when a Person dies from behavior.inheritance.
+    mobilityrule : behavior.mobility.MobilityRule
+        This defines the circumstances of mobility from households from behavior.mobility, or a custom function
         
         
     Attributes
     ---------
     name : str
         The name of the community
-    area : int
-        Number of houses in the community.
-    population : int
-        The current population of the community.
+    has_world : World
+        The World this Community is a part of.
       
-    houses : list of House objects
+    houses : list of Houses
         The houses of the community.
-    people : list of Person objects
+    people : list of Persons
         The people who currently live in the community.
     thedead : list of Person
         List of all dead persons, still required for genealogy. 
@@ -170,7 +206,14 @@ class Community(object):
     mortab : AgeTable
         An AgeTable storing a mortality schedule for the community.
     birthtab : AgeTable
-        An AgeTable storing probability of giving birth once married by sex (0 for men)
+        An AgeTable storing probability of giving birth once married (0 for men)
+        
+    population : int
+        The current population of the community.
+    area : int
+        Number of houses in the community.
+    housingcapacity : int
+        Total housing Capacity
     """
     
     def __init__(self,world,name,pop,area,startage,mortab,birthtab,marriagerule,inheritancerule,mobilityrule):
@@ -209,6 +252,14 @@ class Community(object):
             self.people.append(Person(rd.choice([male,female]),startage,self,None,marriagerule,inheritancerule,mobilityrule)) #Generate a new person with age startage
             #NB: currently a 50-50 sex ratio, should be customisable. Consider for expansion. 
         self.thedead = [] #store the list of dead Persons
+        
+    def update_stats(self):
+        """Update the statistics for the community at the end of each year.
+        """
+        self.population = len(self.people)
+        self.area = len(self.houses)
+        self.housingcapacity = sum([i.maxpeople for i in self.houses])
+        
 
 
 class Person(object):
