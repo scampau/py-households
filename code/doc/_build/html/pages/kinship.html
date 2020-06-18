@@ -14,6 +14,8 @@
     <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="households.residency" href="residency.html" />
+    <link rel="prev" title="households.identity" href="identity.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -35,15 +37,19 @@
 <div class="toctree-wrapper compound">
 </div>
 <span class="target" id="module-kinship"></span><p>Kinship functions for analyzing birth and marriage relationships.</p>
-<p>This module uses the relationship network and a focal person to identify 
+<p>The kinship module uses the relationship network and a focal person to identify 
 relationships such as spouses, children, parents, and nuclear families. By
 providing a basic definition of children and parents in particular, it enables
 more complex queries into cousins of varying degrees.</p>
+<p>While in a given implementation the Person objects may have easy-to-use variables
+for parents, spouses, and children, in general it is preferred to use the kinship
+functions for accessing these variables.</p>
+<p>A future extension will be to add kinship setter functions.</p>
 <div class="section" id="see-also">
-<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<h2>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
 <dl class="simple">
 <dt>residency</dt><dd><p>The module that analyzes kinship as it relates to residency, e.g. 
-co-residntial household structure.</p>
+co-residential household structure.</p>
 </dd>
 </dl>
 <dl class="function">
@@ -68,12 +74,10 @@ co-residntial household structure.</p>
 <dt>person<span class="classifier">Person</span></dt><dd><p>The Person in question.</p>
 </dd>
 </dl>
-<blockquote>
-<div><dl class="simple">
+<dl class="simple">
 <dt>{[Person, Person], []}</dt><dd><p>Returns a list with the parents of the person, otherwise returns empty list.</p>
 </dd>
 </dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -84,12 +88,10 @@ co-residntial household structure.</p>
 <dt>person<span class="classifier">Person</span></dt><dd><p>The Person in question.</p>
 </dd>
 </dl>
-<blockquote>
-<div><dl class="simple">
+<dl class="simple">
 <dt>{[Person,], None}</dt><dd><p>Returns a list with the children of the person, otherwise returns None.</p>
 </dd>
 </dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -100,12 +102,10 @@ co-residntial household structure.</p>
 <dt>person<span class="classifier">Person</span></dt><dd><p>The Person in question.</p>
 </dd>
 </dl>
-<blockquote>
-<div><dl class="simple">
+<dl class="simple">
 <dt>{[Person,], None}</dt><dd><p>Returns a list with the siblings of the person, otherwise returns None.</p>
 </dd>
 </dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -144,14 +144,27 @@ otherwise returns None.</p>
 
 <h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">An introduction to households</a></li>
 <li class="toctree-l1"><a class="reference internal" href="main.html">households.main</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identity.html">households.identity</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">households.kinship</a></li>
+<li class="toctree-l1"><a class="reference internal" href="residency.html">households.residency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="narrative.html">households.narrative</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_conception.html">households.behavior.conception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_transmission.html">households.behavior.transmission</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_learning.html">households.behavior.learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_marriage.html">households.behavior.marriage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_mobility.html">households.behavior.mobility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_inheritance.html">households.behavior.inheritance</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="identity.html" title="previous chapter">households.identity</a></li>
+      <li>Next: <a href="residency.html" title="next chapter">households.residency</a></li>
   </ul></li>
 </ul>
 </div>
@@ -181,7 +194,7 @@ otherwise returns None.</p>
       &copy;2020, Andrew Cabaniss.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

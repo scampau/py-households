@@ -14,6 +14,8 @@
     <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="households.behavior.conception" href="behavior_conception.html" />
+    <link rel="prev" title="households.residency" href="residency.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -34,20 +36,77 @@
 <h1>households.narrative<a class="headerlink" href="#households-narrative" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<span class="target" id="module-narrative"></span><p>Take machine-legible representations and make them human-legible</p>
-<p>This module provide functionality for summarizing Person and House instances
-that make them easier to read for a user of the households package.</p>
+<span class="target" id="module-narrative"></span><p>Create human legible descriptions of Persons, Houses, and Diaries.</p>
+<p>This module provides functionality for summarizing Person and House instances
+that make them easier to read for a user of the households package. This is to
+make qualitative exploration of a simulation easier, and frankly helps in
+debugging in order to guarantee that the simulation reflects the social 
+phenomena modeled.</p>
+<p>Narrative also defines the Diary instance, which is used to keep track of 
+events in each Person’s life. It also defines the name base and address base
+used for the simulation, which should be modified if desired before generating 
+the founder’s population.</p>
+<div class="section" id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
 <p>This will eventually be extended to include Community and and World objects.</p>
 <dl class="class">
 <dt id="narrative.BirthEvent">
 <em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">BirthEvent</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">house</em>, <em class="sig-param">person</em>, <em class="sig-param">child</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.BirthEvent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Marks the birth of an individual</p>
+<dd><p>When a mother gives birth, she records this in her Diary.</p>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year.</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House the birth occurred in.</p>
+</dd>
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The Person giving birth.</p>
+</dd>
+<dt>child<span class="classifier">main.Person</span></dt><dd><p>The Person born.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year.</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House the birth occurred in.</p>
+</dd>
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The Person born.</p>
+</dd>
+<dt>child<span class="classifier">main.Person</span></dt><dd><p>The Person born.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="narrative.BirthEvent.summary">
+<code class="sig-name descname">summary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#narrative.BirthEvent.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a human-readable summary of this event.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="narrative.BornEvent">
 <em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">BornEvent</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">house</em>, <em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.BornEvent" title="Permalink to this definition">¶</a></dt>
-<dd><p>When born</p>
+<dd><p>When born, a Person records this in their Diary.</p>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House born into.</p>
+</dd>
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The Person born.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House born into.</p>
+</dd>
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The Person born.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="narrative.BornEvent.summary">
+<code class="sig-name descname">summary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#narrative.BornEvent.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a human-readable summary of this event.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -58,14 +117,37 @@ that make them easier to read for a user of the households package.</p>
 <dl class="class">
 <dt id="narrative.DeathEvent">
 <em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">DeathEvent</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">house</em>, <em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.DeathEvent" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Records a Person dying.</p>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year.</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House the <cite>person</cite> died in.</p>
+</dd>
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The Person who died.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year.</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House the <cite>person</cite> died in.</p>
+</dd>
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The Person who died.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="narrative.DeathEvent.summary">
+<code class="sig-name descname">summary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#narrative.DeathEvent.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a human-readable summary of this event.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="narrative.Diary">
 <em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">Diary</code><span class="sig-paren">(</span><em class="sig-param">associated</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.Diary" title="Permalink to this definition">¶</a></dt>
 <dd><p>A place to record events as they occur for Persons.</p>
 <dl class="simple">
-<dt>associated</dt><dd><p>The associated Person this is a diary of</p>
+<dt>associated</dt><dd><p>The Person this is a diary for.</p>
 </dd>
 </dl>
 <dl class="simple">
@@ -77,9 +159,17 @@ that make them easier to read for a user of the households package.</p>
 <code class="sig-name descname">add_event</code><span class="sig-paren">(</span><em class="sig-param">eventtype</em>, <em class="sig-param">detail=None</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.Diary.add_event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an event to the Diary.</p>
 <dl class="simple">
-<dt>eventtype<span class="classifier">Event Class</span></dt><dd><p>An event that has occurred with its own particular class</p>
+<dt>eventtype<span class="classifier">Event class</span></dt><dd><p>An event that has occurred with its own particular class.</p>
+</dd>
+<dt>detail<span class="classifier">optional</span></dt><dd><p>Any additional detail relevant for that Event class.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="narrative.Diary.current_year">
+<em class="property">property </em><code class="sig-name descname">current_year</code><a class="headerlink" href="#narrative.Diary.current_year" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current year from the World.</p>
 </dd></dl>
 
 <dl class="method">
@@ -106,9 +196,10 @@ that make them easier to read for a user of the households package.</p>
 <dl class="class">
 <dt id="narrative.Event">
 <em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">Event</code><a class="headerlink" href="#narrative.Event" title="Permalink to this definition">¶</a></dt>
-<dd><p>The sort of circumstance recorded in a Diary.</p>
+<dd><p>The sort of life circumstance recorded in a Diary.</p>
 <p>All events must take their inputs from __init__ and create a human-readable
-summary that includes the date as a formatted string</p>
+summary that includes the date as a formatted string. This is just a parent
+class.</p>
 </dd></dl>
 
 <dl class="class">
@@ -119,13 +210,61 @@ summary that includes the date as a formatted string</p>
 <dl class="class">
 <dt id="narrative.MarriageEvent">
 <em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">MarriageEvent</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">house</em>, <em class="sig-param">person</em>, <em class="sig-param">spouse</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.MarriageEvent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Marks the mariage of two people</p>
+<dd><p>Marks the marriage of one person to another.</p>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year.</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House <cite>person</cite> lived in when married.</p>
+</dd>
+<dt>person, spouse<span class="classifier">main.Person</span></dt><dd><p>One person marrying the other, depends on focal individual.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year.</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House <cite>person</cite> lived in when married.</p>
+</dd>
+<dt>person, spouse<span class="classifier">main.Person</span></dt><dd><p>One person marrying the other, depends on focal individual.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="narrative.MarriageEvent.summary">
+<code class="sig-name descname">summary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#narrative.MarriageEvent.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a human-readable summary of this event.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="narrative.MobilityEvent">
 <em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">MobilityEvent</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">house</em>, <em class="sig-param">person</em>, <em class="sig-param">oldhouse</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.MobilityEvent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Marks one person leaving a house for another</p>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year.</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House moved into</p>
+</dd>
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The Person moving.</p>
+</dd>
+<dt>oldhouse<span class="classifier">main.House</span></dt><dd><p>The House left behind.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year.</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House moved into</p>
+</dd>
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The Person moving.</p>
+</dd>
+<dt>oldhouse<span class="classifier">main.House</span></dt><dd><p>The House left behind.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="narrative.MobilityEvent.summary">
+<code class="sig-name descname">summary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#narrative.MobilityEvent.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a human-readable summary of this event.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -159,6 +298,22 @@ summary that includes the date as a formatted string</p>
 <dd><p>Returns the number of people and the Laslett classification of the household.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="narrative.read_diary">
+<code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">read_diary</code><span class="sig-paren">(</span><em class="sig-param">diary</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.read_diary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a single string that summarizes the contents of a <cite>diary</cite>.</p>
+<p>Currently unimplemented.</p>
+<dl class="simple">
+<dt>diary<span class="classifier">Diary</span></dt><dd><p>The diary to read</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>str</dt><dd><p>The human-readable string form of the diary</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -179,14 +334,27 @@ summary that includes the date as a formatted string</p>
 
 <h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">An introduction to households</a></li>
 <li class="toctree-l1"><a class="reference internal" href="main.html">households.main</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identity.html">households.identity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kinship.html">households.kinship</a></li>
+<li class="toctree-l1"><a class="reference internal" href="residency.html">households.residency</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">households.narrative</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_conception.html">households.behavior.conception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_transmission.html">households.behavior.transmission</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_learning.html">households.behavior.learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_marriage.html">households.behavior.marriage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_mobility.html">households.behavior.mobility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_inheritance.html">households.behavior.inheritance</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="residency.html" title="previous chapter">households.residency</a></li>
+      <li>Next: <a href="behavior_conception.html" title="next chapter">households.behavior.conception</a></li>
   </ul></li>
 </ul>
 </div>
@@ -216,7 +384,7 @@ summary that includes the date as a formatted string</p>
       &copy;2020, Andrew Cabaniss.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

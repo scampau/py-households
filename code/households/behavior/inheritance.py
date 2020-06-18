@@ -1,6 +1,19 @@
 """Determines how property is transmitted and where heirs live.
 
-This module models inheritance as well as families moving as part of inheriting new property.
+This module models defines the events that occur when a Person dies. While 
+different types of InheritanceRules can be defined, most will use a combination
+of functions (defined here and custom) to determine whether there is property 
+that can be inherited, determine the heirs of that property, and enact any 
+required residency changes.
+
+The foundational InheritanceRule accomplishes this through three functions,
+while the more advanced InheritanceRuleComplex accomplishes this with five.
+The customizability of the latter is useful for articulating exactly how
+Houses should be transmitted and occupied. 
+
+A planned expansion is to have inheritance rules closely tied to (and likely 
+containing) the AgeTable for dying, such that populations with different
+mortality rates can be associated easily with different inheritance regimes.
 """
 
 from households import np, rd, scipy, nx, plt, inspect, kinship, residency, main, behavior
@@ -10,24 +23,39 @@ print('importing inheritance')
 
 #Create a class that encompasses proper behavior for an inheritance rule
 class InheritanceRule(object):
-    """A class used for defining new inheritance rules.
+    """Define inheritance of property after death.
     
     Inheritance is carried out upon the death of an individual by that
-    individual. Thus an InheritanceRule as a callable can only take one argument.
+    individual. Thus an InheritanceRule as a callable can only take one argument,
+    the person who died. In doing so, it will call three other functions:
+        1. has_property, to determine whether the individual has transmissable
+            property;
+        2. rule, which both carries out the property transmission and moves the
+            ownership of the property as well as any people;
+        3. failure, which is called only if an heir cannot be found or an 
+            inheritance cannot be negotiated (or fails for other reasons.)
+    
+    Complications do not need to use this tripartite structure, but must be defined
+    as subclasses in order to be recognized by the simulation as an inheritance
+    rule.
+    
+    Built in rules compatible with step 2, `rule`, are prefixed with `simple_`
+    in the module.
     
     Parameters
-    ---------
+    ----------
     has_property : callable
         Takes a Person. Returns True if the given person has property to give,
         else returns False.
     rule : callable
-        A function that takes 1 argument (a person) and determines if they have
-        property, how it will be inherited, and moves the property. It must return
+        A function that takes 1 argument (a person) and determines
+        how property will be inherited, and moves the property. It must return
         a bool of whether inheritance happened. The most generic form of an 
         InheritanceRule.
     failure : callable
         If inheritance fails, define what to do. Takes a Person, returns bool.
     """
+    
     def __init__(self,has_property,rule,failure):
         #make sure all are callable and take the right number of arguments
         for r in [has_property,rule,failure]:
@@ -40,7 +68,11 @@ class InheritanceRule(object):
         self.__failure = failure
         
     def __call__(self,person):
-        """Determines whether a person has property that needs to be inherited.
+        """Determine whether inheritance happens and enact it.
+        
+        Called on a person when they die. Checks for property, subjects it to
+        inheritance if needed, and either succeeds or follows through with 
+        another routine if a failure.
         
         Parameters
         ----------
@@ -108,8 +140,8 @@ class InheritanceRule(object):
 #This can be used with some simple rules, like inherit_sons or inherit_brothers_sons
 ## Each of these checks a subset of individuals and returns a bool of whether one of them
 ### inherited property
-def inherit_sons(person,checkowner=True):
-    """The sons of a person inherit. Returns True if inheritance took place.
+def simple_inherit_sons(person,checkowner=True):
+    """Give property to the sons of a person.
     
     Parameters
     ----------
@@ -121,7 +153,7 @@ def inherit_sons(person,checkowner=True):
     Returns
     -------
     bool
-        True if inheritance took place.
+        True if inheritance took place, False otherwise.
     
     Notes
     -----
@@ -145,7 +177,7 @@ def inherit_sons(person,checkowner=True):
                     #This works because if you inherit a house, you move into it
                     heir = son
                     #If the son lives in a different house, move his household
-                    move_household_to_new_house(heir,person.has_house)
+                    behavior.mobility.move_household_to_new_house(heir,person.has_house)
                     for h in person.has_community.houses:
                         if h.owner == person:
                             h.owner = heir
@@ -154,8 +186,8 @@ def inherit_sons(person,checkowner=True):
                     pass #Try the next one
     return False
     
-def inherit_brothers_sons(person,checkowner=True):
-    """The sons of a man's brothers inherit. Returns true if successful.
+def simple_inherit_brothers_sons(person,checkowner=True):
+    """Give property to the second oldest son of a brother, ranked by age.
     
     The second oldest son inherits, not the oldest, so that the oldest
     can inherit the brother's property.
@@ -203,8 +235,8 @@ def inherit_brothers_sons(person,checkowner=True):
             # Every brother has been checked
     return False
     
-def inherit_sons_then_brothers_sons(person,checkowner=True) :
-    """The sons of a Person and then the sons of his brothers inherit. Returns true if successful.
+def simple_inherit_sons_then_brothers_sons(person,checkowner=True) :
+    """Give property to sons and then brothers' second sons.
     
     Children inherit by age, oldest to youngest. For brothers, the second 
     oldest son inherits, not the oldest, so that the oldest can inherit
@@ -222,13 +254,12 @@ def inherit_sons_then_brothers_sons(person,checkowner=True) :
     bool
         True if inheritance took place.   
     """
-    result = inherit_sons(person,checkowner)
+    result = simple_inherit_sons(person,checkowner)
     if result == False:
-        result = inherit_brothers_sons(person,checkowner)
+        result = simple_inherit_brothers_sons(person,checkowner)
     return result
     
-    
-    
+
 #More complex rules can also be created, however.
 #In that case, use the InheritanceRuleComplex class to construct a sequenced rule    
 class InheritanceRuleComplex(InheritanceRule):
@@ -240,6 +271,9 @@ class InheritanceRuleComplex(InheritanceRule):
     either as a list of person objects for single inheritance or as a list of lists of persons
     for multiple inheritance .Heirs will then be excluded based on limitations.
     Property is divided if it must be. 
+    
+    Functions within the inheritance package are named with a prefix that 
+    matches the parameter which they can fill.
     
     Parameters
     ----------
@@ -277,7 +311,11 @@ class InheritanceRuleComplex(InheritanceRule):
         self.__failure = failure
         
     def __call__(self,person):
-        """Determines whether a person has property that needs to be inherited.
+        """Enact inheritance on a person's property, if they have any.
+        
+        Checks a person's property qualification, finds heirs, removes
+        Persons who can't inherit for the given reasons, distributes the property,
+        and otherwise enacts a protocol for a failed inheritance.
         
         Parameters
         ----------
@@ -321,12 +359,13 @@ class InheritanceRuleComplex(InheritanceRule):
 
 
 #Basic inheritance functions for building inheritance rules
+
 #Has property checks
 def has_property_houses(person):
-    """Check whether a person owns a house or houses
+    """Check whether a person owns a house or houses.
     
-    Parameters:
-    -----------
+    Parameters
+    ----------
     person : Person
         Who to check for property
     """
@@ -343,7 +382,7 @@ def has_property_houses(person):
 ## Each of these checks a subset of individuals and returns whether one of them
 ### inherited property
 def find_heirs_children_oldest_to_youngest(person,sex = None):
-    """Returns the children of a person as a list
+    """Return the children of a person as a list.
     
     Parameters
     ----------
@@ -381,7 +420,7 @@ def find_heirs_children_oldest_to_youngest(person,sex = None):
     return [] #no heirs, return empty list
 
 def find_heirs_sons_oldest_to_youngest(person):
-    """Returns the sons of a person as a list
+    """Return the sons of a person as a list.
     
     Parameters
     ----------
@@ -404,7 +443,7 @@ def find_heirs_sons_oldest_to_youngest(person):
     return select
 
 def find_heirs_daughters_oldest_to_youngest(person):
-    """Returns the daughters of a person as a list
+    """Return the daughters of a person as a list.
     
     Parameters
     ----------
@@ -427,7 +466,7 @@ def find_heirs_daughters_oldest_to_youngest(person):
     return select
 
 def find_heirs_siblings_children_oldest_to_youngest(person, sex = None):
-    """The children of a Person's siblings inherit, ranked by age.
+    """Return the children of a Person's siblings, ranked by age.
     
     The ranking is both by brothers
 
@@ -470,14 +509,21 @@ def find_heirs_siblings_children_oldest_to_youngest(person, sex = None):
                     heirs.append(select)
                 else:
                     pass # Otherwise, no children
-            # Every brother has been checked
+            # Every sibling has been checked
     return heirs    
 
 
 def find_heirs_brothers_sons_oldest_to_youngest(person):
-    """The sons of a man's brothers inherit, ranked by age.
+    """Return the sons of a Person's brothers, ranked by age.
     
-    The ranking is both by brothers
+    The ranking is both by brothers age and then by their children's age.
+    
+    .. deprecated::
+        `find_heirs_brothers_sons_oldest_to_youngest` derives from the original
+        simulation, but `find_heirs_siblings_children_oldest_to_youngest` is 
+        the preferred. This function will eventually be replaced with a mapping
+        to that function.
+        
 
     Parameters
     ----------
@@ -536,6 +582,8 @@ def find_heirs_multiple_constructor(*args):
     def find_heirs_multiple(person):
         """Find_heirs combining multiple basic find_heirs functions.
         
+        A custom function generated by `find_heirs_multiple_constructor` which 
+        will now work as a `find_heirs` function.
 
         Parameters
         ----------
@@ -571,7 +619,7 @@ def find_heirs_multiple_constructor(*args):
 
 #Limitation of heirs
 def limit_heirs_none(heirs):
-    """No limits on heirs.
+    """Impose no limits on heirs.
     
     Parameter
     --------
@@ -586,7 +634,7 @@ def limit_heirs_none(heirs):
     return heirs
 
 def limit_heirs_not_owners(heirs):
-    """Heirs can't already own a house (limit one (1)).
+    """Limit heirs to only have one house.
     
     Parameter
     --------
@@ -626,8 +674,8 @@ def limit_heirs_not_owners(heirs):
         raise TypeError('heirs neither list of Persons or list of lists of Person')
     return new_heirs
 
-def limit_heirs_by_age(heirs,age_of_majority = 15):
-    """Heirs can't be below a given age of majority
+def limit_heirs_by_age(heirs,age_of_majority):
+    """Limit heirs to those at or above an age of majority.
     
     Parameter
     --------
@@ -670,7 +718,7 @@ def limit_heirs_by_age(heirs,age_of_majority = 15):
     return new_heirs
 
 def limit_heirs_multiple_constructor(*args):
-    """Create a new limit_heirs function that iterates over other limit_heirs functions
+    """Create a new limit_heirs function that iterates over other limit_heirs functions.
 
     Parameters
     ----------
@@ -687,8 +735,10 @@ def limit_heirs_multiple_constructor(*args):
         if callable(f) == False:
             raise TypeError(str(f) + ' is not callable')
     def limit_heirs_multiple(heirs):
-        """limit_heirs combining multiple basic limit_heirs functions.
+        """Limit heirs based on a sequence of other functions.
         
+        A custom `limit_heirs` function that combines others and iterates
+        over them.
 
         Parameters
         ----------
@@ -712,8 +762,10 @@ def limit_heirs_multiple_constructor(*args):
 
 #Distribution of property and moving families/households
 def distribute_property_to_first_heir_and_move_household(person,heirs):
-    """Select first heir, move a dead person's house's/houses' ownership.
-    Then move that person's household into the inherited house
+    """Give property to a single heir then move the heir's household into the new house.
+    
+    The old heir doesn't have to give up their old house, they just can't live there anymore.
+    If they are inheriting multiple houses, they move to the last one
     
     Parameters
     ----------
@@ -745,7 +797,7 @@ def distribute_property_to_first_heir_and_move_household(person,heirs):
     for h in person.has_community.houses:
         if h.owner == person:
             h.owner = heir
-            old_house = heir.has_house
+            #old_house = heir.has_house
             behavior.mobility.move_household_to_new_house(heir,h)
             transfer_happened = True
     return transfer_happened

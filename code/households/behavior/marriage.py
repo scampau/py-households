@@ -1,8 +1,17 @@
-"""Marriage decisions for newlyweds.
+"""Determines schedules of marriage and remarriage as well as locality by newlyweds.
 
-The marriage package encodes options for where a new couple live.
+The marriage module encodes several overlapping options for how marriage can function.
+This is enacted through the MarriageRule class each Person has, which determines:
 
-
+    1. when they can transition from `ineligible` to `unmarried` (and are thus
+        eligible for marriage),
+    2. how they identify eligible partners, 
+    3. how they pick a spouse within that pool,
+    4. if they marry someone, where they relocate to, and
+    5. if they are widowed/are a widower, will they be allowed to remarry.
+    
+Together, these concepts form a single behavior that can be transmitted and 
+learned.
 """
 
 from households import np, rd, scipy, nx, plt,inspect, kinship, residency, main, behavior
@@ -10,11 +19,8 @@ from households.identity import *
 print('importing marriage')
 #import kinship as kn
 
-#global male, female
-#male, female = range(2)
-
 class MarriageRule(object):
-    """Defining marriage rules for individuals.
+    """Define marriage rules for individuals.
     
     The process of getting married involves:
         1) identifying the pool of who could be married
@@ -23,10 +29,15 @@ class MarriageRule(object):
     
     These three steps can be thought of as eligiblity determination, mate choice, and locality.
     The only universal is that both agents must fit each other's standards.
+    This means that Dolores must consider Teddy eligible from her get_eligible
+    function, and Teddy must consider Dolores eligible from his get_eligible 
+    function.
     
-    MarriageRule also defines the eligibility agetable,
-    which defines when a person becomes eligible for marriage,
-    as well as the remarriage AgeTable.
+    MarriageRule also defines the eligibility agetable,  which defines when a 
+    person becomes eligible for marriage, as well as the remarriage AgeTable.
+    
+    Functions that can be used for get_eligible, pick_spouse, and locality
+    have prefixes as such in this module.
     
     Parameters
     ----------
@@ -44,7 +55,10 @@ class MarriageRule(object):
     
     Attributes
     ----------
-    
+    eligibility_agetable : main.AgeTable
+        The schedule for becoming eligible for marriage.
+    remarriage_agetable : main.AgeTable
+        Whether a Person is allowed to remarry and at what ages. 
     """
     def __init__(self, eligibility_agetable,get_eligible,pick_spouse,locality,remarriage_agetable):
         for f, a in zip([get_eligible,pick_spouse,locality],[[1],[1],[2]]):
@@ -63,7 +77,7 @@ class MarriageRule(object):
         self.remarriage_agetable = remarriage_agetable
         
     def __call__(self,person):
-        """
+        """Find a person to marry and marry them.
 
         Parameters
         ----------
@@ -93,7 +107,7 @@ class MarriageRule(object):
         return True
 
     def __marry(self,person,spouse):
-        """Actually marry the two people
+        """Marry the two people.
 
         Parameters
         ----------
@@ -111,16 +125,15 @@ class MarriageRule(object):
         return (husband,wife)
 
     def __get_reciprocal(self,personone,persontwo):
-        """Returns whether persontwo is in personone's definitions of eligibility.
+        """Return whether persontwo is in personone's definitions of eligibility.
         
         This should be called by persontwo if they wish to marry personone using 
         personone's marriage rule to ensure that they are compatible in their eligiblity.
         
-
         Parameters
         ----------
-        person : main.Person
-            A person who needs to be 
+        personone, persontwo : main.Person
+            The people being compared, namely that persontwo fits personone's ideas of eligibility.
 
         Returns
         -------
@@ -140,14 +153,14 @@ class MarriageRule(object):
         """Check that rule is callable and has only one non-default argument.
         
         Parameters
-        ---------
+        ----------
         rule : callable
             A rule to check that it is callable and has the right number of arguments
         argnum : list of int
             A list of acceptable integer values for arguments passed to rule
             
         Returns
-        ------
+        -------
         bool
             True if properly formatted, False if not + raises an error
         """
@@ -162,8 +175,6 @@ class MarriageRule(object):
         else:
             raise TypeError('rule is not callable')
             return False
-    
-        
     
 #eligiblity functions
 def get_eligible_all_same_community(person):
@@ -187,8 +198,10 @@ def get_eligible_all_same_community(person):
     return candidates
 
 def get_eligible_not_sibling_same_community(person):
-    """Gets all eligible individuals in the community. Incest prohibition against siblings.
-
+    """Get all eligible individuals in the community with an incest prohibition against siblings.
+    
+    This uses heterosexuality as an assumption to identify eligible individuals.
+    
     Parameters
     ----------
     person : main.Person
@@ -211,9 +224,9 @@ def get_eligible_not_sibling_same_community(person):
     return candidates
 
 
-#picking functions
+#pick spouse functions
 def pick_spouse_random(candidates):
-    """
+    """Choose a spouse at random from the candidates.
 
     Parameters
     ----------
@@ -233,8 +246,11 @@ def pick_spouse_random(candidates):
 def get_empty_house(houses):
     """Get a randomly chosen empty house to move into.
     
+    .. deprecated::
+        This function will soon be replaced by a behavior.mobility function.
+    
     Parameters
-    ---------
+    ----------
     houses : list of House
         The Community.houses list for the community in question, or another 
         subset of houses.
@@ -252,7 +268,7 @@ def get_empty_house(houses):
         return rd.choice(possible_houses)
 
 
-def patrilocality(husband,wife):
+def locality_patrilocality(husband,wife):
     """Newlyweds live at the husband's family's house, or if no house find a new one.
     
     Changes the house of the couple to that of the husband,
@@ -271,18 +287,18 @@ def patrilocality(husband,wife):
     """
     if husband.has_house == None:
         #The husband has no house; find a new one
-        neolocality(husband,wife,male)
+        locality_neolocality(husband,wife,male)
         return False
     elif len(husband.has_house.people)+1 >= husband.has_house.maxpeople:
         #If the house is full, find a new one and move out
-        neolocality(husband,wife,male)
+        locality_neolocality(husband,wife,male)
         return False
     else:
         #If the house has capacity, the wife moves in with the husband
         behavior.mobility.move_person_to_new_house(wife, husband.has_house)
         return True
 
-def matrilocality(husband,wife):
+def locality_matrilocality(husband,wife):
     """Newlyweds live at the wife's family's house, or if no house find a new one.
     
     Changes the house of the couple to that of the wife,
@@ -301,11 +317,11 @@ def matrilocality(husband,wife):
     """
     if wife.has_house == None:
         #The husband has no house; find a new one
-        neolocality(husband,wife,female)
+        locality_neolocality(husband,wife,female)
         return False
     elif len(wife.has_house.people)+1 >= wife.has_house.maxpeople:
         #If the house is full, find a new one and move out
-        neolocality(husband,wife,female)
+        locality_neolocality(husband,wife,female)
         return False
     else:
         #If the house has capacity, the wife moves in with the husband
@@ -313,7 +329,7 @@ def matrilocality(husband,wife):
         return True
 
 def neolocality(husband,wife,primary):
-    """Finds a new house for a couple. 
+    """Find a new house in the same community as the primary spouse and moves the couple there.
     
     Ownership is given to the primary sex.
     

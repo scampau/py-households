@@ -64,11 +64,13 @@ Houses) have their histories recorded in Diaries (defined in narrative).</p>
 <dl class="class">
 <dt id="main.AgeTable">
 <em class="property">class </em><code class="sig-prename descclassname">main.</code><code class="sig-name descname">AgeTable</code><span class="sig-paren">(</span><em class="sig-param">ages</em>, <em class="sig-param">sex1</em>, <em class="sig-param">rates1</em>, <em class="sig-param">sex2</em>, <em class="sig-param">rates2</em><span class="sig-paren">)</span><a class="headerlink" href="#main.AgeTable" title="Permalink to this definition">¶</a></dt>
-<dd><p>AgeTables store age-specific annual rates of death, marriage, birth, etc.</p>
+<dd><p>Store age-specific annual rates of death, marriage, birth, etc.</p>
 <p>AgeTables create a schedule of age- and sex- dependent annual rates of 
 different phenomena, literally anything from marriage eligibility to death.</p>
 <dl class="simple">
-<dt>ages<span class="classifier">list</span></dt><dd><p>A list of ages including the lower bounds, such that ages[0] &lt;= x &lt; ages[1] is the comparison.</p>
+<dt>ages<span class="classifier">list</span></dt><dd><p>A list of ages to define the relevant intervals over which rates change.
+Each interval includes the lower bounds, such that each is defined by
+ages[i] &lt;= x &lt; ages[i+1].</p>
 </dd>
 <dt>sex1, sex2<span class="classifier">Sex</span></dt><dd><p>The variables defining which rates correspond to which sex.</p>
 </dd>
@@ -78,17 +80,17 @@ different phenomena, literally anything from marriage eligibility to death.</p>
 <dl class="method">
 <dt id="main.AgeTable.NullAgeTable">
 <code class="sig-name descname">NullAgeTable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.AgeTable.NullAgeTable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines a null AgeTable.</p>
+<dd><p>Define a null AgeTable.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="main.AgeTable.get_rate">
 <code class="sig-name descname">get_rate</code><span class="sig-paren">(</span><em class="sig-param">sex</em>, <em class="sig-param">age</em><span class="sig-paren">)</span><a class="headerlink" href="#main.AgeTable.get_rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the annual rate for a given sex and age.</p>
+<dd><p>Return the annual rate for a given sex and age.</p>
 <dl class="simple">
 <dt>sex<span class="classifier">Sex</span></dt><dd><p>The sex in the table to be consulted.</p>
 </dd>
-<dt>age<span class="classifier">int</span></dt><dd><p>The age of the individual. Must be within defined range of table</p>
+<dt>age<span class="classifier">int</span></dt><dd><p>The age of the individual. Must be within defined range of table.</p>
 </dd>
 </dl>
 <dl class="simple">
@@ -159,10 +161,11 @@ different phenomena, literally anything from marriage eligibility to death.</p>
 <dl class="class">
 <dt id="main.House">
 <em class="property">class </em><code class="sig-prename descclassname">main.</code><code class="sig-name descname">House</code><span class="sig-paren">(</span><em class="sig-param">maxpeople</em>, <em class="sig-param">has_community</em><span class="sig-paren">)</span><a class="headerlink" href="#main.House" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a house in which persons reside.</p>
+<dd><p>Creates a house in which Persons reside.</p>
+<p>The House is an environmental object that doesn’t move but can be modified
+by Persons.</p>
 <dl class="simple">
-<dt>maxpeople<span class="classifier">int</span></dt><dd><p>Maximum number of residents before the house is crowded. Currently no 
-repercussion for a crowded house.</p>
+<dt>maxpeople<span class="classifier">int</span></dt><dd><p>Maximum number of residents before the house is considered crowded.</p>
 </dd>
 <dt>has_community<span class="classifier">Community</span></dt><dd><p>The Community in which this house was built</p>
 </dd>
@@ -171,16 +174,15 @@ repercussion for a crowded house.</p>
 <dt>maxpeople<span class="classifier">int</span></dt><dd><p>Maximum number of residents before the house is crowded. Currently no 
 repercussion for a crowded house.</p>
 </dd>
-<dt>rooms<span class="classifier">int</span></dt><dd><p>Number of rooms in the house. An alternative way of thinking about space.
-Currently no repercussions.</p>
+<dt>rooms<span class="classifier">int</span></dt><dd><p>Number of rooms in the house. An alternative way of thinking about space.</p>
 </dd>
-<dt>has_community<span class="classifier">Community</span></dt><dd><p>The Community in which this house was built</p>
+<dt>has_community<span class="classifier">Community</span></dt><dd><p>The Community in which this house was built.</p>
 </dd>
 <dt>people<span class="classifier">list of Person</span></dt><dd><p>List of the people who reside in the house.</p>
 </dd>
 <dt>owner<span class="classifier">Person</span></dt><dd><p>The person who owns this house. Assumes single or primary ownership.</p>
 </dd>
-<dt>address<span class="classifier">str</span></dt><dd><p>The name of the house, to make individuality clearer</p>
+<dt>address<span class="classifier">str</span></dt><dd><p>The name of the house, to make individuality clearer in narrative.</p>
 </dd>
 </dl>
 <dl class="method">
@@ -215,9 +217,15 @@ Currently no repercussions.</p>
 </dd>
 <dt>age<span class="classifier">int</span></dt><dd><p>Age of the individual assigned at creation, then aging regularly.</p>
 </dd>
-<dt>has_community<span class="classifier">Community</span></dt><dd><p>The Community to which this individual belongs.</p>
+<dt>has_community<span class="classifier">Community</span></dt><dd><p>The Community to which this individual belongs. Required because of founder problems.</p>
 </dd>
 <dt>has_house<span class="classifier">House</span></dt><dd><p>The house in which this individual resides.</p>
+</dd>
+<dt>marriagerule<span class="classifier">behavior.marriage.MarriageRule</span></dt><dd><p>The MarriageRule implemented by this agent.</p>
+</dd>
+<dt>inheritancerule<span class="classifier">behavior.inheritance.InheritanceRule</span></dt><dd><p>The InheritanceRule implemented by this agent each year.</p>
+</dd>
+<dt>mobilityrule<span class="classifier">behavior.mobility.MobilityRule</span></dt><dd><p>The MobilityRule implemented by this agent each year.</p>
 </dd>
 </dl>
 <dl class="simple">
@@ -243,6 +251,14 @@ Currently no repercussions.</p>
 </dd>
 <dt>birthyear<span class="classifier">int</span></dt><dd><p>The year this individual was born.</p>
 </dd>
+<dt>marriagerule<span class="classifier">behavior.marriage.MarriageRule</span></dt><dd><p>The MarriageRule implemented by this agent.</p>
+</dd>
+<dt>inheritancerule<span class="classifier">behavior.inheritance.InheritanceRule</span></dt><dd><p>The InheritanceRule implemented by this agent each year.</p>
+</dd>
+<dt>mobilityrule<span class="classifier">behavior.mobility.MobilityRule</span></dt><dd><p>The MobilityRule implemented by this agent each year.</p>
+</dd>
+<dt>diary<span class="classifier">narrative.Diary</span></dt><dd><p>The diary of this individual that records life events.</p>
+</dd>
 </dl>
 <dl class="method">
 <dt id="main.Person.birth">
@@ -266,6 +282,7 @@ the Person is removed from the house.</p>
 <dt id="main.Person.leave_home">
 <code class="sig-name descname">leave_home</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.Person.leave_home" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine whether this person leaves home through household mobility/fission/migration.</p>
+<p>This runs the MobilityRule the person currently has.</p>
 </dd></dl>
 
 <dl class="method">
@@ -273,8 +290,7 @@ the Person is removed from the house.</p>
 <code class="sig-name descname">marriage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#main.Person.marriage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check whether this person gets married this timestep.</p>
 <p>This step determines marriage eligibility, as well as finding potential
-candidates for marriage. At present the algorithm guarantees marriage
-if there are any eligible candidates of the opposite sex.</p>
+candidates for marriage. All of this occurs through the MarriageRule.</p>
 </dd></dl>
 
 </dd></dl>
@@ -319,9 +335,21 @@ if there are any eligible candidates of the opposite sex.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="main.World.deadpeople">
+<em class="property">property </em><code class="sig-name descname">deadpeople</code><a class="headerlink" href="#main.World.deadpeople" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of dead people of all constitutent communities.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="main.World.houses">
+<em class="property">property </em><code class="sig-name descname">houses</code><a class="headerlink" href="#main.World.houses" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of houses of all constitutent communities.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="main.World.people">
 <em class="property">property </em><code class="sig-name descname">people</code><a class="headerlink" href="#main.World.people" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dynamic property of the population of all constitutent communities</p>
+<dd><p>List of people of all constitutent communities.</p>
 </dd></dl>
 
 <dl class="method">
@@ -413,7 +441,7 @@ if there are any eligible candidates of the opposite sex.</p>
       &copy;2020, Andrew Cabaniss.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -14,6 +14,8 @@
     <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="households.kinship" href="kinship.html" />
+    <link rel="prev" title="households.main" href="main.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -35,10 +37,33 @@
 <div class="toctree-wrapper compound">
 </div>
 <span class="target" id="module-identity"></span><p>Defines categorical identities that Persons can have, such as sex.</p>
+<p>Because identity is key to a social simulation, the identities module defines
+different classes that can be used to identify and discriminate between agents
+who have contrasting identities. These identities include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>sex</p></li>
+<li><p>marriage status</p></li>
+<li><p>life status</p></li>
+</ul>
+</div></blockquote>
+<p>Each identity typically includes attributes for use in narrative, such as 
+adjective, noun, possessive, etc. By convention these are all lowercase and 
+can be capitalized when need be by stirng functions.</p>
+<p>Further planned identities include social status, race, ethnicity, gender,
+and sexuality, to allow more nuanced simulations of diverse societies.</p>
+<p>This module is a pre-requisite for almost every other module.</p>
+<div class="section" id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>narrative</dt><dd><p>The module for creating legible text and histories from simulation runs, 
+and which often takes identities as inputs from Person objects.</p>
+</dd>
+</dl>
 <dl class="class">
 <dt id="identity.LifeStatus">
 <em class="property">class </em><code class="sig-prename descclassname">identity.</code><code class="sig-name descname">LifeStatus</code><span class="sig-paren">(</span><em class="sig-param">adjective</em><span class="sig-paren">)</span><a class="headerlink" href="#identity.LifeStatus" title="Permalink to this definition">¶</a></dt>
-<dd><p>The class for being alive or dead</p>
+<dd><p>The class for being alive or dead.</p>
 <dl class="simple">
 <dt>adjective<span class="classifier">str</span></dt><dd><p>The adjective of this sex for use in text-based output</p>
 </dd>
@@ -58,17 +83,26 @@
 <dl class="class">
 <dt id="identity.Sex">
 <em class="property">class </em><code class="sig-prename descclassname">identity.</code><code class="sig-name descname">Sex</code><span class="sig-paren">(</span><em class="sig-param">adjective</em>, <em class="sig-param">noun</em>, <em class="sig-param">possessive</em><span class="sig-paren">)</span><a class="headerlink" href="#identity.Sex" title="Permalink to this definition">¶</a></dt>
-<dd><p>The type for sex objects.</p>
+<dd><p>The class for sex objects.</p>
 <dl class="simple">
-<dt>adjective<span class="classifier">str</span></dt><dd><p>The adjective of this sex for use in text-based output</p>
+<dt>adjective<span class="classifier">str</span></dt><dd><p>The adjective of this sex for use in text-based output.</p>
 </dd>
-<dt>noun<span class="classifier">str</span></dt><dd><p>The noun for use in text-based output</p>
+<dt>noun<span class="classifier">str</span></dt><dd><p>The noun for use in text-based output.</p>
 </dd>
-<dt>possessive<span class="classifier">str</span></dt><dd><p>The possessive to use for text-based output</p>
+<dt>possessive<span class="classifier">str</span></dt><dd><p>The possessive to use for text-based output.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>adjective<span class="classifier">str</span></dt><dd><p>The adjective of this sex for use in text-based output.</p>
+</dd>
+<dt>noun<span class="classifier">str</span></dt><dd><p>The noun for use in text-based output.</p>
+</dd>
+<dt>possessive<span class="classifier">str</span></dt><dd><p>The possessive to use for text-based output.</p>
 </dd>
 </dl>
 </dd></dl>
 
+</div>
 </div>
 
 
@@ -89,14 +123,27 @@
 
 <h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">An introduction to households</a></li>
 <li class="toctree-l1"><a class="reference internal" href="main.html">households.main</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">households.identity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kinship.html">households.kinship</a></li>
+<li class="toctree-l1"><a class="reference internal" href="residency.html">households.residency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="narrative.html">households.narrative</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_conception.html">households.behavior.conception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_transmission.html">households.behavior.transmission</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_learning.html">households.behavior.learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_marriage.html">households.behavior.marriage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_mobility.html">households.behavior.mobility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_inheritance.html">households.behavior.inheritance</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="main.html" title="previous chapter">households.main</a></li>
+      <li>Next: <a href="kinship.html" title="next chapter">households.kinship</a></li>
   </ul></li>
 </ul>
 </div>
@@ -126,7 +173,7 @@
       &copy;2020, Andrew Cabaniss.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

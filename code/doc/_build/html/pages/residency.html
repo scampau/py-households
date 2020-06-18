@@ -14,6 +14,8 @@
     <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="households.narrative" href="narrative.html" />
+    <link rel="prev" title="households.kinship" href="kinship.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -39,12 +41,12 @@
 to kinship to define the coresident group based on relations. This
 includes Laslett’s 5-type typology as well as other definitions of households.</p>
 <p>Most of the functions at present rely on the Cambridge Group typology for 
-cross-cultural analysis, but are present in their most cited and thereby simplest
+cross-cultural analysis, but are present in their most cited and simplest
 forms. A future expansion for this package would be to break these definitions 
 into a subpackage of their own (e.g., residency.cambridge, residency.dukamakura,
 etc.)</p>
 <div class="section" id="see-also">
-<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<h2>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
 <dl class="simple">
 <dt>kinship</dt><dd><p>The module that determines social relations regardless of residency.</p>
 </dd>
@@ -66,7 +68,7 @@ etc.)</p>
 <dl class="function">
 <dt id="residency.get_married">
 <code class="sig-prename descclassname">residency.</code><code class="sig-name descname">get_married</code><span class="sig-paren">(</span><em class="sig-param">house</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.get_married" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns which persons are married in a household.</p>
+<dd><p>Return which persons are married in a household.</p>
 <dl class="simple">
 <dt>house<span class="classifier">House</span></dt><dd><p>A house object to examine for coresident married persons.</p>
 </dd>
@@ -80,7 +82,7 @@ etc.)</p>
 <dl class="function">
 <dt id="residency.is_solitary">
 <code class="sig-prename descclassname">residency.</code><code class="sig-name descname">is_solitary</code><span class="sig-paren">(</span><em class="sig-param">house</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.is_solitary" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns whether the household is occupied by a solitary individual.</p>
+<dd><p>Return whether the household is occupied by a solitary individual.</p>
 <dl class="simple">
 <dt>house<span class="classifier">House</span></dt><dd><p>The house object to examine.</p>
 </dd>
@@ -94,7 +96,7 @@ etc.)</p>
 <dl class="function">
 <dt id="residency.is_no_family">
 <code class="sig-prename descclassname">residency.</code><code class="sig-name descname">is_no_family</code><span class="sig-paren">(</span><em class="sig-param">house</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.is_no_family" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns whether the hosuehold is a ‘no-family’ type.</p>
+<dd><p>Return whether the hosuehold is a ‘no-family’ type.</p>
 <dl class="simple">
 <dt>house<span class="classifier">House</span></dt><dd><p>The house object to examine.</p>
 </dd>
@@ -108,7 +110,7 @@ etc.)</p>
 <dl class="function">
 <dt id="residency.is_nuclear">
 <code class="sig-prename descclassname">residency.</code><code class="sig-name descname">is_nuclear</code><span class="sig-paren">(</span><em class="sig-param">house</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.is_nuclear" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns whether the household is a single nuclear family w/o a prior generation.</p>
+<dd><p>Return whether the household is a single nuclear family w/o a prior generation.</p>
 <dl class="simple">
 <dt>house<span class="classifier">House</span></dt><dd><p>The house object to examine.</p>
 </dd>
@@ -154,7 +156,7 @@ families cohabitating.</p>
 <dl class="function">
 <dt id="residency.plot_classify">
 <code class="sig-prename descclassname">residency.</code><code class="sig-name descname">plot_classify</code><span class="sig-paren">(</span><em class="sig-param">houses</em><span class="sig-paren">)</span><a class="headerlink" href="#residency.plot_classify" title="Permalink to this definition">¶</a></dt>
-<dd><p>Classify houses at the present moment into their Cambridge Group typology</p>
+<dd><p>Classify houses at the present moment into their Cambridge Group typology.</p>
 <p>Uses matplotlib.pyplot to create a bargraph of the current classification
 of households. Ignores empty houses (!).</p>
 <dl class="simple">
@@ -184,14 +186,27 @@ of households. Ignores empty houses (!).</p>
 
 <h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">An introduction to households</a></li>
 <li class="toctree-l1"><a class="reference internal" href="main.html">households.main</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identity.html">households.identity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kinship.html">households.kinship</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">households.residency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="narrative.html">households.narrative</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_conception.html">households.behavior.conception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_transmission.html">households.behavior.transmission</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_learning.html">households.behavior.learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_marriage.html">households.behavior.marriage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_mobility.html">households.behavior.mobility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="behavior_inheritance.html">households.behavior.inheritance</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="kinship.html" title="previous chapter">households.kinship</a></li>
+      <li>Next: <a href="narrative.html" title="next chapter">households.narrative</a></li>
   </ul></li>
 </ul>
 </div>
@@ -221,7 +236,7 @@ of households. Ignores empty houses (!).</p>
       &copy;2020, Andrew Cabaniss.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
