@@ -48,7 +48,8 @@ whether they need to mvove. If they do, move them.</p>
 <em class="property">class </em><code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">MobilityRule</code><span class="sig-paren">(</span><em class="sig-param">check_household</em>, <em class="sig-param">who_leaves_house</em>, <em class="sig-param">destination</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.MobilityRule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Define how and why people leave a household or a house.</p>
 <p>Mobility rules consist of a context for mobility, a way to identify
-who will leave, and a destination for them. They then move.</p>
+who will leave, and a destination for them. They then move. The focal person
+is the new owner of the house.</p>
 <dl class="simple">
 <dt>check_household<span class="classifier">callable</span></dt><dd><p>Takes a person, returns True if it their house will fragment, False otherwise. Can 
 include randomness.</p>
@@ -56,7 +57,7 @@ include randomness.</p>
 <dt>who_leaves_house<span class="classifier">callable</span></dt><dd><p>Takes a person, returns who will leave their house. If no eligible to leave, return []</p>
 </dd>
 <dt>destination<span class="classifier">callable</span></dt><dd><p>Takes a house and a group to move and identifies the house where they will move.
-The mobility rule does the relocation of people in who.</p>
+The mobility rule does the relocation of people in who_leaves_house.</p>
 </dd>
 </dl>
 </dd></dl>

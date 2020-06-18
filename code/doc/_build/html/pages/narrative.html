@@ -190,8 +190,31 @@ the founder’s population.</p>
 
 <dl class="class">
 <dt id="narrative.EnterhouseEvent">
-<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">EnterhouseEvent</code><a class="headerlink" href="#narrative.EnterhouseEvent" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">EnterhouseEvent</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">house</em>, <em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.EnterhouseEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records a Person entering a house.</p>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year.</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House the <cite>person</cite> moved into.</p>
+</dd>
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The Person who moved in.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year.</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House the <cite>person</cite> moved into.</p>
+</dd>
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The Person who moved in.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="narrative.EnterhouseEvent.summary">
+<code class="sig-name descname">summary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#narrative.EnterhouseEvent.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a human-readable summary of this event.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="narrative.Event">
@@ -204,8 +227,31 @@ class.</p>
 
 <dl class="class">
 <dt id="narrative.LeaveHouseEvent">
-<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">LeaveHouseEvent</code><a class="headerlink" href="#narrative.LeaveHouseEvent" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">class </em><code class="sig-prename descclassname">narrative.</code><code class="sig-name descname">LeaveHouseEvent</code><span class="sig-paren">(</span><em class="sig-param">year</em>, <em class="sig-param">house</em>, <em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#narrative.LeaveHouseEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records a Person leaving a house.</p>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year.</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House the <cite>person</cite> left.</p>
+</dd>
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The Person who left.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>year<span class="classifier">int</span></dt><dd><p>The current year.</p>
+</dd>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The House the <cite>person</cite> left.</p>
+</dd>
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The Person who left.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="narrative.LeaveHouseEvent.summary">
+<code class="sig-name descname">summary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#narrative.LeaveHouseEvent.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a human-readable summary of this event.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="narrative.MarriageEvent">
