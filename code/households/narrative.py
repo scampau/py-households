@@ -279,11 +279,67 @@ class DeathEvent(Event):
         return 'Year {}: {} died at {}, {}'.format(self.year,self.person.name,self.house.address,self.house.has_community.name)
     
 class LeaveHouseEvent(Event):
-    pass
+    """Records a Person leaving a house.
+    
+    Parameters
+    ----------
+    year : int
+        The current year.
+    house : main.House
+        The House the `person` left.
+    person : main.Person
+        The Person who left.
+    
+        
+    Attributes
+    ----------
+    year : int
+        The current year.
+    house : main.House
+        The House the `person` left.
+    person : main.Person
+        The Person who left.
+    """
+    def __init__(self,year,house,person):
+        self.year = year
+        self.house = house
+        self.person = person
+    
+    def summary(self):
+        """Return a human-readable summary of this event."""
+        return 'Year {}: {} left {}, {}'.format(self.year,self.person.name,self.house.address,self.house.has_community.name)
     
     
 class EnterhouseEvent(Event):
-    pass
+    """Records a Person entering a house.
+    
+    Parameters
+    ----------
+    year : int
+        The current year.
+    house : main.House
+        The House the `person` moved into.
+    person : main.Person
+        The Person who moved in.
+    
+        
+    Attributes
+    ----------
+    year : int
+        The current year.
+    house : main.House
+        The House the `person` moved into.
+    person : main.Person
+        The Person who moved in.
+    """
+    def __init__(self,year,house,person):
+        self.year = year
+        self.house = house
+        self.person = person
+    
+    def summary(self):
+        """Return a human-readable summary of this event."""
+        return 'Year {}: {} moved into {}, {}'.format(self.year,self.person.name,self.house.address,self.house.has_community.name)
 
 class ChangeOwnerEvent(Event):
     pass

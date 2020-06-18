@@ -774,8 +774,8 @@ def distribute_property_to_first_heir_and_move_household(person,heirs):
     heirs : list of Person, list of lists of Person, or Person
         The Person(s) who will inherit and will become the owner of the property.
         
-    return
-    ------
+    Returns
+    -------
     bool
         Whether property transfer happened.
     """
@@ -794,7 +794,7 @@ def distribute_property_to_first_heir_and_move_household(person,heirs):
         raise TypeError('heirs neither Person nor list of Persons')
     #Now that the heir has been identified, transfer any property to their name
     transfer_happened = False
-    for h in person.has_community.houses:
+    for h in person.has_community.has_world.houses:
         if h.owner == person:
             h.owner = heir
             #old_house = heir.has_house

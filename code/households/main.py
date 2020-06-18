@@ -338,7 +338,7 @@ class Person(object):
         self.has_parents = []
         self.has_children = []
         
-        self.birthyear = self.has_community.has_world.year
+        self.birthyear = self.has_community.has_world.year - age
         self.diary = Diary(self)
         self.has_community.has_world.add_diary(self.diary)
         self.diary.add_event(narrative.BornEvent)
@@ -378,6 +378,7 @@ class Person(object):
             self.marriagerule(self)
             if self.marriagestatus == married: #if successful, record it
                 self.diary.add_event(narrative.MarriageEvent,self.has_spouse)
+                self.has_spouse.diary.add_event(narrative.MarriageEvent,self)
         elif self.marriagestatus == ineligible: #if none (== too young for marriage), check eligibility
             e = self.marriagerule.eligibility_agetable.get_rate(self.sex,self.age)
             if rd.random() < e: #If eligibility possible, change staus
@@ -416,6 +417,7 @@ class Person(object):
         """
         result = self.mobilityrule(self)
         return result
+
     
                 
 
@@ -459,7 +461,8 @@ class House(object):
         self.people = []
         self.owner = None #pointer to the person who owns the house
         self.address = str(rd.randrange(1,101,2)) + ' ' + rd.choice(narrative.address_names) 
-        
+        self.diary = Diary(self)
+        self.has_community.has_world.add_diary(self.diary)
     
     def add_person(self,tobeadded):
         """Add a person to the house.
@@ -470,6 +473,7 @@ class House(object):
             The person to be added to the residents of the house.
         """
         self.people.append(tobeadded)
+        tobeadded.diary.add_event(narrative.EnterhouseEvent)
         tobeadded.has_house = self
     
     def remove_person(self,toberemoved):
@@ -481,6 +485,7 @@ class House(object):
             The person to be removed from the residents of the house
         """
         self.people.remove(toberemoved)
+        toberemoved.diary.add_event(narrative.LeaveHouseEvent)
         toberemoved.has_house = None
         
 

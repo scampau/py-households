@@ -19,7 +19,8 @@ class MobilityRule(object):
     """Define how and why people leave a household or a house.
     
     Mobility rules consist of a context for mobility, a way to identify
-    who will leave, and a destination for them. They then move.
+    who will leave, and a destination for them. They then move. The focal person
+    is the new owner of the house.
     
     Parameters
     ----------
@@ -30,7 +31,7 @@ class MobilityRule(object):
         Takes a person, returns who will leave their house. If no eligible to leave, return []
     destination : callable
         Takes a house and a group to move and identifies the house where they will move.
-        The mobility rule does the relocation of people in who.
+        The mobility rule does the relocation of people in who_leaves_house.
     
     """
     
@@ -62,6 +63,8 @@ class MobilityRule(object):
         if self.__verify_person__(person) == False:
             raise TypeError('person not an instance of Person')
         #if it really is a house, then first identify whether it will fragment
+        if person.has_house == None:
+            return False #this person doesn't live in a house right now
         if self.__check_household(person) == True:
             #Yes, the household will fragment
             who_leaves = self.__who_leaves_house(person)
@@ -72,6 +75,7 @@ class MobilityRule(object):
                 #mobility happens, so identify destination
                 house = person.has_house
                 goto = self.__destination(house, who_leaves)
+                goto.owner = person #set the person as teh owner of the house
                 for p in who_leaves:
                     move_person_to_new_house(p,goto)
                 return True
