@@ -217,7 +217,6 @@ def who_leaves_house_non_kin(person):
     Returns
     -------
     list of main.Person
-
     """
     if isinstance(person,main.Person):
         house = person.has_house

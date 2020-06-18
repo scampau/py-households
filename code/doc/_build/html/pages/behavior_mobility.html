@@ -36,16 +36,17 @@
 <h1>households.behavior.mobility<a class="headerlink" href="#households-behavior-mobility" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<span class="target" id="module-behavior.mobility"></span><p>Household mobility processes.</p>
-<p>These functions are run by households each year to decide whether the household
+<span class="target" id="module-behavior.mobility"></span><p>Enable individuals and groups to move for reasons outside of direct life events.</p>
+<p>These functions are run by indivudals each year to decide whether they/their family
 needs to split apart into new households. This is to model conflicts such as
-brother-brother conflicts after the death of the patriarch.</p>
-<p>Each mobility function will need to take a household and determine 
-whether anyone in that household needs to leave. If they do, move them.</p>
+brother-brother conflicts after the death of the patriarch, as well as economic
+mobility and military service.</p>
+<p>Each mobility function will need to take a Person and determine 
+whether they need to mvove. If they do, move them.</p>
 <dl class="class">
 <dt id="behavior.mobility.MobilityRule">
 <em class="property">class </em><code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">MobilityRule</code><span class="sig-paren">(</span><em class="sig-param">check_household</em>, <em class="sig-param">who_leaves_house</em>, <em class="sig-param">destination</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.MobilityRule" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defining how and why people leave a household or a house.</p>
+<dd><p>Define how and why people leave a household or a house.</p>
 <p>Mobility rules consist of a context for mobility, a way to identify
 who will leave, and a destination for them. They then move.</p>
 <dl class="simple">
@@ -63,13 +64,14 @@ The mobility rule does the relocation of people in who.</p>
 <dl class="class">
 <dt id="behavior.mobility.MobilityRuleMultiple">
 <em class="property">class </em><code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">MobilityRuleMultiple</code><span class="sig-paren">(</span><em class="sig-param">check_household</em>, <em class="sig-param">who_leaves_house</em>, <em class="sig-param">destination</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.MobilityRuleMultiple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Chain multiple MobilityRules together; carried out in order</p>
+<dd><p>Chain multiple MobilityRules together; carried out in order.</p>
+<p>Currently unimplemented.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="behavior.mobility.check_household_never_fragment">
 <code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">check_household_never_fragment</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.check_household_never_fragment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Always returns that the household doesn’t fragment.</p>
+<dd><p>Return that the household doesn’t fragment.</p>
 <dl class="simple">
 <dt>person<span class="classifier">main.Person</span></dt><dd><p>The person whose house to check.</p>
 </dd>
@@ -80,27 +82,30 @@ The mobility rule does the relocation of people in who.</p>
 <dl class="function">
 <dt id="behavior.mobility.check_household_overcrowded">
 <code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">check_household_overcrowded</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.check_household_overcrowded" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns whether the household is overcrowded.</p>
+<dd><p>Return whether the household is overcrowded.</p>
 <dl class="simple">
 <dt>person<span class="classifier">main.Person</span></dt><dd><p>The person whose house to check.</p>
 </dd>
 </dl>
-<p>bool</p>
+<dl class="simple">
+<dt>bool</dt><dd><p>True if the household is overcrowded, else False.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="behavior.mobility.check_household_younger_brothers_disinherited">
-<code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">check_household_younger_brothers_disinherited</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">age</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.check_household_younger_brothers_disinherited" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns whether the person is a younger disinherited brother of the owner.</p>
+<code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">check_household_younger_brothers_disinherited</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">age_of_majority</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.check_household_younger_brothers_disinherited" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether the person is a younger disinherited brother of the owner.</p>
 <dl class="simple">
 <dt>person<span class="classifier">main.Person</span></dt><dd><p>The person whose house to check.</p>
 </dd>
-<dt>age<span class="classifier">int</span></dt><dd><p>The age of majority (marriage often) for determining whether an adult 
+<dt>age_of_majority<span class="classifier">int</span></dt><dd><p>The age of majority (marriage often) for determining whether an adult 
 brother feels the pressure to leave and create a new household.</p>
 </dd>
 </dl>
 <dl class="simple">
-<dt>bool</dt><dd><p>Whether the household will fragment</p>
+<dt>bool</dt><dd><p>Whether the household will fragment.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -108,11 +113,12 @@ brother feels the pressure to leave and create a new household.</p>
 <dl class="function">
 <dt id="behavior.mobility.destination_radnom_house_random_village">
 <code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">destination_radnom_house_random_village</code><span class="sig-paren">(</span><em class="sig-param">house</em>, <em class="sig-param">who_leaves</em>, <em class="sig-param">weighting='population'</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.destination_radnom_house_random_village" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pick a random house in a random other village</p>
+<dd><p>Pick a random house in a random other village.</p>
+<p>Unimplemented.</p>
 <dl class="simple">
-<dt>house<span class="classifier">TYPE</span></dt><dd><p>DESCRIPTION.</p>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The current House to be left.</p>
 </dd>
-<dt>who_leaves<span class="classifier">TYPE</span></dt><dd><p>DESCRIPTION.</p>
+<dt>who_leaves<span class="classifier">list of main.Person</span></dt><dd><p>Who will be leaving.</p>
 </dd>
 <dt>weighting<span class="classifier">[‘population’,’empty_houses’,’equal’]</span></dt><dd><p>What weighting to use for the random village selection</p>
 </dd>
@@ -123,59 +129,35 @@ brother feels the pressure to leave and create a new household.</p>
 <dl class="function">
 <dt id="behavior.mobility.destination_random_house_same_village">
 <code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">destination_random_house_same_village</code><span class="sig-paren">(</span><em class="sig-param">house</em>, <em class="sig-param">who_leaves</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.destination_random_house_same_village" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find a suitable house in the same village</p>
+<dd><p>Find a suitable house in the same village.</p>
 <dl class="simple">
-<dt>house<span class="classifier">TYPE</span></dt><dd><p>DESCRIPTION.</p>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The current House to be left.</p>
 </dd>
-<dt>who_leaves<span class="classifier">TYPE</span></dt><dd><p>DESCRIPTION.</p>
+<dt>who_leaves<span class="classifier">list of main.Person</span></dt><dd><p>Who will be leaving.</p>
 </dd>
 </dl>
-<p>house</p>
+<dl class="simple">
+<dt>house</dt><dd><p>The new House to move to.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="behavior.mobility.destination_random_house_specific_village">
-<code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">destination_random_house_specific_village</code><span class="sig-paren">(</span><em class="sig-param">house</em>, <em class="sig-param">who_leaves</em>, <em class="sig-param">village</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.destination_random_house_specific_village" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">destination_random_house_specific_village</code><span class="sig-paren">(</span><em class="sig-param">house</em>, <em class="sig-param">who_leaves</em>, <em class="sig-param">community</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.destination_random_house_specific_village" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select a random house in a particular village (e.g. a destination community)</p>
 <dl class="simple">
-<dt>house<span class="classifier">TYPE</span></dt><dd><p>DESCRIPTION.</p>
+<dt>house<span class="classifier">main.House</span></dt><dd><p>The current House to be left.</p>
 </dd>
-<dt>who_leaves<span class="classifier">TYPE</span></dt><dd><p>DESCRIPTION.</p>
+<dt>who_leaves<span class="classifier">list of main.Person</span></dt><dd><p>Who will be leaving.</p>
 </dd>
-<dt>village<span class="classifier">TYPE</span></dt><dd><p>DESCRIPTION.</p>
+<dt>community<span class="classifier">main.Community</span></dt><dd><p>The new community to move to.</p>
 </dd>
 </dl>
-<p>None.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="behavior.mobility.leave_house_non_kin">
-<code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">leave_house_non_kin</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.leave_house_non_kin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Recursively check for nuclear families. Return who isn’t related to the rest.</p>
 <dl class="simple">
-<dt>person<span class="classifier">main.Person</span></dt><dd><p>The person whose house needs to be checked</p>
+<dt>house</dt><dd><p>The new house to move to.</p>
 </dd>
 </dl>
-<p>list of main.Person</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="behavior.mobility.leave_house_noone">
-<code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">leave_house_noone</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.leave_house_noone" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return that noone needs to leave</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="behavior.mobility.leave_house_young_adult_brothers">
-<code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">leave_house_young_adult_brothers</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">age</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.leave_house_young_adult_brothers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determine the family of a young adult disinherited brother</p>
-<dl class="simple">
-<dt>person<span class="classifier">main.Person</span></dt><dd><p>The person to check</p>
-</dd>
-<dt>age<span class="classifier">int</span></dt><dd><p>Age of majority/when the person feels pressure to leave the house.</p>
-</dd>
-</dl>
-<p>None.</p>
 </dd></dl>
 
 <dl class="function">
@@ -216,6 +198,42 @@ be updated as part of the matrilineal update.</p>
 <dt>new_house<span class="classifier">House</span></dt><dd><p>The new house into which they will be moved.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.mobility.who_leaves_house_family">
+<code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">who_leaves_house_family</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.who_leaves_house_family" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the family of the focal person leave.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.mobility.who_leaves_house_non_kin">
+<code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">who_leaves_house_non_kin</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.who_leaves_house_non_kin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively check for nuclear families. Return who isn’t related to the rest.</p>
+<dl class="simple">
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The person whose house needs to be checked</p>
+</dd>
+</dl>
+<p>list of main.Person</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.mobility.who_leaves_house_noone">
+<code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">who_leaves_house_noone</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.who_leaves_house_noone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return that noone needs to leave.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.mobility.who_leaves_house_young_adult_brothers">
+<code class="sig-prename descclassname">behavior.mobility.</code><code class="sig-name descname">who_leaves_house_young_adult_brothers</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">age</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.mobility.who_leaves_house_young_adult_brothers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the family of a young adult disinherited brother</p>
+<dl class="simple">
+<dt>person<span class="classifier">main.Person</span></dt><dd><p>The person to check</p>
+</dd>
+<dt>age<span class="classifier">int</span></dt><dd><p>Age of majority/when the person feels pressure to leave the house.</p>
+</dd>
+</dl>
+<p>None.</p>
 </dd></dl>
 
 </div>

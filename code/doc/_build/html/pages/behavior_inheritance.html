@@ -36,19 +36,55 @@
 <div class="toctree-wrapper compound">
 </div>
 <span class="target" id="module-behavior.inheritance"></span><p>Determines how property is transmitted and where heirs live.</p>
-<p>This module models inheritance as well as families moving as part of inheriting new property.</p>
+<p>This module models defines the events that occur when a Person dies. While 
+different types of InheritanceRules can be defined, most will use a combination
+of functions (defined here and custom) to determine whether there is property 
+that can be inherited, determine the heirs of that property, and enact any 
+required residency changes.</p>
+<p>The foundational InheritanceRule accomplishes this through three functions,
+while the more advanced InheritanceRuleComplex accomplishes this with five.
+The customizability of the latter is useful for articulating exactly how
+Houses should be transmitted and occupied.</p>
+<p>A planned expansion is to have inheritance rules closely tied to (and likely 
+containing) the AgeTable for dying, such that populations with different
+mortality rates can be associated easily with different inheritance regimes.</p>
 <dl class="class">
 <dt id="behavior.inheritance.InheritanceRule">
 <em class="property">class </em><code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">InheritanceRule</code><span class="sig-paren">(</span><em class="sig-param">has_property</em>, <em class="sig-param">rule</em>, <em class="sig-param">failure</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.InheritanceRule" title="Permalink to this definition">¶</a></dt>
-<dd><p>A class used for defining new inheritance rules.</p>
+<dd><p>Define inheritance of property after death.</p>
 <p>Inheritance is carried out upon the death of an individual by that
-individual. Thus an InheritanceRule as a callable can only take one argument.</p>
+individual. Thus an InheritanceRule as a callable can only take one argument,
+the person who died. In doing so, it will call three other functions:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><dl class="simple">
+<dt>has_property, to determine whether the individual has transmissable</dt><dd><p>property;</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>rule, which both carries out the property transmission and moves the</dt><dd><p>ownership of the property as well as any people;</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>failure, which is called only if an heir cannot be found or an </dt><dd><p>inheritance cannot be negotiated (or fails for other reasons.)</p>
+</dd>
+</dl>
+</li>
+</ol>
+</div></blockquote>
+<p>Complications do not need to use this tripartite structure, but must be defined
+as subclasses in order to be recognized by the simulation as an inheritance
+rule.</p>
+<p>Built in rules compatible with step 2, <cite>rule</cite>, are prefixed with <cite>simple_</cite>
+in the module.</p>
 <dl class="simple">
 <dt>has_property<span class="classifier">callable</span></dt><dd><p>Takes a Person. Returns True if the given person has property to give,
 else returns False.</p>
 </dd>
-<dt>rule<span class="classifier">callable</span></dt><dd><p>A function that takes 1 argument (a person) and determines if they have
-property, how it will be inherited, and moves the property. It must return
+<dt>rule<span class="classifier">callable</span></dt><dd><p>A function that takes 1 argument (a person) and determines
+how property will be inherited, and moves the property. It must return
 a bool of whether inheritance happened. The most generic form of an 
 InheritanceRule.</p>
 </dd>
@@ -67,6 +103,8 @@ then their heirs will be identified (using find_heirs). Heirs must be returned r
 either as a list of person objects for single inheritance or as a list of lists of persons
 for multiple inheritance .Heirs will then be excluded based on limitations.
 Property is divided if it must be.</p>
+<p>Functions within the inheritance package are named with a prefix that 
+matches the parameter which they can fill.</p>
 <dl class="simple">
 <dt>has_property<span class="classifier">callable</span></dt><dd><p>Takes a Person. Returns True if the given person has property to give,
 else returns False.</p>
@@ -92,8 +130,9 @@ gives it all to one person. Returns True if this took place, False otherwise.</p
 <dl class="function">
 <dt id="behavior.inheritance.distribute_property_to_first_heir_and_move_household">
 <code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">distribute_property_to_first_heir_and_move_household</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">heirs</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.distribute_property_to_first_heir_and_move_household" title="Permalink to this definition">¶</a></dt>
-<dd><p>Select first heir, move a dead person’s house’s/houses’ ownership.
-Then move that person’s household into the inherited house</p>
+<dd><p>Give property to a single heir then move the heir’s household into the new house.</p>
+<p>The old heir doesn’t have to give up their old house, they just can’t live there anymore.
+If they are inheriting multiple houses, they move to the last one</p>
 <dl class="simple">
 <dt>person<span class="classifier">Person</span></dt><dd><p>The Person who has died and whose property needs to be moved</p>
 </dd>
@@ -123,8 +162,14 @@ Then move that person’s household into the inherited house</p>
 <dl class="function">
 <dt id="behavior.inheritance.find_heirs_brothers_sons_oldest_to_youngest">
 <code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">find_heirs_brothers_sons_oldest_to_youngest</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.find_heirs_brothers_sons_oldest_to_youngest" title="Permalink to this definition">¶</a></dt>
-<dd><p>The sons of a man’s brothers inherit, ranked by age.</p>
-<p>The ranking is both by brothers</p>
+<dd><p>Return the sons of a Person’s brothers, ranked by age.</p>
+<p>The ranking is both by brothers age and then by their children’s age.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version `find_heirs_brothers_sons_oldest_to_youngest`: </span>derives from the original
+simulation, but <cite>find_heirs_siblings_children_oldest_to_youngest</cite> is 
+the preferred. This function will eventually be replaced with a mapping
+to that function.</p>
+</div>
 <dl class="simple">
 <dt>person<span class="classifier">Person</span></dt><dd><p>The Person whose property will be inherited.</p>
 </dd>
@@ -138,7 +183,7 @@ Then move that person’s household into the inherited house</p>
 <dl class="function">
 <dt id="behavior.inheritance.find_heirs_children_oldest_to_youngest">
 <code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">find_heirs_children_oldest_to_youngest</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">sex=None</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.find_heirs_children_oldest_to_youngest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the children of a person as a list</p>
+<dd><p>Return the children of a person as a list.</p>
 <dl class="simple">
 <dt>person<span class="classifier">Person</span></dt><dd><p>The Person whose property will be inherited.</p>
 </dd>
@@ -157,7 +202,7 @@ this needs to be a strategy/variable.</p>
 <dl class="function">
 <dt id="behavior.inheritance.find_heirs_daughters_oldest_to_youngest">
 <code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">find_heirs_daughters_oldest_to_youngest</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.find_heirs_daughters_oldest_to_youngest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the daughters of a person as a list</p>
+<dd><p>Return the daughters of a person as a list.</p>
 <dl class="simple">
 <dt>person<span class="classifier">Person</span></dt><dd><p>The Person whose property will be inherited.</p>
 </dd>
@@ -192,7 +237,7 @@ input to the actual InheritanceRuleComplex or equivalent class.</p>
 <dl class="function">
 <dt id="behavior.inheritance.find_heirs_siblings_children_oldest_to_youngest">
 <code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">find_heirs_siblings_children_oldest_to_youngest</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">sex=None</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.find_heirs_siblings_children_oldest_to_youngest" title="Permalink to this definition">¶</a></dt>
-<dd><p>The children of a Person’s siblings inherit, ranked by age.</p>
+<dd><p>Return the children of a Person’s siblings, ranked by age.</p>
 <p>The ranking is both by brothers</p>
 <dl class="simple">
 <dt>person<span class="classifier">Person</span></dt><dd><p>The Person whose property will be inherited.</p>
@@ -209,7 +254,7 @@ input to the actual InheritanceRuleComplex or equivalent class.</p>
 <dl class="function">
 <dt id="behavior.inheritance.find_heirs_sons_oldest_to_youngest">
 <code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">find_heirs_sons_oldest_to_youngest</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.find_heirs_sons_oldest_to_youngest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the sons of a person as a list</p>
+<dd><p>Return the sons of a person as a list.</p>
 <dl class="simple">
 <dt>person<span class="classifier">Person</span></dt><dd><p>The Person whose property will be inherited.</p>
 </dd>
@@ -226,7 +271,7 @@ this needs to be a strategy/variable.</p>
 <dl class="function">
 <dt id="behavior.inheritance.has_property_houses">
 <code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">has_property_houses</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.has_property_houses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check whether a person owns a house or houses</p>
+<dd><p>Check whether a person owns a house or houses.</p>
 <dl class="simple">
 <dt>person<span class="classifier">Person</span></dt><dd><p>Who to check for property</p>
 </dd>
@@ -234,65 +279,9 @@ this needs to be a strategy/variable.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="behavior.inheritance.inherit_brothers_sons">
-<code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">inherit_brothers_sons</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">checkowner=True</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.inherit_brothers_sons" title="Permalink to this definition">¶</a></dt>
-<dd><p>The sons of a man’s brothers inherit. Returns true if successful.</p>
-<p>The second oldest son inherits, not the oldest, so that the oldest
-can inherit the brother’s property.</p>
-<dl class="simple">
-<dt>person<span class="classifier">Person</span></dt><dd><p>The Person whose property will be inherited.</p>
-</dd>
-<dt>checkowner<span class="classifier">bool, optional</span></dt><dd><p>If True, do not let current owners inherit; if False, let them inherit any way.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>bool</dt><dd><p>True if inheritance took place.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="behavior.inheritance.inherit_sons">
-<code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">inherit_sons</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">checkowner=True</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.inherit_sons" title="Permalink to this definition">¶</a></dt>
-<dd><p>The sons of a person inherit. Returns True if inheritance took place.</p>
-<dl class="simple">
-<dt>person<span class="classifier">Person</span></dt><dd><p>The Person whose property will be inherited.</p>
-</dd>
-<dt>checkowner<span class="classifier">bool, optional</span></dt><dd><p>If True, do not let current owners inherit; if False, let them inherit any way.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>bool</dt><dd><p>True if inheritance took place.</p>
-</dd>
-</dl>
-<p>Note that this includes an age bias towards the oldest;
-this needs to be a strategy/variable.</p>
-<p>This also includes an assumption that ownership is part of residency.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="behavior.inheritance.inherit_sons_then_brothers_sons">
-<code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">inherit_sons_then_brothers_sons</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">checkowner=True</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.inherit_sons_then_brothers_sons" title="Permalink to this definition">¶</a></dt>
-<dd><p>The sons of a Person and then the sons of his brothers inherit. Returns true if successful.</p>
-<p>Children inherit by age, oldest to youngest. For brothers, the second 
-oldest son inherits, not the oldest, so that the oldest can inherit
-the brother’s property.</p>
-<dl class="simple">
-<dt>person<span class="classifier">Person</span></dt><dd><p>The Person whose property will be inherited.</p>
-</dd>
-<dt>checkowner<span class="classifier">bool, optional</span></dt><dd><p>If True, do not let current owners inherit; if False, let them inherit any way.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>bool</dt><dd><p>True if inheritance took place.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
 <dt id="behavior.inheritance.limit_heirs_by_age">
-<code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">limit_heirs_by_age</code><span class="sig-paren">(</span><em class="sig-param">heirs</em>, <em class="sig-param">age_of_majority=15</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.limit_heirs_by_age" title="Permalink to this definition">¶</a></dt>
-<dd><p>Heirs can’t be below a given age of majority</p>
+<code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">limit_heirs_by_age</code><span class="sig-paren">(</span><em class="sig-param">heirs</em>, <em class="sig-param">age_of_majority</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.limit_heirs_by_age" title="Permalink to this definition">¶</a></dt>
+<dd><p>Limit heirs to those at or above an age of majority.</p>
 <dl class="simple">
 <dt>heirs<span class="classifier">list of Person or list of list of Person</span></dt><dd><p>heirs, the return argument of find_heirs type functions</p>
 </dd>
@@ -308,7 +297,7 @@ the brother’s property.</p>
 <dl class="function">
 <dt id="behavior.inheritance.limit_heirs_multiple_constructor">
 <code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">limit_heirs_multiple_constructor</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.limit_heirs_multiple_constructor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a new limit_heirs function that iterates over other limit_heirs functions</p>
+<dd><p>Create a new limit_heirs function that iterates over other limit_heirs functions.</p>
 <dl class="simple">
 <dt><a href="#id3"><span class="problematic" id="id4">*</span></a>args<span class="classifier">callables</span></dt><dd><p>Other limit_heirs functions to be iterated over in succession</p>
 </dd>
@@ -322,7 +311,7 @@ the brother’s property.</p>
 <dl class="function">
 <dt id="behavior.inheritance.limit_heirs_none">
 <code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">limit_heirs_none</code><span class="sig-paren">(</span><em class="sig-param">heirs</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.limit_heirs_none" title="Permalink to this definition">¶</a></dt>
-<dd><p>No limits on heirs.</p>
+<dd><p>Impose no limits on heirs.</p>
 <dl class="simple">
 <dt>heirs<span class="classifier">list of Person or list of list of Person</span></dt><dd><p>heirs, the return argument of find_heirs type functions</p>
 </dd>
@@ -336,13 +325,69 @@ the brother’s property.</p>
 <dl class="function">
 <dt id="behavior.inheritance.limit_heirs_not_owners">
 <code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">limit_heirs_not_owners</code><span class="sig-paren">(</span><em class="sig-param">heirs</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.limit_heirs_not_owners" title="Permalink to this definition">¶</a></dt>
-<dd><p>Heirs can’t already own a house (limit one (1)).</p>
+<dd><p>Limit heirs to only have one house.</p>
 <dl class="simple">
 <dt>heirs<span class="classifier">list of Person or list of list of Person</span></dt><dd><p>heirs, the return argument of find_heirs type functions</p>
 </dd>
 </dl>
 <dl class="simple">
 <dt>new_heirs<span class="classifier">list of Person or list of list of Person</span></dt><dd><p>returns heirs with Persons who own property removed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.inheritance.simple_inherit_brothers_sons">
+<code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">simple_inherit_brothers_sons</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">checkowner=True</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.simple_inherit_brothers_sons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give property to the second oldest son of a brother, ranked by age.</p>
+<p>The second oldest son inherits, not the oldest, so that the oldest
+can inherit the brother’s property.</p>
+<dl class="simple">
+<dt>person<span class="classifier">Person</span></dt><dd><p>The Person whose property will be inherited.</p>
+</dd>
+<dt>checkowner<span class="classifier">bool, optional</span></dt><dd><p>If True, do not let current owners inherit; if False, let them inherit any way.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool</dt><dd><p>True if inheritance took place.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.inheritance.simple_inherit_sons">
+<code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">simple_inherit_sons</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">checkowner=True</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.simple_inherit_sons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give property to the sons of a person.</p>
+<dl class="simple">
+<dt>person<span class="classifier">Person</span></dt><dd><p>The Person whose property will be inherited.</p>
+</dd>
+<dt>checkowner<span class="classifier">bool, optional</span></dt><dd><p>If True, do not let current owners inherit; if False, let them inherit any way.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool</dt><dd><p>True if inheritance took place, False otherwise.</p>
+</dd>
+</dl>
+<p>Note that this includes an age bias towards the oldest;
+this needs to be a strategy/variable.</p>
+<p>This also includes an assumption that ownership is part of residency.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="behavior.inheritance.simple_inherit_sons_then_brothers_sons">
+<code class="sig-prename descclassname">behavior.inheritance.</code><code class="sig-name descname">simple_inherit_sons_then_brothers_sons</code><span class="sig-paren">(</span><em class="sig-param">person</em>, <em class="sig-param">checkowner=True</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.inheritance.simple_inherit_sons_then_brothers_sons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give property to sons and then brothers’ second sons.</p>
+<p>Children inherit by age, oldest to youngest. For brothers, the second 
+oldest son inherits, not the oldest, so that the oldest can inherit
+the brother’s property.</p>
+<dl class="simple">
+<dt>person<span class="classifier">Person</span></dt><dd><p>The Person whose property will be inherited.</p>
+</dd>
+<dt>checkowner<span class="classifier">bool, optional</span></dt><dd><p>If True, do not let current owners inherit; if False, let them inherit any way.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool</dt><dd><p>True if inheritance took place.</p>
 </dd>
 </dl>
 </dd></dl>

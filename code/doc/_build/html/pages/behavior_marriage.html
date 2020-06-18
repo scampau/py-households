@@ -36,12 +36,28 @@
 <h1>households.behavior.marriage<a class="headerlink" href="#households-behavior-marriage" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<span class="target" id="module-behavior.marriage"></span><p>Marriage decisions for newlyweds.</p>
-<p>The marriage package encodes options for where a new couple live.</p>
+<span class="target" id="module-behavior.marriage"></span><p>Determines schedules of marriage and remarriage as well as locality by newlyweds.</p>
+<p>The marriage module encodes several overlapping options for how marriage can function.
+This is enacted through the MarriageRule class each Person has, which determines:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><dl class="simple">
+<dt>when they can transition from <cite>ineligible</cite> to <cite>unmarried</cite> (and are thus</dt><dd><p>eligible for marriage),</p>
+</dd>
+</dl>
+</li>
+<li><p>how they identify eligible partners,</p></li>
+<li><p>how they pick a spouse within that pool,</p></li>
+<li><p>if they marry someone, where they relocate to, and</p></li>
+<li><p>if they are widowed/are a widower, will they be allowed to remarry.</p></li>
+</ol>
+</div></blockquote>
+<p>Together, these concepts form a single behavior that can be transmitted and 
+learned.</p>
 <dl class="class">
 <dt id="behavior.marriage.MarriageRule">
 <em class="property">class </em><code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">MarriageRule</code><span class="sig-paren">(</span><em class="sig-param">eligibility_agetable</em>, <em class="sig-param">get_eligible</em>, <em class="sig-param">pick_spouse</em>, <em class="sig-param">locality</em>, <em class="sig-param">remarriage_agetable</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.MarriageRule" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defining marriage rules for individuals.</p>
+<dd><p>Define marriage rules for individuals.</p>
 <dl class="simple">
 <dt>The process of getting married involves:</dt><dd><ol class="arabic simple">
 <li><p>identifying the pool of who could be married</p></li>
@@ -51,10 +67,14 @@
 </dd>
 </dl>
 <p>These three steps can be thought of as eligiblity determination, mate choice, and locality.
-The only universal is that both agents must fit each other’s standards.</p>
-<p>MarriageRule also defines the eligibility agetable,
-which defines when a person becomes eligible for marriage,
-as well as the remarriage AgeTable.</p>
+The only universal is that both agents must fit each other’s standards.
+This means that Dolores must consider Teddy eligible from her get_eligible
+function, and Teddy must consider Dolores eligible from his get_eligible 
+function.</p>
+<p>MarriageRule also defines the eligibility agetable,  which defines when a 
+person becomes eligible for marriage, as well as the remarriage AgeTable.</p>
+<p>Functions that can be used for get_eligible, pick_spouse, and locality
+have prefixes as such in this module.</p>
 <dl class="simple">
 <dt>eligibility_agetable<span class="classifier">main.AgeTable</span></dt><dd><p>determine whether a person become eligible for marriage</p>
 </dd>
@@ -66,6 +86,12 @@ as well as the remarriage AgeTable.</p>
 neolocality) or equivalent function that determines where people live</p>
 </dd>
 <dt>remarriage_agetable<span class="classifier">main.AgeTable</span></dt><dd><p>Determines whether individuals can remarry after death.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>eligibility_agetable<span class="classifier">main.AgeTable</span></dt><dd><p>The schedule for becoming eligible for marriage.</p>
+</dd>
+<dt>remarriage_agetable<span class="classifier">main.AgeTable</span></dt><dd><p>Whether a Person is allowed to remarry and at what ages.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -87,7 +113,8 @@ neolocality) or equivalent function that determines where people live</p>
 <dl class="function">
 <dt id="behavior.marriage.get_eligible_not_sibling_same_community">
 <code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">get_eligible_not_sibling_same_community</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.get_eligible_not_sibling_same_community" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets all eligible individuals in the community. Incest prohibition against siblings.</p>
+<dd><p>Get all eligible individuals in the community with an incest prohibition against siblings.</p>
+<p>This uses heterosexuality as an assumption to identify eligible individuals.</p>
 <dl class="simple">
 <dt>person<span class="classifier">main.Person</span></dt><dd><p>The person who we are seeking matches for.</p>
 </dd>
@@ -102,6 +129,9 @@ neolocality) or equivalent function that determines where people live</p>
 <dt id="behavior.marriage.get_empty_house">
 <code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">get_empty_house</code><span class="sig-paren">(</span><em class="sig-param">houses</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.get_empty_house" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a randomly chosen empty house to move into.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version This: </span>function will soon be replaced by a behavior.mobility function.</p>
+</div>
 <dl class="simple">
 <dt>houses<span class="classifier">list of House</span></dt><dd><p>The Community.houses list for the community in question, or another 
 subset of houses.</p>
@@ -114,8 +144,8 @@ subset of houses.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="behavior.marriage.matrilocality">
-<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">matrilocality</code><span class="sig-paren">(</span><em class="sig-param">husband</em>, <em class="sig-param">wife</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.matrilocality" title="Permalink to this definition">¶</a></dt>
+<dt id="behavior.marriage.locality_matrilocality">
+<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">locality_matrilocality</code><span class="sig-paren">(</span><em class="sig-param">husband</em>, <em class="sig-param">wife</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.locality_matrilocality" title="Permalink to this definition">¶</a></dt>
 <dd><p>Newlyweds live at the wife’s family’s house, or if no house find a new one.</p>
 <p>Changes the house of the couple to that of the wife,
 If none or full, runs neolocality().</p>
@@ -130,9 +160,9 @@ If none or full, runs neolocality().</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="behavior.marriage.neolocality">
-<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">neolocality</code><span class="sig-paren">(</span><em class="sig-param">husband</em>, <em class="sig-param">wife</em>, <em class="sig-param">primary</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.neolocality" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds a new house for a couple.</p>
+<dt id="behavior.marriage.locality_neolocality">
+<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">locality_neolocality</code><span class="sig-paren">(</span><em class="sig-param">husband</em>, <em class="sig-param">wife</em>, <em class="sig-param">primary</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.locality_neolocality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find a new house in the same community as the primary spouse and moves the couple there.</p>
 <p>Ownership is given to the primary sex.</p>
 <dl class="simple">
 <dt>husband, wife<span class="classifier">Person</span></dt><dd><p>The people just married, identified by sex.</p>
@@ -147,8 +177,8 @@ If none or full, runs neolocality().</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="behavior.marriage.patrilocality">
-<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">patrilocality</code><span class="sig-paren">(</span><em class="sig-param">husband</em>, <em class="sig-param">wife</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.patrilocality" title="Permalink to this definition">¶</a></dt>
+<dt id="behavior.marriage.locality_patrilocality">
+<code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">locality_patrilocality</code><span class="sig-paren">(</span><em class="sig-param">husband</em>, <em class="sig-param">wife</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.locality_patrilocality" title="Permalink to this definition">¶</a></dt>
 <dd><p>Newlyweds live at the husband’s family’s house, or if no house find a new one.</p>
 <p>Changes the house of the couple to that of the husband,
 If none or full, runs neolocality().</p>
@@ -165,7 +195,8 @@ If none or full, runs neolocality().</p>
 <dl class="function">
 <dt id="behavior.marriage.pick_spouse_random">
 <code class="sig-prename descclassname">behavior.marriage.</code><code class="sig-name descname">pick_spouse_random</code><span class="sig-paren">(</span><em class="sig-param">candidates</em><span class="sig-paren">)</span><a class="headerlink" href="#behavior.marriage.pick_spouse_random" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dd><p>Choose a spouse at random from the candidates.</p>
+<dl class="simple">
 <dt>candidates<span class="classifier">list of main.Person</span></dt><dd><p>Potential candidates who match</p>
 </dd>
 </dl>

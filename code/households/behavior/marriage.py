@@ -328,7 +328,7 @@ def locality_matrilocality(husband,wife):
         behavior.mobility.move_person_to_new_house(husband, wife.has_house)
         return True
 
-def neolocality(husband,wife,primary):
+def locality_neolocality(husband,wife,primary):
     """Find a new house in the same community as the primary spouse and moves the couple there.
     
     Ownership is given to the primary sex.
