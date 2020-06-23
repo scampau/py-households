@@ -1,3 +1,3 @@
 # Sam Campau
 
-Student in CCSFP
+Student in CCSFP and a cool dude.
