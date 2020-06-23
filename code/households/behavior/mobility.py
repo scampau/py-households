@@ -15,7 +15,7 @@ from households.identity import *
 
 print('importing mobility')
 
-class MobilityRule(behavior.main.Rule):
+class MobilityRule(behavior.Rule):
     """Define how and why people leave a household or a house.
     
     Mobility rules consist of a context for mobility, a way to identify
@@ -38,7 +38,7 @@ class MobilityRule(behavior.main.Rule):
     def __init__(self, check_household, who_leaves_house, destination):
         #make sure all are callable and take the right number of arguments
         for r, n in zip([check_household, who_leaves_house, destination],[1,1,2]):
-            if self.__verify_rule__(r,[n]) == True:
+            if self.__verify_callable__(r,[n]) == True:
                 pass
             else:
                 raise ValueError('wrong number of arguments for '+str(r.__name__))

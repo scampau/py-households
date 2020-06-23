@@ -19,7 +19,7 @@ from households.identity import *
 print('importing marriage')
 #import kinship as kn
 
-class MarriageRule(behavior.main.Rule):
+class MarriageRule(behavior.Rule):
     """Define marriage rules for individuals.
     
     The process of getting married involves:
@@ -61,8 +61,8 @@ class MarriageRule(behavior.main.Rule):
         Whether a Person is allowed to remarry and at what ages. 
     """
     def __init__(self, eligibility_agetable,get_eligible,pick_spouse,locality,remarriage_agetable):
-        for f, a in zip([get_eligible,pick_spouse,locality],[[1],[1],[2]]):
-            if self.__verify_rule__(f,a) == True:
+        for f, a in zip([get_eligible,pick_spouse,locality],[1,1,2]):
+            if self.__verify_callable__(f,a) == True:
                 pass
             else:
                 raise ValueError('wrong number of arguments for '+str(f.__name__))

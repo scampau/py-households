@@ -22,7 +22,7 @@ print('importing inheritance')
 #import kinship as kn
 
 #Create a class that encompasses proper behavior for an inheritance rule
-class InheritanceRule(behavior.main.Rule):
+class InheritanceRule(behavior.Rule):
     """Define inheritance of property after death.
     
     Inheritance is carried out upon the death of an individual by that
@@ -59,7 +59,7 @@ class InheritanceRule(behavior.main.Rule):
     def __init__(self,has_property,rule,failure):
         #make sure all are callable and take the right number of arguments
         for r in [has_property,rule,failure]:
-            if self.__verify_rule__(r,[1]) == True:
+            if self.__verify_callable__(r,1) == True:
                 pass
             else:
                 raise ValueError('wrong number of arguments for '+str(r.__name__))
@@ -263,8 +263,8 @@ class InheritanceRuleComplex(InheritanceRule):
     
     def __init__(self,has_property,find_heirs,limit_heirs,distribute_property,failure):
         #make sure rule is callable
-        for rule, argnum in zip([has_property,find_heirs,limit_heirs,distribute_property,failure],[[1],[1],[1],[2],[1]]):
-            if self.__verify_rule__(rule,argnum) == True:
+        for rule, argnum in zip([has_property,find_heirs,limit_heirs,distribute_property,failure],[1,1,1,2,1]):
+            if self.__verify_callable__(rule,argnum) == True:
                 pass
             else:
                 raise ValueError('wrong number of arguments for '+str(rule.__name__))
