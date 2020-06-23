@@ -22,7 +22,7 @@ print('importing inheritance')
 #import kinship as kn
 
 #Create a class that encompasses proper behavior for an inheritance rule
-class InheritanceRule(object):
+class InheritanceRule(behavior.main.Rule):
     """Define inheritance of property after death.
     
     Inheritance is carried out upon the death of an individual by that
@@ -100,42 +100,6 @@ class InheritanceRule(object):
                         raise ValueError('Something has gone horribly wrong')
             else:
                 raise TypeError('returned result of rule is not bool')
-    
-    def __verify_rule__(self,rule,argnum = [1]):
-        """Check that rule is callable and has only one non-default argument.
-        
-        Parameters
-        ---------
-        rule : callable
-            A rule to check that it is callable and has the right number of arguments
-        argnum : list of int
-            A list of acceptable integer values for arguments passed to rule
-            
-        Returns
-        ------
-        bool
-            True if properly formatted, False if not + raises an error
-        """
-        if callable(rule) == True:
-            #Now count non-default arguments, must be 0 or 1
-            sig = inspect.signature(rule)
-            if sum([y.default == inspect._empty for y in sig.parameters.values()]) in argnum:
-                return True
-            else:
-                raise ValueError(rule.__name__ + ' has the wrong number of non-default arguments')
-                return False
-        else:
-            raise TypeError('rule is not callable')
-            return False
-        
-    def __verify_person__(self,person):
-        """Check that person is a Person
-        """
-        if isinstance(person,main.Person) == False:
-            raise TypeError('person not an instance of Person')
-            return False
-        else:
-            return True
 
 #This can be used with some simple rules, like inherit_sons or inherit_brothers_sons
 ## Each of these checks a subset of individuals and returns a bool of whether one of them
