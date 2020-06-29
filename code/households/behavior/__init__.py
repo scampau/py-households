@@ -11,8 +11,11 @@ __all__ = ['inheritance','marriage','mobility','conception','transmission']
 
 print('importing behavior')
 
+from .main import Rule
 from . import inheritance
 from . import marriage
 from . import mobility
 from . import conception
 from . import transmission
+
+#from households import main

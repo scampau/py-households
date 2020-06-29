@@ -216,7 +216,7 @@ class Community(object):
         Total housing Capacity
     """
     
-    def __init__(self,world,name,pop,area,startage,mortab,birthtab,marriagerule,inheritancerule,mobilityrule):
+    def __init__(self,world,name,pop,area,startage,mortab,birthtab,marriagerule,inheritancerule,mobilityrule, birthrule):
 
         self.name = name
         self.has_world = world
@@ -242,14 +242,15 @@ class Community(object):
             raise TypeError('inheritance was not behavior.inheritance.InheritanceRule')
         if isinstance(mobilityrule,behavior.mobility.MobilityRule) == False:
             raise TypeError('mobilityrule was not behavior.inheritance.MobilityRule')
-
+        if isinstance(birthrule,behavior.conception.BirthRule) == False:
+            raise TypeError('birthrule was not behavior.conception.BirthRule')
         
         # Generate the population
         self.population = pop #The number of individuals to start in the community
         # populate the community
         self.people = []
         for i in range(pop):
-            self.people.append(Person(rd.choice([male,female]),startage,self,None,marriagerule,inheritancerule,mobilityrule)) #Generate a new person with age startage
+            self.people.append(Person(rd.choice([male,female]),startage,self,None,marriagerule,inheritancerule, mobilityrule, birthrule)) #Generate a new person with age startage
             #NB: currently a 50-50 sex ratio, should be customisable. Consider for expansion. 
         self.thedead = [] #store the list of dead Persons
         
@@ -319,7 +320,7 @@ class Person(object):
     """
     
     #Note: remarriage needs to be added as an option
-    def __init__(self, sex, age, has_community, has_house, marriagerule, inheritancerule, mobilityrule):
+    def __init__(self, sex, age, has_community, has_house, marriagerule, inheritancerule, mobilityrule, birthrule):
         self.sex = sex
         if sex == male:
             self.name = rd.choice(narrative.male_names)
@@ -331,6 +332,7 @@ class Person(object):
         self.marriagerule = marriagerule
         self.inheritancerule = inheritancerule
         self.mobilityrule = mobilityrule
+        self.birthrule = birthrule
         
         self.lifestatus = alive
         self.marriagestatus = ineligible #Variable to store marriage status
@@ -356,14 +358,18 @@ class Person(object):
         if r <= rd.random(): #stay alive
             self.age += 1
         else: #if this person died this year, toggle them to be removed from the community
-            self.lifestatus = dead
-            self.diary.add_event(narrative.DeathEvent)
-            if self.marriagestatus == married:
-                self.has_spouse.marriagestatus = widowed
-            self.inheritancerule(self)
-            if self.has_house is not None:
-                self.has_house.remove_person(self)
-            self.has_community.thedead.append(self.has_community.people.remove(self))
+            self.__dies__()
+    
+    def __dies__(self):
+        """Actually does the work of dying."""
+        self.lifestatus = dead
+        self.diary.add_event(narrative.DeathEvent)
+        if self.marriagestatus == married:
+            self.has_spouse.marriagestatus = widowed
+        self.inheritancerule(self)
+        if self.has_house is not None:
+            self.has_house.remove_person(self)
+        self.has_community.thedead.append(self.has_community.people.remove(self))
 
     def marriage(self):
         """Check whether this person gets married this timestep.
@@ -397,17 +403,21 @@ class Person(object):
         whether a married woman gives birth this year. If so, this method creates that 
         child in the same house.        
         """
-        if self.sex == female and [self.has_spouse.lifestatus if self.marriagestatus == married else dead][0] == alive: #If married, husband is alive, and self is a woman
-            b = self.has_community.birthtab.get_rate(self.sex,self.age)
-            if rd.random() < b: # if giving birth
-                # Create a new child with age 0
-                child = Person(rd.choice([male,female]),0,self.has_community,self.has_house,self.marriagerule,self.inheritancerule, self.mobilityrule) #currently maternal transmission of inheritance rules
-                child.has_parents = [self,self.has_spouse]
-                self.has_children.append(child)
-                self.has_spouse.has_children.append(child)
-                self.has_community.people.append(child) #add to the community
-                self.has_house.add_person(child)
-                self.diary.add_event(narrative.BirthEvent,child)
+        self.birthrule(self)
+                
+    def __gives_birth__(self, sex, father):
+        """Actually create a new person. Returns the child"""
+        child = Person(sex,0,self.has_community,self.has_house,self.marriagerule,self.inheritancerule, self.mobilityrule, self.birthrule) #currently maternal transmission of inheritance rules
+        if father != None:
+            child.has_parents = [self,father]
+            father.has_children.append(child)
+        else:
+            child.has_parents = [self]
+        self.has_children.append(child)
+        self.has_community.people.append(child) #add to the community
+        self.has_house.add_person(child)
+        self.diary.add_event(narrative.BirthEvent,child)
+        return child
     
     def leave_home(self):
         """Determine whether this person leaves home through household mobility/fission/migration.

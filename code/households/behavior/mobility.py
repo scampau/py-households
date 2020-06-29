@@ -15,7 +15,7 @@ from households.identity import *
 
 print('importing mobility')
 
-class MobilityRule(object):
+class MobilityRule(behavior.Rule):
     """Define how and why people leave a household or a house.
     
     Mobility rules consist of a context for mobility, a way to identify
@@ -38,7 +38,7 @@ class MobilityRule(object):
     def __init__(self, check_household, who_leaves_house, destination):
         #make sure all are callable and take the right number of arguments
         for r, n in zip([check_household, who_leaves_house, destination],[1,1,2]):
-            if self.__verify_rule__(r,[n]) == True:
+            if self.__verify_callable__(r,[n]) == True:
                 pass
             else:
                 raise ValueError('wrong number of arguments for '+str(r.__name__))
@@ -81,49 +81,7 @@ class MobilityRule(object):
                 return True
         else:
             return False
-    
-    def __verify_rule__(self,rule,argnum = [1]):
-        """Check that rule is callable and has only one non-default argument.
-        
-        Parameters
-        ----------
-        rule : callable
-            A rule to check that it is callable and has the right number of arguments
-        argnum : list of int
-            A list of acceptable integer values for arguments passed to rule
-            
-        Returns
-        -------
-        bool
-            True if properly formatted, False if not + raises an error
-        """
-        if callable(rule) == True:
-            #Now count non-default arguments, must be 0 or 1
-            sig = inspect.signature(rule)
-            if sum([y.default == inspect._empty for y in sig.parameters.values()]) in argnum:
-                return True
-            else:
-                raise ValueError(rule.__name__ + ' has the wrong number of non-default arguments')
-                return False
-        else:
-            raise TypeError('rule is not callable')
-            return False
-    
-    def __verify_house__(self,house):
-        """Check that house is a House."""
-        if isinstance(house,main.House) == False:
-            raise TypeError('house not an instance of House')
-            return False
-        else:
-            return True
-    
-    def __verify_person__(self,person):
-        """Check that person is a Person."""
-        if isinstance(person,main.Person) == False:
-            raise TypeError('person not an instance of Person')
-            return False
-        else:
-            return True
+
 
 class MobilityRuleMultiple(MobilityRule):
     """Chain multiple MobilityRules together; carried out in order.
