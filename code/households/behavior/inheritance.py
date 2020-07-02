@@ -136,15 +136,15 @@ def simple_inherit_sons(person,checkowner=True):
         if len(select) != 0:
             select.sort(reverse=True,key=lambda x:x.age)
             for son in select:
-                # If the son is not a house owner OR we don't care
-                if son.has_house.owner != son or checkowner == False :
+                # If the son is an owner of the house he lives in OR we don't care
+                if son not in son.has_house.get_owners() or checkowner == False :
                     #This works because if you inherit a house, you move into it
                     heir = son
                     #If the son lives in a different house, move his household
                     behavior.mobility.move_household_to_new_house(heir,person.has_house)
-                    for h in person.has_community.houses:
-                        if h.owner == person:
-                            h.owner = heir
+                    for h in person.has_community.has_world.houses:
+                        if person in h.get_owners():
+                            h.change_owner(person,heir)
                     return True
                 else:
                     pass #Try the next one
@@ -183,16 +183,16 @@ def simple_inherit_brothers_sons(person,checkowner=True):
                     #If the brother has children, check for the alive male children
                     select = [x for x in children if x.sex == male and x.lifestatus == alive]
                     if checkowner == True:
-                        select = [x for x in select if x.has_house.owner != x]
+                        select = [x for x in select if x not in x.has_house.get_owners()]
                     if len(select) > 1:
                         # If there is more than one alive male child, then take 
                         ## the second oldest (first must stay for brother's inheritance)
                         select.sort(reverse=True,key=lambda x:x.age)
                         heir = select[1]
                         behavior.mobility.move_family_to_new_house(heir,person.has_house)
-                        for h in person.has_community.houses:
-                            if h.owner == person:
-                                h.owner = heir
+                        for h in person.has_community.has_world.houses:
+                            if person in h.get_owners():
+                                h.change_owner(person, heir)
                         return True
                     #Otherwise, not enough children
                 # Otherwise, no children
@@ -334,8 +334,8 @@ def has_property_houses(person):
         Who to check for property
     """
     if isinstance(person,main.Person):
-        for h in person.has_community.houses:
-            if h.owner == person:
+        for h in person.has_community.has_world.houses:
+            if person in h.get_owners():
                 return True
         return False
     else:
@@ -759,8 +759,8 @@ def distribute_property_to_first_heir_and_move_household(person,heirs):
     #Now that the heir has been identified, transfer any property to their name
     transfer_happened = False
     for h in person.has_community.has_world.houses:
-        if h.owner == person:
-            h.owner = heir
+        if person in h.get_owners():
+            h.change_owner(person, heir)
             #old_house = heir.has_house
             behavior.mobility.move_household_to_new_house(heir,h)
             transfer_happened = True
@@ -775,16 +775,16 @@ def failed_inheritance_no_owner(person):
     person : Person
         The person whose property must be changed to none
     
-    Returns:
-    --------
+    Returns
+    -------
     bool
         Successful?
     """
     if isinstance(person,main.Person) == False:
         raise TypeError('person not a Person')
     transfer_happened = False
-    for h in person.has_community.houses:
-        if h.owner == person:
-            h.owner = None
+    for h in person.has_community.has_world.houses:
+        if person in h.get_owners():
+            h.remove_share(person)
             transfer_happened = True
     return transfer_happened

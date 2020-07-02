@@ -234,7 +234,7 @@ def get_empty_house(houses):
     None or House
         Picks an empty house if one exists, otherwise returns None.
     """
-    possible_houses = [h for h in houses if len(h.people) == 0 and h.owner == None]
+    possible_houses = [h for h in houses if len(h.people) == 0 and h.get_owners() == []]
     if len(possible_houses) == 0:
         ## if no houses available
         return None
@@ -332,5 +332,5 @@ def locality_neolocality(husband,wife,primary):
         behavior.mobility.move_person_to_new_house(husband, new_house)
         behavior.mobility.move_person_to_new_house(wife, new_house)
         # make whoever is of the primary sex the owner
-        new_house.owner = owner
+        new_house.add_share(owner, 1)
         return True

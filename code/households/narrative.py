@@ -404,10 +404,10 @@ def census(house):
         text = 'a %s household with %i person residing' % details
     else:
         text = 'a %s household with %i people residing' % details
-    if house.owner == None:
+    if house.get_owners() == []:
         text += ' with no owner'
     else:
-        text += ' owned by ' + house.owner.name
+        text += ' owned by ' + ', '.join(['{0} ({1} shares)'.format(x[0].name,x[1]) for x in house.get_shares()])
     return text
 
 def read_diary(diary):

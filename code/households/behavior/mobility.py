@@ -75,7 +75,7 @@ class MobilityRule(behavior.Rule):
                 #mobility happens, so identify destination
                 house = person.has_house
                 goto = self.__destination(house, who_leaves)
-                goto.owner = person #set the person as teh owner of the house
+                goto.add_share(person, 1) #set the person as teh owner of the house
                 for p in who_leaves:
                     move_person_to_new_house(p,goto)
                 return True
@@ -158,9 +158,9 @@ def check_household_younger_brothers_disinherited(person,age_of_majority):
         house = person.has_house
         if house == None:
             return False #This person doesn't live in a house right now
-        #If not the owner but a brother is and this person is eligible to 
+        #If not an owner but a brother is and this person is eligible to 
         ##marry/own property/is above the age of majority:
-        if house.owner != person and house.owner in kinship.get_siblings(house.owner) and person.age >= age_of_majority and person.sex == male:
+        if (person not in house.get_owners()) and any([k in house.get_owners() for k in kinship.get_siblings(person)]) and person.age >= age_of_majority and person.sex == male:
             return True
         else:
             return False
@@ -218,7 +218,7 @@ def who_leaves_house_young_adult_brothers(person, age):
             return [] #This person doesn't live in a house right now
         #If not the owner but a brother is and this person is eligible to 
         ##marry/own property/is above the age of majority:
-        if house.owner != person and house.owner in kinship.get_siblings(house.owner) and person.age >= age and person.sex == male:
+        if (person not in house.get_owners()) and any([k in house.get_owners() for k in kinship.get_siblings(person)]) and person.age >= age_of_majority and person.sex == male:
             who_leaves = kinship.get_family(person)
             #only move coresidential
             who_leaves = [p for p in who_leaves if p not in house.people]
@@ -289,7 +289,7 @@ def destination_random_house_same_village(house, who_leaves):
 
     """
     houses = who_leaves[0].has_community.houses
-    possible_houses = [h for h in houses if len(h.people) == 0 and h.owner == None]
+    possible_houses = [h for h in houses if len(h.people) == 0 and h.get_owners() == []]
     if len(possible_houses) == 0:
         ## if no houses available
         return None
