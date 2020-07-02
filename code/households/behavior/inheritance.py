@@ -55,7 +55,7 @@ class InheritanceRule(behavior.Rule):
     failure : callable
         If inheritance fails, define what to do. Takes a Person, returns bool.
     """
-    
+    #rule needs to be changed to a different variabule name (not an instance of Rule)
     def __init__(self,has_property,rule,failure):
         #make sure all are callable and take the right number of arguments
         for r in [has_property,rule,failure]:
@@ -570,10 +570,12 @@ def find_heirs_multiple_constructor(*args):
             elif isinstance(heirs,main.Person):
                 #Person, so add double brackets and then add
                 output += [[heirs]]
+            elif all([x == [] for x in heirs]):
+                pass
             elif type(heirs) == list and isinstance(heirs[0],main.Person):
                 #list of Persons, add brackets then 
                 output += [heirs]
-            elif type(heirs) == list and type(heirs[0]) == list and isinstance(heirs[0][0],main.Person):
+            elif type(heirs) == list and type(heirs[0]) == list and any([isinstance(y,main.Person) for x in heirs for y in x]):
                 #list of lists of person, just add
                 output += heirs
             else:
@@ -621,7 +623,7 @@ def limit_heirs_not_owners(heirs):
                 new_heirs.append(p)
     elif type(heirs[0]) == list:
         #This is a list of lists of people, so go through each and assess
-        if isinstance(heirs[0][0],main.Person) == False:
+        if any([isinstance(y,main.Person) for x in heirs for y in x]) == False:
             raise TypeError('heirs neither list of Persons or list of lists of Person')
         for l in heirs:
             new_sublist = []
@@ -663,7 +665,7 @@ def limit_heirs_by_age(heirs,age_of_majority):
             else:
                 new_heirs.append(p)
     elif type(heirs[0]) == list:
-        if isinstance(heirs[0][0],main.Person) == False:
+        if any([isinstance(y,main.Person) for x in heirs for y in x]) == False:
             raise TypeError('heirs neither list of Persons or list of lists of Person')
         #This is a list of lists of people, so go through each and assess
         for l in heirs:
