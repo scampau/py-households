@@ -456,8 +456,8 @@ class House(object):
         The Community in which this house was built.
     people : list of Person
         List of the people who reside in the house.
-    owner : Person
-        The person who owns this house. Assumes single or primary ownership.
+    ownershares : dict of main.Person and float
+        The people who own this house, along with their shares.
     address : str
         The name of the house, to make individuality clearer in narrative.
     """
@@ -469,7 +469,7 @@ class House(object):
         self.rooms = 1
         self.has_community = has_community
         self.people = []
-        self.owner = None #pointer to the person who owns the house
+        self.ownershares = {} #pointer to the person who owns the house
         self.address = str(rd.randrange(1,101,2)) + ' ' + rd.choice(narrative.address_names) 
         self.diary = Diary(self)
         self.has_community.has_world.add_diary(self.diary)
@@ -497,6 +497,89 @@ class House(object):
         self.people.remove(toberemoved)
         toberemoved.diary.add_event(narrative.LeaveHouseEvent)
         toberemoved.has_house = None
+        
+    def change_owner(self,personold,persons):
+        """Swap an old owner for a new owner or owners while maintaining the shares.
+        
+        
+        """
+        if personold not in self.get_owners():
+            raise ValueError("personold not an owner")
+        if isinstance(persons,Person):
+            persons = [persons]
+        elif type(persons) == list and all([isinstance(x,Person) for x in persons]):
+            pass
+        else:
+            raise TypeError("persons neither Person nor list of Person")
+        share = self.get_share(personold)*1./len(persons)
+        self.remove_share(personold)
+        for p in persons:
+            self.add_share(p,share)
+        
+    def add_share(self,persons,share):
+        """Add a person and their share as owner. If already an owner, increase share."""
+        if isinstance(persons,Person):
+            persons = [persons]
+        elif type(persons) == list and all([isinstance(x,Person) for x in persons]):
+            pass
+        else:
+            raise TypeError("persons neither Person nor list of Person")
+        for p in persons:
+            if p in self.get_owners():
+                self.ownershares[p] += share
+            else:
+                self.ownershares[p] = share
+            
+    def remove_share(self,persons,share=None):
+        """Remove a share from a person; if all or negative, remove the person as an owner.
+        
+        Parameters
+        ----------
+        persons : Person or list of Person
+            The people to have their share removed or decreased
+        share : numeric or None
+            Amoutn of share to remove. If greater than current share, removed as owner.
+            If none, removed as owner.
+        """
+        if isinstance(persons,Person):
+            persons = [persons]
+        elif type(persons) == list and all([isinstance(x,Person) for x in persons]):
+            pass
+        else:
+            raise TypeError("persons neither Person nor list of Person")
+        for p in persons:
+            if p in self.get_owners():
+                if share == None or share >= self.get_share(p):
+                    #remove this person entirely
+                    self.ownershares.pop(p)
+                else:
+                    #onyl reduce their share
+                    self.ownershares[p] -= share
+            else:
+                return ValueError("person not an owner")
+
+        
+    def get_owners(self):
+        """Return a list of all owners for this house."""
+        return [x[0] for x in self.get_shares()]
+        
+    def get_shares(self):
+        """Return the different shares owners possess."""
+        l = list(self.ownershares.items())
+        l.sort(key = lambda x: x[1], reverse = True) #sort largest to smallest
+        return l
+    
+    def get_share(self, person):
+        """Return the share a current owner possesses
+        
+        Parameters
+        ----------
+        person : Person
+            The person to return their share
+        """
+        if person not in self.get_owners():
+            raise ValueError("person not an owner")
+        return self.ownershares[person]
         
 
 class AgeTable(object):
