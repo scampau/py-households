@@ -114,7 +114,12 @@ class World(object):
         diary : narrative.Diary
             Diary to be added to the library
         """
-        self.library[type(diary.associated).__name__].append(diary)
+        if isinstance(diary.associated,Person):
+            self.library['Person'].append(diary)
+        elif isinstance(diary.associated,House):
+            self.library['House'].append(diary)
+        else:
+            raise TypeError('diary associated neither with Person or House or subclasses thereof')
             
     def progress(self):
         """Progress the world 1 time-step (year).
@@ -215,7 +220,7 @@ class Person(object):
     """
     
     #Note: remarriage needs to be added as an option
-    def __init__(self, sex, age, has_community, has_house, marriagerule, inheritancerule, mobilityrule, birthrule):
+    def __init__(self, sex, age, has_community, has_house, marriagerule, inheritancerule, mobilityrule, birthrule, mother = None, father = None):
         self.sex = sex
         if sex == male:
             self.name = rd.choice(narrative.male_names)
@@ -233,6 +238,10 @@ class Person(object):
         self.marriagestatus = ineligible #Variable to store marriage status
         self.has_spouse = None #The individual to whom this individual is married
         self.has_parents = []
+        if mother != None:
+            self.has_parents.append(mother)
+        if father != None:
+            self.has_parents.append(father)
         self.has_children = []
         
         self.birthyear = self.has_community.has_world.year - age
@@ -302,13 +311,10 @@ class Person(object):
                 
     def __gives_birth__(self, sex, father):
         """Actually create a new person. Returns the child"""
-        child = self.__class__(sex,0,self.has_community,self.has_house,self.marriagerule,self.inheritancerule, self.mobilityrule, self.birthrule) #currently maternal transmission of inheritance rules
-        if father != None:
-            child.has_parents = [self,father]
-            father.has_children.append(child)
-        else:
-            child.has_parents = [self]
+        child = self.__class__(sex,0,self.has_community,self.has_house,self.marriagerule,self.inheritancerule, self.mobilityrule, self.birthrule, self, father) #currently maternal transmission of inheritance rules
         self.has_children.append(child)
+        if father != None:
+            father.has_children.append(child)
         self.has_community.people.append(child) #add to the community
         self.has_house.add_person(child)
         self.diary.add_event(narrative.BirthEvent,child)
