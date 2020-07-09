@@ -114,7 +114,12 @@ class World(object):
         diary : narrative.Diary
             Diary to be added to the library
         """
-        self.library[type(diary.associated).__name__].append(diary)
+        if isinstance(diary.associated,Person):
+            self.library['Person'].append(diary)
+        elif isinstance(diary.associated,House):
+            self.library['House'].append(diary)
+        else:
+            raise TypeError('diary associated neither with Person or House or subclasses thereof')
             
     def progress(self):
         """Progress the world 1 time-step (year).
@@ -157,112 +162,7 @@ class World(object):
         for c in self.communities:
             c.update_stats()
             
-    
-
-class Community(object):
-    """Communities are collections of Persons living in Houses.
-    
-    Community is the coresidential living group of Persons who reside in Houses. 
-
-    
-    Parameters
-    ----------
-    world : World
-        The world in which this community will exist
-    name : str
-        The name of the community
-    pop : int
-        The initial population of the simulation.
-    area : int
-        The number of houses in the community
-    startage : int
-        The age at which all persons in the simulation start. Corrected for by burn-in.
-    mortab : AgeTable
-        An AgeTable storing a Coale and Demeny-style mortality schedule for all people. 
-    birthtab : AgeTable
-        AgeTable storing probability of giving birth once married by sex (0 for men)
-    marriagerule : behavior.marriage.MarriageRule
-        This defines how spouses are found and where newlyweds move from behavior.marriage
-    inheritancerule : behavior.inheritance.InheritanceRule
-        This defines the inheritance rule executed when a Person dies from behavior.inheritance.
-    mobilityrule : behavior.mobility.MobilityRule
-        This defines the circumstances of mobility from households from behavior.mobility, or a custom function
-        
-        
-    Attributes
-    ----------
-    name : str
-        The name of the community
-    has_world : World
-        The World this Community is a part of.
-      
-    houses : list of Houses
-        The houses of the community.
-    people : list of Persons
-        The people who currently live in the community.
-    thedead : list of Person
-        List of all dead persons, still required for genealogy. 
-    
-    mortab : AgeTable
-        An AgeTable storing a mortality schedule for the community.
-    birthtab : AgeTable
-        An AgeTable storing probability of giving birth once married (0 for men)
-        
-    population : int
-        The current population of the community.
-    area : int
-        Number of houses in the community.
-    housingcapacity : int
-        Total housing Capacity
-    """
-    
-    def __init__(self,world,name,pop,area,startage,mortab,birthtab,marriagerule,inheritancerule,mobilityrule, birthrule):
-
-        self.name = name
-        self.has_world = world
-        self.has_world.add_community(self)
-        
-        # Create the houses
-        self.area = area #The number of houses to create
-        self.houses = []
-        for i in range(area):
-            self.houses.append(House(10,self)) #Create each house with a maximum number of people who can reside there
-        self.housingcapacity = sum([i.maxpeople for i in self.houses])    
-        
-        #Define dynamics of demography
-        if isinstance(mortab,AgeTable) == False:
-            raise TypeError('mortab not of type AgeTable')
-        self.mortab = mortab # the death table for the community
-        if isinstance(birthtab,AgeTable) == False:
-            raise TypeError('mortab not of type AgeTable')
-        self.birthtab = birthtab #the probability of a woman giving birth at a given age if married
-        if isinstance(marriagerule,behavior.marriage.MarriageRule) == False:
-            raise TypeError('marriagerule not of type behavior.marriage.MarriageRule')
-        if isinstance(inheritancerule,behavior.inheritance.InheritanceRule) == False:
-            raise TypeError('inheritance was not behavior.inheritance.InheritanceRule')
-        if isinstance(mobilityrule,behavior.mobility.MobilityRule) == False:
-            raise TypeError('mobilityrule was not behavior.inheritance.MobilityRule')
-        if isinstance(birthrule,behavior.conception.BirthRule) == False:
-            raise TypeError('birthrule was not behavior.conception.BirthRule')
-        
-        # Generate the population
-        self.population = pop #The number of individuals to start in the community
-        # populate the community
-        self.people = []
-        for i in range(pop):
-            self.people.append(Person(rd.choice([male,female]),startage,self,None,marriagerule,inheritancerule, mobilityrule, birthrule)) #Generate a new person with age startage
-            #NB: currently a 50-50 sex ratio, should be customisable. Consider for expansion. 
-        self.thedead = [] #store the list of dead Persons
-        
-    def update_stats(self):
-        """Update the statistics for the community at the end of each year.
-        """
-        self.population = len(self.people)
-        self.area = len(self.houses)
-        self.housingcapacity = sum([i.maxpeople for i in self.houses])
-        
-
-
+   
 class Person(object):
     """A representation of a human with a social structure and kinship.
     
@@ -320,7 +220,7 @@ class Person(object):
     """
     
     #Note: remarriage needs to be added as an option
-    def __init__(self, sex, age, has_community, has_house, marriagerule, inheritancerule, mobilityrule, birthrule):
+    def __init__(self, sex, age, has_community, has_house, marriagerule, inheritancerule, mobilityrule, birthrule, mother = None, father = None):
         self.sex = sex
         if sex == male:
             self.name = rd.choice(narrative.male_names)
@@ -338,6 +238,10 @@ class Person(object):
         self.marriagestatus = ineligible #Variable to store marriage status
         self.has_spouse = None #The individual to whom this individual is married
         self.has_parents = []
+        if mother != None:
+            self.has_parents.append(mother)
+        if father != None:
+            self.has_parents.append(father)
         self.has_children = []
         
         self.birthyear = self.has_community.has_world.year - age
@@ -407,13 +311,10 @@ class Person(object):
                 
     def __gives_birth__(self, sex, father):
         """Actually create a new person. Returns the child"""
-        child = Person(sex,0,self.has_community,self.has_house,self.marriagerule,self.inheritancerule, self.mobilityrule, self.birthrule) #currently maternal transmission of inheritance rules
-        if father != None:
-            child.has_parents = [self,father]
-            father.has_children.append(child)
-        else:
-            child.has_parents = [self]
+        child = self.__class__(sex,0,self.has_community,self.has_house,self.marriagerule,self.inheritancerule, self.mobilityrule, self.birthrule, self, father) #currently maternal transmission of inheritance rules
         self.has_children.append(child)
+        if father != None:
+            father.has_children.append(child)
         self.has_community.people.append(child) #add to the community
         self.has_house.add_person(child)
         self.diary.add_event(narrative.BirthEvent,child)
@@ -427,10 +328,116 @@ class Person(object):
         """
         result = self.mobilityrule(self)
         return result
+ 
+
+class Community(object):
+    """Communities are collections of Persons living in Houses.
+    
+    Community is the coresidential living group of Persons who reside in Houses. 
 
     
-                
+    Parameters
+    ----------
+    world : World
+        The world in which this community will exist
+    name : str
+        The name of the community
+    pop : int
+        The initial population of the simulation.
+    area : int
+        The number of houses in the community
+    startage : int
+        The age at which all persons in the simulation start. Corrected for by burn-in.
+    mortab : AgeTable
+        An AgeTable storing a Coale and Demeny-style mortality schedule for all people. 
+    birthtab : AgeTable
+        AgeTable storing probability of giving birth once married by sex (0 for men)
+    marriagerule : behavior.marriage.MarriageRule
+        This defines how spouses are found and where newlyweds move from behavior.marriage
+    inheritancerule : behavior.inheritance.InheritanceRule
+        This defines the inheritance rule executed when a Person dies from behavior.inheritance.
+    mobilityrule : behavior.mobility.MobilityRule
+        This defines the circumstances of mobility from households from behavior.mobility, or a custom function
+    inhabitants : main.Person or subclass
+        The class to be used in populating the community. Default main.Person
+        
+    Attributes
+    ----------
+    name : str
+        The name of the community
+    has_world : World
+        The World this Community is a part of.
+      
+    houses : list of Houses
+        The houses of the community.
+    people : list of Persons
+        The people who currently live in the community.
+    thedead : list of Person
+        List of all dead persons, still required for genealogy. 
+    
+    mortab : AgeTable
+        An AgeTable storing a mortality schedule for the community.
+    birthtab : AgeTable
+        An AgeTable storing probability of giving birth once married (0 for men)
+        
+    population : int
+        The current population of the community.
+    area : int
+        Number of houses in the community.
+    housingcapacity : int
+        Total housing Capacity
+    """
+    
+    def __init__(self,world,name,pop,area,startage,mortab,birthtab,marriagerule,inheritancerule,mobilityrule, birthrule, inhabitants = Person):
 
+        self.name = name
+        self.has_world = world
+        self.has_world.add_community(self)
+        
+        # Create the houses
+        self.area = area #The number of houses to create
+        self.houses = []
+        for i in range(area):
+            self.houses.append(House(10,self)) #Create each house with a maximum number of people who can reside there
+        self.housingcapacity = sum([i.maxpeople for i in self.houses])    
+        
+        #Define dynamics of demography
+        if isinstance(mortab,AgeTable) == False:
+            raise TypeError('mortab not of type AgeTable')
+        self.mortab = mortab # the death table for the community
+        if isinstance(birthtab,AgeTable) == False:
+            raise TypeError('mortab not of type AgeTable')
+        self.birthtab = birthtab #the probability of a woman giving birth at a given age if married
+        if isinstance(marriagerule,behavior.marriage.MarriageRule) == False:
+            raise TypeError('marriagerule not of type behavior.marriage.MarriageRule')
+        if isinstance(inheritancerule,behavior.inheritance.InheritanceRule) == False:
+            raise TypeError('inheritance was not behavior.inheritance.InheritanceRule')
+        if isinstance(mobilityrule,behavior.mobility.MobilityRule) == False:
+            raise TypeError('mobilityrule was not behavior.inheritance.MobilityRule')
+        if isinstance(birthrule,behavior.conception.BirthRule) == False:
+            raise TypeError('birthrule was not behavior.conception.BirthRule')
+        
+        # Generate the population
+        if issubclass(inhabitants, Person) == False:
+            raise TypeError('inhabitants neither Person class nor subclass')
+        self.population = pop #The number of individuals to start in the community
+        # populate the community
+        self.people = []
+        for i in range(pop):
+            self.people.append(inhabitants(rd.choice([male,female]),startage,self,None,marriagerule,inheritancerule, mobilityrule, birthrule)) #Generate a new person with age startage
+            #NB: currently a 50-50 sex ratio, should be customisable. Consider for expansion. 
+        self.thedead = [] #store the list of dead Persons
+        
+    def update_stats(self):
+        """Update the statistics for the community at the end of each year.
+        """
+        self.population = len(self.people)
+        self.area = len(self.houses)
+        self.housingcapacity = sum([i.maxpeople for i in self.houses])
+        
+
+
+    
 class House(object):
     """Creates a house in which Persons reside.
     
